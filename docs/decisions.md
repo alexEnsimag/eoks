@@ -26,6 +26,12 @@ This is a lightweight decision record. Detailed ADRs can be split out as impleme
 
 **Reason:** Different questions require different assurance. The control plane should prefer the cheapest reliable provider that can answer the question instead of indiscriminately running every analyzer.
 
+## Resource vocabulary is not the runtime ontology
+
+**Decision:** Keep `Resource`, `Asset`, `Provider`, `Representation` and `Loadout` as vocabulary for describing capabilities, reusable state and eligibility boundaries. Do not promote them to EOKS runtime primitives unless implementation evidence demonstrates that they need stable lifecycle or API semantics.
+
+**Reason:** These terms are useful for discussing heterogeneous systems, but a large resource ontology would add complexity before the first end-to-end control loop establishes which entities must actually persist and interact.
+
 ## Existing agents remain replaceable execution resources
 
 **Decision:** Prefer integrating with existing coding-agent runtimes through adapters, launchers, hooks, MCP or similar boundaries before building a replacement agent runtime.
@@ -43,6 +49,12 @@ This is a lightweight decision record. Detailed ADRs can be split out as impleme
 **Decision:** Keep observability, model uncertainty, evidence strength, context quality and outcome quality as distinguishable signals. Calibrate any derived reliability signal against actual workload outcomes before using it for automatic control.
 
 **Reason:** Traces and self-reported confidence are useful evidence, but neither is ground truth. A control policy needs workload- and decision-specific evidence.
+
+## Learning is a lifecycle, not another agent runtime
+
+**Decision:** Treat learning/reflection as a cross-cutting process that consumes traces and outcomes and proposes versioned knowledge, skills or policies. Do not make a separate autonomous learning plane a required architectural component yet.
+
+**Reason:** Learning currently describes a transformation of evidence into improved resources; real traces should determine whether it needs independent runtime infrastructure.
 
 ## Minimal semantic model first
 
