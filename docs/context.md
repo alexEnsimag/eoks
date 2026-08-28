@@ -2,25 +2,90 @@
 
 Context engineering is the discipline of constructing the information available to a model for a specific reasoning step.
 
+The key distinction is:
+
+> **Knowledge is persistent; context is compiled for a task.**
+
+Context engineering is therefore not a competing layer to knowledge engineering. It is the runtime boundary that selects and assembles the right slice of persistent knowledge and evidence.
+
 ## Context is not storage
 
 A repository, knowledge base, graph or memory store can contain far more information than should enter a model's context. The important operation is the **selection and transformation boundary** between external knowledge and model input.
 
-A particularly important consequence is that a coding agent should not need to reconstruct the full repository context from zero at the start of every session. Durable project knowledge can move stable, high-value facts outside the model context and make them retrievable on demand.
+A useful mental model is:
 
-See [Knowledge base and persistent project knowledge](knowledge-base.md) and [Behavioral memory and learning how developers work](behavioral-memory.md).
+```text
+persistent engineering reality
+          |
+   knowledge representations
+          |
+   task + workflow + strategy
+          |
+   context compilation
+          |
+   minimal sufficient context
+          |
+         model
+```
 
-## Canonical knowledge vs memory
+The model should usually see the **compiled evidence**, not the internal graph, embedding index or storage system itself.
 
-A useful coding-agent environment can have multiple persistence mechanisms with different trust levels:
+## Navigation versus knowledge
 
-- **Canonical project knowledge** — explicit, validated instructions, invariants, architectural constraints and durable decisions. A `CLAUDE.md`-style file is one practical representation.
-- **Semantic memory** — historical material retrieved because it may be relevant to the current task.
-- **Episodic memory** — records of previous experiences, including the situation, approach and outcome.
-- **Procedural/behavioral memory** — generalized ways of working, candidate skills, workflows and policies learned from repeated experience.
-- **Candidate knowledge** — automatically extracted observations, proposed rules, skills or decisions that have not yet been validated.
+A particularly useful distinction is between two goals:
 
-These should not be conflated. A memory retrieval system should not silently become the source of truth, and an automatic session summarizer should not silently rewrite canonical project policy.
+1. **Navigation optimization** — determine where the relevant evidence lives and in what order it should be read.
+2. **Knowledge optimization** — preserve insights that do not otherwise exist in source material, such as rationale, tradeoffs, invariants and lessons learned.
+
+A structural graph or semantic index can often satisfy the first goal by pointing the agent to relevant files, symbols, ADRs or incidents. The agent can then read the authoritative source rather than receiving a duplicated summary.
+
+Synthetic knowledge is different: if a cross-package invariant or debugging discovery exists nowhere else, it needs a durable representation.
+
+## Canonical project knowledge
+
+A practical coding-agent environment can use hierarchical `CLAUDE.md` files as a canonical, human-reviewable representation of local project knowledge:
+
+```text
+/
+  CLAUDE.md
+  api/
+    CLAUDE.md
+  auth/
+    CLAUDE.md
+```
+
+The purpose should be mental-model information rather than a second copy of the code:
+
+- why the package exists;
+- responsibilities and boundaries;
+- invariants and important constraints;
+- entry points and reading order;
+- common pitfalls;
+- links to cross-cutting architecture decisions.
+
+This is especially attractive because the files live beside the code, are versioned with Git and can be reviewed in normal pull requests.
+
+The hierarchy should remain scoped. Repository-wide instruction files should not become encyclopedias. More local guidance is useful when the agent is working in that part of the tree, while unrelated package knowledge should remain out of the context budget.
+
+## Knowledge representations are not context
+
+Graphs, semantic indexes, timelines, ADR collections and runtime stores are **evidence providers**. They should normally be queried by a context compiler rather than dumped into the model context.
+
+For example:
+
+```text
+Task: change authentication
+        |
+        +--> structural query -> affected packages/files
+        +--> semantic query   -> relevant auth concepts
+        +--> history query    -> authentication ADRs/incidents
+        +--> canonical docs   -> api/CLAUDE.md + auth/CLAUDE.md
+        |
+        v
+  task-specific context
+```
+
+This also explains why a graph can be valuable without becoming the canonical knowledge base.
 
 ## Context quality
 
@@ -40,40 +105,40 @@ A useful context-quality model should consider:
 
 The goal is not maximum information. It is maximum useful evidence per unit of context and reasoning cost.
 
+## Static versus dynamic context
+
+Large repository-wide instruction files can create a poor tradeoff: they are always available but may be irrelevant to the current task. EOKS should prefer **progressive disclosure** and task-scoped retrieval.
+
+This does not imply that static documentation is bad. Well-scoped package-level `CLAUDE.md` files can be valuable precisely because they are local, concise and maintained as part of the codebase. The important distinction is between useful local guidance and indiscriminate global context stuffing.
+
 ## Context splitting
 
-Different reasoning steps often need different context. Splitting context can reduce noise and make decisions inspectable: discovery context, design/planning context, implementation context, verification context and historical/project context can be maintained separately.
+Different reasoning steps often need different context. Splitting context can reduce noise and make decisions inspectable: discovery context, design/planning context, implementation context, verification context and historical/project context can be assembled separately.
 
-This connects to the idea of **context entropy**: a large heterogeneous context may contain substantial information while having poor signal-to-noise for the current task.
+A workflow node can therefore request a different context package than another node even for the same task.
 
 ## Progressive disclosure
 
 The system should prefer exposing the minimum sufficient information and retrieving additional detail when evidence shows it is needed. This resembles filesystem/document navigation more than stuffing an entire corpus into a prompt.
 
-Persistent knowledge strengthens progressive disclosure: stable project facts can be retrieved as compact summaries first, with links back to source evidence when deeper inspection is required.
+A useful pattern is:
 
-Behavioral memory adds another dimension: a validated procedure can be retrieved as a compact execution hint, while the underlying episodes and evidence remain available for inspection when confidence is low or applicability is uncertain.
+```text
+compact pointer / summary
+        |
+        +--> authoritative source
+        |
+        +--> related evidence
+```
 
-## Structured representations
-
-Files, Markdown, JSON/YAML, relational data, embeddings and graphs are representations, not ends in themselves. A structure is valuable when it improves retrieval, reasoning, validation or maintenance.
-
-A practical knowledge base does not need to start with a hosted database or graph. A disciplined collection of local files can be a canonical representation if entries have clear semantics, provenance, freshness and lifecycle rules.
-
-## Open problem
-
-We need empirical benchmarks showing when a context intervention improves task success, rather than assuming that more structure or more retrieved tokens are beneficial. In particular, EOKS should measure whether persistent project knowledge reduces redundant repository discovery without increasing errors caused by stale or incorrect memory, and whether learned procedures improve outcomes rather than merely changing agent behavior.
-
-## Coding-agent workflow as a context lifecycle
+## Continuous knowledge lifecycle
 
 Claude Code plugins and hooks expose a useful concrete workflow for studying this problem. An execution workflow can produce decisions, failures, tool traces and review outcomes that become inputs to the knowledge lifecycle.
-
-A useful loop is:
 
 ```text
 session start
     |
-retrieve canonical knowledge + relevant memory + applicable procedures
+retrieve canonical knowledge + relevant evidence + applicable procedure
     |
 work / execute / verify
     |
@@ -81,33 +146,23 @@ session end
     |
 extract candidate facts, episodes, rules, skills and decisions
     |
-compare with prior sessions / outcomes
+validate selectively against source + outcome evidence
     |
-validate + promote selectively
+promote / update / invalidate
     |
-updated knowledge / memory / behavioral policy
+future retrieval and workflow selection
 ```
 
-The important architectural boundary is between **observation**, **candidate extraction**, **validation/promotion**, and **retrieval**. This makes a session-finalizer hook an instance of the general EOKS knowledge lifecycle rather than a special-case Claude Code feature.
+The important architectural boundary is between **observation**, **candidate extraction**, **validation/promotion**, and **retrieval**. A session-finalizer hook is therefore one instance of the general EOKS knowledge lifecycle rather than a special-case memory feature.
 
-## Behavioral learning loop
+## Open problem
 
-For continuous learning, the session itself becomes an evidence source:
+We need empirical benchmarks showing when a context intervention improves task success, rather than assuming that more structure or more retrieved tokens are beneficial. EOKS should measure at least:
 
-```text
-execution
-   |
-trace + artifacts + corrections + outcome
-   |
-background reflection
-   |
-semantic / episodic / procedural candidates
-   |
-validation against evidence and outcomes
-   |
-promoted knowledge or execution policy
-   |
-future context + workflow selection
-```
-
-The system should not automatically generalize every repeated action. Repetition establishes evidence that a behavior occurred; outcome-linked evidence is needed to establish that it is useful. Scope, prerequisites, confidence and counterexamples should travel with a learned procedure.
+- repository-discovery tool calls;
+- time/token cost;
+- task success;
+- regression/error rate;
+- stale-knowledge incidents;
+- usefulness of persistent knowledge;
+- whether a context intervention improves the outcome for a particular model.
