@@ -1,93 +1,234 @@
 # Prior art and adjacent systems
 
-EOKS is a synthesis, not a claim that these ideas are new. Several projects and approaches explored in the surrounding research inform different layers.
+EOKS is a synthesis, not a claim that these ideas are new. Recent research suggests that the ecosystem is converging on several distinct layers: canonical project knowledge, structural/semantic representations, context compilation, workflows, reasoning strategies, memory/learning, and evaluation.
+
+The important EOKS question is not "which tool wins?" but **which layer does a tool implement, what evidence does it produce, and how can that evidence participate in the control loop?**
+
+## A practical scorecard
+
+Scores below are **EOKS-fit scores, not product-quality rankings**. They reflect usefulness for the architecture being explored here, with particular weight on incremental maintenance, provenance, interoperability and practical value for a coding-agent workflow.
+
+| Tool / concept | EOKS role | Fit | Main reason to try | Main caveat |
+|---|---|---:|---|---|
+| Hierarchical `CLAUDE.md` | canonical local knowledge | **9.5/10** | Cheap, human-reviewable, Git-native, naturally scoped | Can become stale/manual if not reviewed |
+| GrapeRoot | context optimization / agent context | **9.5/10** | Directly attacks repeated repository/context work | More runtime-oriented than canonical knowledge |
+| Graphify | structural graph / navigation | **9/10** | Excellent visualization, relationships and queryable structure | Graph is evidence, not complete knowledge |
+| TrueCourse | architecture analysis + spec/behavior guard | **9/10** | Connects deterministic analysis, docs and executable assurance | Not primarily a `CLAUDE.md` generator |
+| Understand Anything | code/domain knowledge graph | **8.5/10** | Interactive graph, guided understanding, impact/change analysis | Full graph generation can itself be expensive; incremental path is still evolving |
+| Hermes | agent learning / reflection | **8.5/10** | Interesting direction for turning experience into reusable capability | Requires careful promotion/governance |
+| Liza | multi-agent execution + auditability | **8/10** | Strong workflow/review/documentation ideas | More execution-focused than knowledge infrastructure |
+| OKF | portable structured knowledge convention | **8/10 conceptually** | Useful interoperability target if richer machine-readable knowledge becomes necessary | Adds a format/lifecycle before it is clear the project needs one |
+| ADHD-style reasoning strategies | reasoning strategy layer | **8/10** | Useful primitive for divergent/convergent or adversarial thinking | The specific "ADHD" framing is less important than the reusable strategy concept |
+| Obsidian | human thinking / research workspace | **8/10** | Good place for cross-cutting architecture/research before promotion to canonical docs | Should not be required at agent runtime |
+| OpenWolf | interaction-derived summaries / context optimization | **8/10** | Demonstrates incremental repository memory around agent interactions | Generated summaries need provenance and validation |
+| CodeSight | repository understanding / context | **7.5/10** | Useful prior art for codebase context | Less central to the current canonical-knowledge approach |
+
+These scores should be treated as experiment priorities, not permanent evaluations.
 
 ## GrapeRoot
 
-GrapeRoot was discussed as a context-aware CLI around Claude. It is relevant to task execution, persistent project context and agent workflows. EOKS asks what happens when those capabilities become explicit platform resources rather than remaining inside one CLI.
+GrapeRoot was discussed as a context-aware CLI around Claude. Its most relevant EOKS role is the **context/execution side**: reduce repeated repository exploration and improve the information supplied to an agent for a task.
+
+It should not be treated as the canonical knowledge base. A useful EOKS composition is:
+
+```text
+canonical knowledge + derived evidence
+                 |
+                 v
+          context compilation
+                 |
+              GrapeRoot-like
+                 |
+               agent
+```
+
+The key evaluation is whether it reduces discovery/tool-call cost without hiding relevant evidence or increasing errors.
+
+## Graphify
+
+Graphify is a particularly strong example of the structural representation discussed in EOKS. Its current implementation uses local Tree-sitter-based parsing for code, produces an interactive `graph.html`, a human-readable `GRAPH_REPORT.md` and a queryable `graph.json`, and distinguishes extracted from inferred relationships. It can also expose the graph through MCP and install guidance/hooks for coding assistants.
+
+Sources: [Graphify GitHub](https://github.com/Graphify-Labs/graphify), [Graphify documentation](https://graphify.com/docs).
+
+This makes it valuable for three separate reasons:
+
+1. **visualization** — a human can see the shape of a codebase;
+2. **navigation/impact analysis** — an agent can query relationships instead of rediscovering them through grep;
+3. **incremental/compiler thinking** — the graph can serve as a dependency representation used to identify affected areas.
+
+Graphify should still not be equated with "the knowledge base". The graph is one representation, especially strong for structural questions.
+
+## Understand Anything
+
+Understand Anything is a strong adjacent system because it combines deterministic parsing with LLM analysis to produce an interactive knowledge graph, including structural and business-domain views, guided tours and change-impact capabilities. It is explicitly positioned for both humans and coding agents.
+
+An important implementation detail is its auto-update hook path: it can detect when the stored graph was built from a different Git commit and prompt an update, while its chat/diff skills are instructed to check graph freshness and read only the graph sections needed.
+
+Sources: [Understand Anything GitHub](https://github.com/Egonex-AI/Understand-Anything), [auto-update hooks](https://github.com/Egonex-AI/Understand-Anything/blob/main/understand-anything-plugin/hooks/hooks.json), [chat skill](https://github.com/Egonex-AI/Understand-Anything/blob/main/understand-anything-plugin/skills/understand-chat/SKILL.md).
+
+This is valuable EOKS prior art for **incremental knowledge representations** and for the principle that agents should query a representation selectively rather than dump the entire graph into context. Its issue tracker also contains an open discussion about incremental updates consuming more tokens than the initial build, which is a useful warning: incremental does not automatically mean cheap.
+
+Source: [Understand Anything issue #611](https://github.com/Egonex-AI/Understand-Anything/issues/611).
+
+## TrueCourse
+
+TrueCourse is best understood as **architecture/code intelligence plus specification-to-behavior assurance**, not primarily as a documentation generator. It combines deterministic rules with LLM review and has a separate `spec -> scenario tests -> guard` workflow for detecting when implementation drifts from documented behavior. Results are stored locally in `.truecourse/` as JSON artifacts.
+
+Source: [TrueCourse GitHub](https://github.com/truecourse-ai/truecourse).
+
+For EOKS, this belongs primarily in **evaluation/policy/evidence**, with a secondary relationship to canonical knowledge:
+
+```text
+PRDs / ADRs / docs
+       |
+       v
+  executable specs
+       |
+       v
+ implementation
+       |
+       v
+   guard result
+       |
+       +--> evaluation / confidence / feedback
+```
+
+It can help maintain the truthfulness of the knowledge system, but it should not be assumed to automatically author good `CLAUDE.md` files.
+
+## OKF
+
+OKF was discussed as a structured, portable file-oriented knowledge convention. The EOKS conclusion is intentionally conservative: **a representation can be meaningful without requiring hosting infrastructure**, and a local collection of Markdown/JSON files can implement a useful subset of the same idea.
+
+Hierarchical `CLAUDE.md` files can therefore be seen as a pragmatic subset of the canonical-knowledge problem: scoped, human-readable, Git-versioned and loaded near the code where needed. OKF becomes more valuable if EOKS later needs machine-readable interoperability across many tools, explicit schemas, richer provenance or cross-project federation.
+
+## Hermes
+
+Hermes is relevant to the **learning/reflection** layer. Its interesting idea is that useful work should leave behind reusable knowledge or capability rather than disappearing at session end.
+
+EOKS should generalize that into a governed pipeline:
+
+```text
+session / workflow
+       |
+trace + artifact + outcome
+       |
+ candidate learning
+       |
+ validation + scope + confidence
+       |
+ promoted memory / procedure / knowledge
+```
+
+The important warning is that repeated behavior alone is not sufficient evidence that a behavior is good.
+
+## Liza
+
+Liza explores hardened multi-agent coding with an emphasis on quality, auditability, automated reviews and documentation, including ADR-oriented workflows.
+
+Source: [Liza GitHub](https://github.com/liza-mas/liza).
+
+Its strongest EOKS contribution is to the **execution/evaluation layer**: workflows should make quality gates and evidence explicit rather than treating a successful-looking demo as sufficient.
+
+## ADHD Stack / cognitive strategies
+
+The "ADHD" projects discussed in research are useful primarily as a naming accident for a broader idea: **reasoning strategies can be reusable execution components**.
+
+Examples include:
+
+- divergent exploration;
+- independent alternatives;
+- adversarial critique;
+- convergence;
+- explicit state externalization.
+
+EOKS should model this as a **reasoning strategy layer**, independent of the model and separate from knowledge and workflow.
+
+## Obsidian
+
+Obsidian is useful as a **human thinking workspace**, not necessarily as an EOKS runtime dependency. It can hold research, architecture sketches and long-form thinking that later becomes a reviewed ADR or project knowledge file.
+
+The important boundary is:
+
+```text
+human thinking / research
+          |
+       Obsidian
+          |
+  reviewed canonical docs
+          |
+       EOKS knowledge
+```
 
 ## OpenWolf
 
 OpenWolf is relevant to a concrete coding-agent failure mode: repeated reconstruction of repository context across sessions. Its local, hook-driven approach maintains repository-oriented summaries and persistent notes around agent/file interactions.
 
-For EOKS, OpenWolf is best treated as **knowledge extraction + context optimization**, not as the complete knowledge layer. It demonstrates that project knowledge can be incrementally maintained rather than reconstructed from zero for every session.
-
-The important architectural distinction is between automatically generated **candidate knowledge** and trusted canonical knowledge. Summaries can become stale or contain incorrect inferences, so a durable knowledge layer needs provenance, validation, freshness and invalidation semantics. See [Knowledge base and persistent project knowledge](knowledge-base.md) and [OpenWolf](prior-art/openwolf.md).
-
-OpenWolf also motivates a useful evaluation dimension: a knowledge layer should be judged by reduced discovery cost and improved task outcomes, not merely token reduction. It should ideally survive model/agent changes rather than becoming coupled to one CLI.
+For EOKS, OpenWolf is best treated as **knowledge extraction + context optimization**, not as the complete knowledge layer. Generated memory should be evidence-bearing and subject to freshness, provenance and promotion rules.
 
 ## CodeSight
 
-CodeSight is relevant to codebase context and repository understanding. It illustrates the value of preparing structured knowledge for coding agents.
+CodeSight is relevant to codebase context and repository understanding. It illustrates the value of preparing structured knowledge for coding agents and fits primarily in the evidence/navigation side of EOKS.
 
-## Understand Anything
+## Deterministic analysis: Tree-sitter, Semgrep, CodeQL
 
-Understand Anything extends this category into a reusable repository knowledge graph. It combines deterministic source parsing with LLM analysis and exposes structural, domain and impact views. Its strongest relevance to EOKS is as evidence that **code understanding can be materialized as a reusable artifact** rather than regenerated by each agent session.
+These tools reinforce an important architectural rule: deterministic questions should be answered deterministically whenever possible.
 
-The EOKS distinction is important: a graph is an evidence source, not automatically the context an agent should receive. Retrieval and policy still have to select task-relevant evidence.
+- Tree-sitter/language tooling -> symbols, syntax, imports, calls;
+- Semgrep -> structural/security patterns;
+- CodeQL -> deeper dataflow/security relationships.
 
-## TrueCourse
+They can be evidence providers underneath the context and evaluation planes without requiring an LLM to rediscover facts that static analysis can establish cheaply.
 
-TrueCourse explores the complementary assurance problem: architecture and business-logic drift. Its deterministic analysis covers architectural/code defects, while its spec-to-guard workflow makes documented behavior executable and checks implementation against it.
+## Evidence-provider abstraction
 
-This is useful prior art for an EOKS **evaluation and policy layer**. The broader EOKS question is how to select the right assurance depth for a workload and how to feed the result back into scheduling, context and future decisions.
-
-## EKOS
-
-EKOS and related enterprise-knowledge systems demonstrate another interpretation of an AI/knowledge operating system. EOKS should remain distinct by focusing on the broader control loop around reasoning, context and execution rather than enterprise knowledge alone.
-
-## TencentDB Agent Memory
-
-The TencentDB work on agent memory reinforces a central EOKS idea: a larger context window does not eliminate the need for useful persistent memory. Memory needs lifecycle, retrieval and relevance semantics.
-
-## XIRP
-
-Spotify's XIRP was investigated as an example of infrastructure thinking around AI systems. It is useful prior art for understanding how an organization can build reusable AI infrastructure rather than isolated prompts.
-
-## OKF
-
-OKF was discussed as a structured file-oriented knowledge/context convention. An important EOKS conclusion is that a protocol or conceptual contract can be implemented with ordinary local files; hosting infrastructure is not what makes a representation meaningful.
-
-## Graphify, Semgrep and CodeQL
-
-These tools demonstrate why deterministic program analysis belongs beside LLM reasoning. Graph and taint/dataflow analysis can expose relationships that are difficult or unreliable to infer from text alone.
-
-The combined lesson is that EOKS should be able to select among evidence providers according to the workload rather than treating the deepest analysis as the default.
-
-## Other developer-agent tooling
-
-CodeRabbit, Sourcegraph Cody, Aider and Claude Code with project-specific checks were considered as alternative implementations of narrower capabilities:
-
-- PR review / feedback;
-- large-codebase retrieval;
-- agent execution;
-- execution plus custom policy.
-
-They reinforce the same architectural conclusion: EOKS should compose specialized capabilities through contracts instead of trying to replace every existing coding tool.
-
-## Observability and evaluation tooling
-
-The modern AI tooling ecosystem increasingly provides tracing, evaluations, prompt/version tracking and model comparisons. EOKS treats these as ingredients of a larger feedback loop rather than isolated dashboards.
-
-## Evidence providers
-
-The tooling landscape suggests a useful abstraction: **evidence providers**. A provider answers a bounded question and returns facts or derived relationships with provenance, scope/revision, validation/confidence and cost/latency characteristics.
+The tooling landscape suggests a useful EOKS abstraction: an **evidence provider** answers a bounded question and returns evidence with provenance, scope/revision, validation/confidence and cost/latency characteristics.
 
 Examples:
 
 ```text
 repository graph     -> dependency evidence
+Tree-sitter          -> structural evidence
 Semgrep              -> structural/security evidence
 CodeQL               -> deep dataflow evidence
+Graphify             -> graph/navigation evidence
 Understand Anything  -> synthesized code/domain evidence
 TrueCourse           -> architecture/spec compliance evidence
-OpenWolf             -> project summaries / interaction-derived knowledge
+GrapeRoot            -> task-context optimization
+OpenWolf             -> interaction-derived project context
 tests                -> behavioral evidence
 observability        -> runtime evidence
+CLAUDE.md / ADRs     -> canonical human-reviewed knowledge
 ```
 
-This connects prior art directly to the EOKS thesis: context quality is not token count. The control plane should assemble context from task-relevant, provenance-bearing evidence and select the minimum sufficient analysis needed for the workload.
+The control plane should choose the minimum sufficient set of providers for the workload instead of always running the deepest analysis.
 
-## Positioning
+## The emerging stack
 
-The important question is not "which tool replaces EOKS?" but "which EOKS layer does this tool implement, and what contract would allow it to participate in the control loop?"
+The combined prior art suggests the following practical architecture:
+
+```text
+                 human intent / task
+                         |
+                      workflow
+                         |
+                 reasoning strategy
+                         |
+                 context compilation
+                         |
+      +------------------+------------------+
+      |                  |                  |
+ canonical docs      structural        semantic /
+ CLAUDE.md / ADRs       graph            search
+      |                  |                  |
+      +------------------+------------------+
+                         |
+                      model
+                         |
+                 execution + tools
+                         |
+                    evaluation
+                         |
+                  learning/update
+```
+
+This is deliberately compositional. No single project needs to become EOKS.

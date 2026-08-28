@@ -10,23 +10,27 @@ The project grew out of a recurring question: **why does giving models more cont
 
 EOKS is not a prompt framework, vector database, memory store, agent framework or model router. Those are potential components. The proposed abstraction is the layer that coordinates them around a workload and continuously learns from outcomes.
 
+A recent refinement is important: **knowledge is not a graph, and context engineering is not the knowledge layer**. EOKS should maintain multiple representations of engineering reality and compile task-specific context from them.
+
 ```text
-                 EOKS CONTROL PLANE
-        scheduling · policies · model/tool selection
-                            |
-       +--------------------+--------------------+
-       |                    |                    |
-    CONTEXT              MEMORY               EXECUTION
-    retrieval            knowledge             tools/agents
-    assembly             persistence           workflows
-       |                    |                    |
-       +--------------------+--------------------+
-                            |
-                     EVALUATION
-                  evidence · quality
-                            |
-                     OBSERVABILITY
-              decisions · cost · outcomes
+                         EOKS CONTROL PLANE
+              scheduling · policies · resource selection
+                                  |
+        +-------------------------+-------------------------+
+        |                         |                         |
+  KNOWLEDGE PLANE          CONTEXT PLANE            EXECUTION PLANE
+ canonical knowledge       selection · assembly      workflows · agents
+ graphs · semantic         ranking · compression     reasoning strategies
+ history · runtime         progressive disclosure    tools · artifacts
+ evidence
+        |                         |                         |
+        +-------------------------+-------------------------+
+                                  |
+                         EVALUATION / FEEDBACK
+                  evidence · quality · confidence · outcomes
+                                  |
+                           OBSERVABILITY
+                decisions · cost · latency · provenance
 ```
 
 ## Documentation
@@ -34,8 +38,10 @@ EOKS is not a prompt framework, vector database, memory store, agent framework o
 - [Vision](docs/vision.md)
 - [Architecture](docs/architecture.md)
 - [Context engineering](docs/context.md)
-- [Memory](docs/memory.md)
 - [Knowledge base](docs/knowledge-base.md)
+- [Knowledge as a multi-representation system](docs/knowledge-representations.md)
+- [Agent workflows and reasoning strategies](docs/agent-workflows.md)
+- [Memory](docs/memory.md)
 - [Behavioral memory and learning](docs/behavioral-memory.md)
 - [Control plane](docs/control-plane.md)
 - [Evaluation](docs/evaluation.md)
@@ -43,6 +49,20 @@ EOKS is not a prompt framework, vector database, memory store, agent framework o
 - [Prior art](docs/prior-art.md)
 - [Terminology](docs/terminology.md)
 - [Open questions](docs/open-questions.md)
+
+## Practical coding-agent direction
+
+The current practical hypothesis is intentionally conservative:
+
+1. Use hierarchical `CLAUDE.md` files as human-reviewable, canonical package/project knowledge.
+2. Keep cross-cutting architectural rationale in a small number of Markdown/ADR documents.
+3. Derive structural information automatically with deterministic analysis and optional graphs.
+4. Use context compilation to select only task-relevant evidence.
+5. Treat agent workflows and reasoning strategies as execution-layer resources.
+6. Learn continuously through candidate extraction and controlled promotion rather than silently rewriting canonical knowledge.
+7. Update representations incrementally; do not rebuild the entire knowledge base after every change.
+
+This gives EOKS a path from a simple Git repository to richer knowledge infrastructure without requiring a graph database or a new canonical format on day one.
 
 ## Research
 
