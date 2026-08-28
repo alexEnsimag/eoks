@@ -22,6 +22,14 @@ CodeSight prompted the question of whether repository context should be generate
 
 For EOKS, this is evidence for treating repository understanding as a reusable capability. A scheduler should be able to request code context as a resource rather than hard-code a particular indexing approach.
 
+## Understand Anything
+
+Understand Anything strengthens the repository-understanding side of this model. It builds an interactive knowledge graph of code structure and combines deterministic parsing with LLM analysis. Its graph, domain views and diff-impact analysis make it useful prior art for treating **code understanding as a reusable evidence resource** rather than something every agent session reconstructs from scratch.
+
+The important EOKS caution is that a graph is not itself context. EOKS still needs retrieval and policy to decide which graph facts, explanations and relationships are relevant to a workload. LLM-derived graph content should also carry provenance and validation state before becoming durable knowledge.
+
+See [Agent code understanding and architecture tooling](agent-code-understanding-and-architecture.md) for the fuller analysis.
+
 ## TencentDB Agent Memory
 
 The Agent Memory work sharpened the distinction between a large context window and persistent memory. The important EOKS question is not simply how to store memories, but how to decide what is worth remembering and how to prevent bad memories from contaminating future contexts.
@@ -54,6 +62,19 @@ CodeQL represents deeper query/dataflow capabilities. It can be extremely valuab
 
 The EOKS scheduler should therefore reason about **sufficient evidence**, not maximal analysis.
 
+## TrueCourse
+
+TrueCourse adds the complementary **assurance** side. Its deterministic architecture analysis covers issues such as circular dependencies and layer violations, while its spec-to-guard workflow turns documented behavior into executable scenarios that can detect business-logic drift.
+
+This suggests a useful separation:
+
+```text
+Understand the system -> evidence about what exists
+Guard the system      -> evidence about what should exist / happen
+```
+
+For EOKS, TrueCourse is therefore closer to **evaluation + policy enforcement** than context retrieval. The interesting architectural idea is not necessarily the tool itself, but the possibility of making architecture and behavioral constraints executable and feeding their results into the control loop.
+
 ## LLM observability tools
 
 The observability discussion considered whether existing tracing/monitoring systems could provide metrics about model calculations, confidence or behavior.
@@ -67,6 +88,16 @@ control       = use what happened to decide what happens next
 
 EOKS is interested in the second layer while still needing the first.
 
+## Evidence providers
+
+The tooling discussion suggests adding a conceptual category between raw sources and assembled context: **evidence providers**.
+
+An evidence provider answers a bounded question and returns facts or derived relationships together with provenance, scope/revision, validation/confidence and cost/latency characteristics.
+
+Examples include repository graphs, Semgrep, CodeQL, Understand Anything, TrueCourse, tests and runtime observability.
+
+This makes context selection a policy problem rather than a token-budget problem: the control plane should select the minimum sufficient evidence for a workload instead of indiscriminately running every analyzer or stuffing every result into the prompt.
+
 ## Relationship between the tools
 
 A useful interpretation is that these projects form different layers of an ecosystem:
@@ -75,14 +106,31 @@ A useful interpretation is that these projects form different layers of an ecosy
                  EOKS policy / control
                          |
         +----------------+----------------+
-        |                |                |
-      context          memory          evaluation
-        |                |                |
-     CodeSight       GrapeRoot        observability
-        |                |                |
-        +-------- code evidence --------+
-                 |          |
-              Graphify   Semgrep/CodeQL
+        |                                 |
+   context/evidence                   evaluation
+        |                                 |
+ Understand Anything                 TrueCourse
+ CodeSight                            tests / guards
+        |                                 |
+     Graphify                      Semgrep / CodeQL
+        +---------------+-----------------+
+                        |
+                 evidence layer
+                        |
+                  context assembly
+                        |
+                   agent runtime
 ```
 
 This is intentionally not a claim that the tools were designed as EOKS components. It is a map of where their capabilities could fit in the hypothesis.
+
+## Alternatives discussed
+
+Other tools discussed are useful as capability references rather than direct EOKS competitors:
+
+- **CodeRabbit** — AI-assisted PR review; primarily evaluation/feedback.
+- **Sourcegraph Cody** — large-codebase retrieval and coding assistance; primarily context + execution.
+- **Aider** — agentic coding workflow; primarily execution.
+- **Claude Code + custom checks** — general execution runtime combined with project-specific policy/evaluation.
+
+The architectural conclusion is that EOKS should compose such capabilities through explicit contracts rather than becoming another monolithic coding agent.
