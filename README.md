@@ -35,6 +35,8 @@ EOKS is not a prompt framework, vector database, memory store, agent framework o
 - [Architecture](docs/architecture.md)
 - [Context engineering](docs/context.md)
 - [Memory](docs/memory.md)
+- [Knowledge base](docs/knowledge-base.md)
+- [Behavioral memory and learning](docs/behavioral-memory.md)
 - [Control plane](docs/control-plane.md)
 - [Evaluation](docs/evaluation.md)
 - [Software engineering](docs/software-engineering.md)
@@ -53,6 +55,8 @@ EOKS is not a prompt framework, vector database, memory store, agent framework o
 - [Behavioral memory and learning how developers work](docs/behavioral-memory.md) — how session traces can become validated procedural knowledge, skills and policies.
 - [Learning from development sessions](research/session-learning.md)
 - [Agent memory and continuous-learning prior art](research/prior-art/agent-memory.md)
+- [Claude Code learning stack](research/claude-learning-okf-hindsight.md) — decomposition of `CLAUDE.md`, Skills, Hooks, memory engines, OKF and optional graph/retrieval systems.
+- [Hindsight and OKF](research/prior-art/hindsight-and-okf.md) — why persistent learning engines and portable knowledge formats are complementary layers.
 - [Tool notes](research/tool-notes.md)
 
 ## Status
