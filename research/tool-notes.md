@@ -79,17 +79,41 @@ This supports a lightweight first implementation: EOKS does not necessarily need
 
 Graphify illustrated the appeal of turning a codebase into a relationship graph. The useful information is often not the text of a file but the relation between symbols, callers, dependencies and flows.
 
-It also exposed an important limitation: graph extraction alone does not decide what should enter a model's working context.
+A later hands-on experiment exposed an important boundary: structural graph connectivity is not the same as value-flow verification. A source value may reach a persistence sink along a path that bypasses a required scope-stamp or masked-secret barrier. This is a **dataflow-with-a-barrier** property rather than a simple graph-neighborhood question.
+
+The conclusion is not to make Graphify a security scanner. Graphify remains valuable as structural evidence and navigation; a specialized analyzer can answer the deeper path-sensitive question when needed.
 
 ## Semgrep
 
-Semgrep represents relatively accessible deterministic code analysis. It can answer narrow structural questions cheaply and can therefore be an attractive evidence provider in an EOKS workflow.
+Semgrep represents relatively accessible deterministic code analysis. It can answer narrow structural questions and, for supported languages/engines, source-to-sink dataflow questions. Its source/propagator/barrier/sink model maps naturally to architectural invariants such as "an unscoped value must not reach persistence without a scope guard."
+
+However, EOKS should not adopt Semgrep merely because a problem can be described as taint analysis. Setup and analysis cost matter. A TypeScript type invariant, ESLint rule or small compiler-API/`ts-morph` check may be simpler and provide stronger prevention for a project-specific rule.
 
 ## CodeQL
 
-CodeQL represents deeper query/dataflow capabilities. It can be extremely valuable for security and semantic analysis, but its setup and execution cost make it inappropriate as the default for every coding task.
+CodeQL represents deeper query/dataflow capabilities and is particularly established in vulnerability and security analysis. Its path-aware program model can answer difficult semantic questions, but its setup and query model are usually disproportionate for one narrow application invariant.
 
-The EOKS scheduler should therefore reason about **sufficient evidence**, not maximal analysis.
+EOKS should treat CodeQL as an escalation path for genuinely difficult or broad analysis—especially when repeated work requires rich interprocedural dataflow, aliases, path explanations or a reusable query corpus—not as the default coding-agent analyzer.
+
+## TypeScript compiler, ESLint and ts-morph
+
+These mechanisms occupy an important middle layer that was under-emphasized in earlier tool comparisons.
+
+- **TypeScript types/compiler** are the preferred mechanism when an invariant can be encoded so invalid states are unrepresentable. This is prevention rather than detection.
+- **ESLint** is useful for fast, local project policy and pattern checks.
+- **ts-morph / the TypeScript compiler API** is useful when a project needs a targeted semantic check that is too specific for a simple lint rule but does not justify a general dataflow engine.
+
+The escalation principle is:
+
+```text
+type/API design
+    -> lightweight lint/static rule
+    -> targeted TS analysis
+    -> Semgrep/dataflow
+    -> CodeQL/deep analysis
+```
+
+This ordering is a hypothesis about cost and sufficient evidence, not a universal ranking of the tools.
 
 ## TrueCourse
 
@@ -165,7 +189,7 @@ The tooling discussion suggests adding a conceptual category between raw sources
 
 An evidence provider answers a bounded question and returns facts or derived relationships together with provenance, scope/revision, validation/confidence and cost/latency characteristics.
 
-Examples include repository graphs, Semgrep, CodeQL, Understand Anything, TrueCourse, modularity-style architecture analysis, tests and runtime observability.
+Examples include repository graphs, TypeScript checks, ESLint, `ts-morph`, Semgrep, CodeQL, Understand Anything, TrueCourse, modularity-style architecture analysis, tests and runtime observability.
 
 This makes context selection a policy problem rather than a token-budget problem: the control plane should select the minimum sufficient evidence for a workload instead of indiscriminately running every analyzer or stuffing every result into the prompt.
 
@@ -191,7 +215,12 @@ A useful interpretation is that these projects form different layers of an ecosy
                                    |
                              evidence providers
                                    |
-             code graphs / modularity / tests / static analysis
+        +--------------------------+---------------------------+
+        |                          |                           |
+   structural                 semantic/dataflow           assurance
+ Graphify / graphs       TS / Semgrep / CodeQL      TrueCourse / tests
+        |                          |                           |
+        +--------------------------+---------------------------+
                                    |
                               agent runtime
                                    |

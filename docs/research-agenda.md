@@ -63,15 +63,51 @@ Run routing experiments after controlling context composition where possible. Ot
 
 ## 7. Deterministic evidence
 
-For software engineering, compare LLM-only reasoning against hybrid workflows using static analysis, code graphs, tests and dataflow/taint analysis.
+For software engineering, compare LLM-only reasoning against hybrid workflows using structural graphs, tests, type checking, static analysis and dataflow/taint analysis.
 
-## 8. Control-plane prototype
+An important sub-question is **analysis escalation**: does selecting the minimum sufficient deterministic analyzer improve overall cost/latency without reducing correctness? Compare, for representative tasks:
+
+1. type/compiler checks;
+2. lightweight lint/static rules;
+3. targeted TypeScript compiler-API/`ts-morph` analysis;
+4. Semgrep-style dataflow analysis;
+5. deeper CodeQL-style analysis.
+
+Do not assume the deepest analyzer is the best answer. Measure setup cost, runtime, coverage, false positives/negatives and usefulness to the agent.
+
+## 8. Invariants and barriers
+
+Test whether agents can reliably identify architectural invariants from concrete bug investigations and express them independently of a particular analysis tool.
+
+Use cases should include source → barrier → sink properties where structural graph traversal alone is insufficient. For each candidate invariant, compare:
+
+- prevention through TypeScript types/API design;
+- ESLint or other lightweight rules;
+- targeted `ts-morph`/compiler-API analysis;
+- Semgrep dataflow rules;
+- CodeQL queries where the problem genuinely requires deeper program analysis.
+
+Measure whether an invariant discovered from one failure prevents regressions, how much maintenance it costs, and whether the resulting rule remains valid as the architecture evolves.
+
+A useful hypothesis is:
+
+> **Invariants are a more durable abstraction than individual analyzer rules.**
+
+The analyzer should provide evidence for the invariant; EOKS should retain the invariant's scope, provenance, confidence and enforcement status.
+
+## 9. Evidence-provider selection
+
+Prototype a policy that chooses among graph queries, type checking, tests, static analyzers, runtime evidence and LLM reasoning based on the task. Measure whether the control plane can answer engineering questions with a cheaper sufficient provider instead of always invoking the deepest available analysis.
+
+Record provider selection, evidence returned, analysis cost, revision, confidence and final task outcome so the policy itself can be evaluated.
+
+## 10. Control-plane prototype
 
 Implement the smallest scheduler that accepts a task, chooses context sources/tools/model, executes, evaluates and records the decision. Do not begin with a distributed platform; prove the control loop locally first.
 
-The first control loop should expose context selection as a policy decision, not merely as an internal prompt-building implementation detail.
+The first control loop should expose context selection and **evidence-provider selection** as policy decisions, not merely as internal prompt-building or tool-calling implementation details.
 
-## 9. Continuous assurance
+## 11. Continuous assurance
 
 Explore whether evaluation results can automatically alter future routing/context policies. The interesting system is not one that merely measures failures, but one that becomes better at choosing how to work.
 
