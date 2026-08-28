@@ -52,6 +52,7 @@ The repository separates **current architecture** from **exploratory research**.
 - [Knowledge base](docs/knowledge-base.md)
 - [Knowledge as a multi-representation system](docs/knowledge-representations.md)
 - [Agent workflows and reasoning strategies](docs/agent-workflows.md)
+- [Agent orchestration](docs/agent-orchestration.md) — conductor, executor, reviewer, validation, escalation and runtime topology.
 - [Memory](docs/memory.md)
 - [Behavioral memory and learning](docs/behavioral-memory.md)
 - [Control plane](docs/control-plane.md)
@@ -104,12 +105,15 @@ The current practical hypothesis is intentionally conservative:
 9. Treat agent workflows and reasoning strategies as execution-layer resources.
 10. Learn continuously through candidate extraction and controlled promotion rather than silently rewriting canonical knowledge.
 11. Update representations incrementally; do not rebuild the entire knowledge base after every change. Derived repository maps should carry source revision/freshness information.
-12. For software engineering, prefer the cheapest reliable deterministic evidence source that answers the question: types before custom analysis, lightweight rules before deep dataflow, and deeper analyzers only when the invariant requires them.
+12. For software engineering, prefer the cheapest reliable deterministic evidence source that answers the question: types before custom analysis, lightweight rules before deep dataflow, and deeper analyzers only when the invariant requires it.
 13. Treat observability traces as sensors for the control loop. Combine operational metrics, model uncertainty, evidence agreement, deterministic checks and outcomes rather than trusting a single model confidence number.
 14. Calibrate reliability signals against actual task outcomes before allowing them to drive automatic stop/verify/branch/model-switch decisions.
 15. Prefer an integration/sidecar model around existing coding agents before building a new agent runtime; the GrapeRoot launcher architecture is useful prior art for this approach.
 16. Compare proactive, reactive and hybrid context delivery rather than assuming that pre-injection or tool-driven exploration is universally better. CodeSight's index/article/MCP pattern is a useful example of progressive disclosure.
 17. Keep the EOKS semantic model small until real run traces demonstrate that additional primitives are necessary.
+18. Start autonomous software-engineering workflows with a small topology—**conductor, executor and independent reviewer as logical roles**—rather than an agent swarm. Use native subagents or isolated sessions when they provide a concrete context/isolation benefit; add a dedicated conductor layer when persistent workflow state, lifecycle policy or cross-session coordination is actually needed.
+19. Treat validation as a first-class workflow stage. Tests, static analysis, deployment checks and observed behavior should provide evidence for completion; an agent's self-reported success is not sufficient.
+20. Move humans toward objectives, policy exceptions, risky/ambiguous decisions and accountability as workflow reliability improves. Code review is an important control, but production-impacting, destructive or insufficiently validated changes may require additional gates.
 
 This gives EOKS a path from a simple Git repository to richer knowledge infrastructure without requiring a graph database or a new canonical format on day one.
 
