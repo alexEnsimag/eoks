@@ -46,7 +46,9 @@ The key evaluation is whether it reduces discovery/tool-call cost without hiding
 
 ## Graphify
 
-Graphify is a particularly strong example of the structural representation discussed in EOKS. Its current implementation uses local Tree-sitter-based parsing for code, produces an interactive `graph.html`, a human-readable `GRAPH_REPORT.md` and a queryable `graph.json`, and distinguishes extracted from inferred relationships. It can also expose the graph through MCP and install guidance/hooks for coding assistants. citeturn1search0turn1search2
+Graphify is a particularly strong example of the structural representation discussed in EOKS. Its current implementation uses local Tree-sitter-based parsing for code, produces an interactive `graph.html`, a human-readable `GRAPH_REPORT.md` and a queryable `graph.json`, and distinguishes extracted from inferred relationships. It can also expose the graph through MCP and install guidance/hooks for coding assistants.
+
+Sources: [Graphify GitHub](https://github.com/Graphify-Labs/graphify), [Graphify documentation](https://graphify.com/docs).
 
 This makes it valuable for three separate reasons:
 
@@ -58,15 +60,21 @@ Graphify should still not be equated with "the knowledge base". The graph is one
 
 ## Understand Anything
 
-Understand Anything is a strong adjacent system because it combines deterministic parsing with LLM analysis to produce an interactive knowledge graph, including structural and business-domain views, guided tours and change-impact capabilities. It is explicitly positioned for both humans and coding agents. citeturn0search0turn0search8
+Understand Anything is a strong adjacent system because it combines deterministic parsing with LLM analysis to produce an interactive knowledge graph, including structural and business-domain views, guided tours and change-impact capabilities. It is explicitly positioned for both humans and coding agents.
 
-An important recent implementation detail is its auto-update hook path: it can detect when the stored graph was built from a different Git commit and prompt an update, while its chat/diff skills are instructed to check graph freshness and read only the graph sections needed. citeturn0search5turn0search9
+An important implementation detail is its auto-update hook path: it can detect when the stored graph was built from a different Git commit and prompt an update, while its chat/diff skills are instructed to check graph freshness and read only the graph sections needed.
 
-This is valuable EOKS prior art for **incremental knowledge representations** and for the principle that agents should query a representation selectively rather than dump the entire graph into context. Its own issue tracker also contains an open discussion about incremental updates consuming more tokens than the initial build, which is a useful warning: incremental does not automatically mean cheap. citeturn0search3
+Sources: [Understand Anything GitHub](https://github.com/Egonex-AI/Understand-Anything), [auto-update hooks](https://github.com/Egonex-AI/Understand-Anything/blob/main/understand-anything-plugin/hooks/hooks.json), [chat skill](https://github.com/Egonex-AI/Understand-Anything/blob/main/understand-anything-plugin/skills/understand-chat/SKILL.md).
+
+This is valuable EOKS prior art for **incremental knowledge representations** and for the principle that agents should query a representation selectively rather than dump the entire graph into context. Its issue tracker also contains an open discussion about incremental updates consuming more tokens than the initial build, which is a useful warning: incremental does not automatically mean cheap.
+
+Source: [Understand Anything issue #611](https://github.com/Egonex-AI/Understand-Anything/issues/611).
 
 ## TrueCourse
 
-TrueCourse is best understood as **architecture/code intelligence plus specification-to-behavior assurance**, not primarily as a documentation generator. It combines deterministic rules with LLM review and has a separate `spec -> scenario tests -> guard` workflow for detecting when implementation drifts from documented behavior. Results are stored locally in `.truecourse/` as JSON artifacts. citeturn0search1
+TrueCourse is best understood as **architecture/code intelligence plus specification-to-behavior assurance**, not primarily as a documentation generator. It combines deterministic rules with LLM review and has a separate `spec -> scenario tests -> guard` workflow for detecting when implementation drifts from documented behavior. Results are stored locally in `.truecourse/` as JSON artifacts.
+
+Source: [TrueCourse GitHub](https://github.com/truecourse-ai/truecourse).
 
 For EOKS, this belongs primarily in **evaluation/policy/evidence**, with a secondary relationship to canonical knowledge:
 
@@ -115,7 +123,9 @@ The important warning is that repeated behavior alone is not sufficient evidence
 
 ## Liza
 
-Liza explores hardened multi-agent coding with an emphasis on quality, auditability, automated reviews and documentation, including ADR-oriented workflows. citeturn0search4
+Liza explores hardened multi-agent coding with an emphasis on quality, auditability, automated reviews and documentation, including ADR-oriented workflows.
+
+Source: [Liza GitHub](https://github.com/liza-mas/liza).
 
 Its strongest EOKS contribution is to the **execution/evaluation layer**: workflows should make quality gates and evidence explicit rather than treating a successful-looking demo as sufficient.
 
