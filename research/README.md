@@ -35,7 +35,8 @@ These notes are a reconstruction of the EOKS discussions available to the projec
 - [`context-quality-model.md`](context-quality-model.md) — dimensions and candidate metrics for context quality.
 - [`context-workbench.md`](context-workbench.md) — exploratory workbench model and experiments; the current architectural counterpart is [`docs/context-workbench.md`](../docs/context-workbench.md).
 - [`control-loop.md`](control-loop.md) — reconciliation/control-loop model and feedback.
-- [`control-plane.md`](control-plane.md) — earlier exploratory treatment of scheduling, model selection and workload management.
+- [`control-plane.md`](control-plane.md) — scheduling, model selection, workload management and reconciliation.
+- [`ai-os-analogies.md`](ai-os-analogies.md) — cross-domain framing of the AI-OS hypothesis through Kubernetes, operating systems, senior-developer onboarding, compiler/build-system and SRE/control-loop analogies.
 - [`core-model.md`](core-model.md) — resource and semantic-model exploration.
 - [`design-patterns.md`](design-patterns.md) — recurring patterns extracted from the research.
 - [`evolution.md`](evolution.md) — how the EOKS hypothesis changed over time.
