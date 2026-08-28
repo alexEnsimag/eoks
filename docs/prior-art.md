@@ -12,7 +12,7 @@ Scores below are **EOKS-fit scores, not product-quality rankings**. They reflect
 |---|---|---:|---|---|
 | Hierarchical `CLAUDE.md` | canonical local knowledge | **9.5/10** | Cheap, human-reviewable, Git-native, naturally scoped | Can become stale/manual if not reviewed |
 | GrapeRoot | context optimization / agent context | **9.5/10** | Directly attacks repeated repository/context work | More runtime-oriented than canonical knowledge |
-| Graphify | structural graph / navigation | **9/10** | Excellent visualization, relationships and queryable structure | Graph is evidence, not complete knowledge |
+| Graphify | structural graph / navigation | **9/10** | Excellent visualization, relationships and queryable structure | Graph is evidence, not complete knowledge or dataflow proof |
 | TrueCourse | architecture analysis + spec/behavior guard | **9/10** | Connects deterministic analysis, docs and executable assurance | Not primarily a `CLAUDE.md` generator |
 | Understand Anything | code/domain knowledge graph | **8.5/10** | Interactive graph, guided understanding, impact/change analysis | Full graph generation can itself be expensive; incremental path is still evolving |
 | Hermes | agent learning / reflection | **8.5/10** | Interesting direction for turning experience into reusable capability | Requires careful promotion/governance |
@@ -22,6 +22,11 @@ Scores below are **EOKS-fit scores, not product-quality rankings**. They reflect
 | Obsidian | human thinking / research workspace | **8/10** | Good place for cross-cutting architecture/research before promotion to canonical docs | Should not be required at agent runtime |
 | OpenWolf | interaction-derived summaries / context optimization | **8/10** | Demonstrates incremental repository memory around agent interactions | Generated summaries need provenance and validation |
 | CodeSight | repository understanding / context | **7.5/10** | Useful prior art for codebase context | Less central to the current canonical-knowledge approach |
+| Semgrep | static-analysis / dataflow evidence | **8/10 as an evidence provider** | Good fit for source→propagation→barrier→sink rules | Setup and analysis depth can be excessive for one local invariant |
+| CodeQL | deep semantic/dataflow evidence | **6.5/10 for general EOKS use** | Powerful path-aware, queryable analysis for difficult questions | Primarily optimized around deep program/security analysis; usually overkill for a narrow project invariant |
+| TypeScript types / compiler | invariant prevention | **9/10 for TypeScript projects** | Makes many invalid states unrepresentable at compile time | Cannot express every path-sensitive convention in an existing design |
+| ESLint | lightweight local policy | **8.5/10** | Fast developer feedback and easy project-specific rules | Not a general interprocedural dataflow engine |
+| ts-morph / compiler API | targeted custom analysis | **8.5/10** | Pragmatic middle ground for TypeScript-specific invariants | Can accidentally grow into a home-grown dataflow engine |
 
 These scores should be treated as experiment priorities, not permanent evaluations.
 
@@ -48,13 +53,13 @@ The key evaluation is whether it reduces discovery/tool-call cost without hiding
 
 Graphify is a particularly strong example of the structural representation discussed in EOKS. Its current implementation uses local Tree-sitter-based parsing for code, produces an interactive `graph.html`, a human-readable `GRAPH_REPORT.md` and a queryable `graph.json`, and distinguishes extracted from inferred relationships. It can also expose the graph through MCP and install guidance/hooks for coding assistants.
 
-Sources: [Graphify GitHub](https://github.com/Graphify-Labs/graphify), [Graphify documentation](https://graphify.com/docs).
-
 This makes it valuable for three separate reasons:
 
 1. **visualization** — a human can see the shape of a codebase;
 2. **navigation/impact analysis** — an agent can query relationships instead of rediscovering them through grep;
 3. **incremental/compiler thinking** — the graph can serve as a dependency representation used to identify affected areas.
+
+A recent experiment exposed an important boundary: Graphify can provide structural relationships without proving a value-flow invariant. A workspace value that reaches a persistence sink only becomes safe after crossing a scope-stamp/masked-secret barrier; answering whether the value can bypass that barrier is a semantic dataflow question. This is not a reason to turn Graphify into a security scanner. It is evidence that EOKS needs to compose structural graphs with specialized semantic evidence providers.
 
 Graphify should still not be equated with "the knowledge base". The graph is one representation, especially strong for structural questions.
 
@@ -64,17 +69,11 @@ Understand Anything is a strong adjacent system because it combines deterministi
 
 An important implementation detail is its auto-update hook path: it can detect when the stored graph was built from a different Git commit and prompt an update, while its chat/diff skills are instructed to check graph freshness and read only the graph sections needed.
 
-Sources: [Understand Anything GitHub](https://github.com/Egonex-AI/Understand-Anything), [auto-update hooks](https://github.com/Egonex-AI/Understand-Anything/blob/main/understand-anything-plugin/hooks/hooks.json), [chat skill](https://github.com/Egonex-AI/Understand-Anything/blob/main/understand-anything-plugin/skills/understand-chat/SKILL.md).
-
 This is valuable EOKS prior art for **incremental knowledge representations** and for the principle that agents should query a representation selectively rather than dump the entire graph into context. Its issue tracker also contains an open discussion about incremental updates consuming more tokens than the initial build, which is a useful warning: incremental does not automatically mean cheap.
-
-Source: [Understand Anything issue #611](https://github.com/Egonex-AI/Understand-Anything/issues/611).
 
 ## TrueCourse
 
 TrueCourse is best understood as **architecture/code intelligence plus specification-to-behavior assurance**, not primarily as a documentation generator. It combines deterministic rules with LLM review and has a separate `spec -> scenario tests -> guard` workflow for detecting when implementation drifts from documented behavior. Results are stored locally in `.truecourse/` as JSON artifacts.
-
-Source: [TrueCourse GitHub](https://github.com/truecourse-ai/truecourse).
 
 For EOKS, this belongs primarily in **evaluation/policy/evidence**, with a secondary relationship to canonical knowledge:
 
@@ -125,8 +124,6 @@ The important warning is that repeated behavior alone is not sufficient evidence
 
 Liza explores hardened multi-agent coding with an emphasis on quality, auditability, automated reviews and documentation, including ADR-oriented workflows.
 
-Source: [Liza GitHub](https://github.com/liza-mas/liza).
-
 Its strongest EOKS contribution is to the **execution/evaluation layer**: workflows should make quality gates and evidence explicit rather than treating a successful-looking demo as sufficient.
 
 ## ADHD Stack / cognitive strategies
@@ -147,18 +144,6 @@ EOKS should model this as a **reasoning strategy layer**, independent of the mod
 
 Obsidian is useful as a **human thinking workspace**, not necessarily as an EOKS runtime dependency. It can hold research, architecture sketches and long-form thinking that later becomes a reviewed ADR or project knowledge file.
 
-The important boundary is:
-
-```text
-human thinking / research
-          |
-       Obsidian
-          |
-  reviewed canonical docs
-          |
-       EOKS knowledge
-```
-
 ## OpenWolf
 
 OpenWolf is relevant to a concrete coding-agent failure mode: repeated reconstruction of repository context across sessions. Its local, hook-driven approach maintains repository-oriented summaries and persistent notes around agent/file interactions.
@@ -169,15 +154,23 @@ For EOKS, OpenWolf is best treated as **knowledge extraction + context optimizat
 
 CodeSight is relevant to codebase context and repository understanding. It illustrates the value of preparing structured knowledge for coding agents and fits primarily in the evidence/navigation side of EOKS.
 
-## Deterministic analysis: Tree-sitter, Semgrep, CodeQL
+## Deterministic analysis: structural, dataflow and invariant tools
 
-These tools reinforce an important architectural rule: deterministic questions should be answered deterministically whenever possible.
+These tools reinforce an important architectural rule: deterministic questions should be answered deterministically whenever possible, but **analysis depth should match the question**.
 
-- Tree-sitter/language tooling -> symbols, syntax, imports, calls;
-- Semgrep -> structural/security patterns;
-- CodeQL -> deeper dataflow/security relationships.
+| Mechanism | Strongest questions |
+|---|---|
+| TypeScript compiler/types | Can an invalid state be represented at all? |
+| ESLint | Does code violate a local structural/policy rule? |
+| Tree-sitter/language tooling | What are the symbols, syntax and basic relationships? |
+| Graphify | How are entities structurally connected? |
+| ts-morph / compiler API | Can we implement a narrow TypeScript-specific semantic check? |
+| Semgrep | Does a pattern or source-to-sink flow violate a rule? |
+| CodeQL | Can a rich query/dataflow model establish a difficult semantic or security property? |
 
-They can be evidence providers underneath the context and evaluation planes without requiring an LLM to rediscover facts that static analysis can establish cheaply.
+The motivating source→barrier→sink case belongs to the last three layers, but the preferred implementation is not automatically the deepest tool. If a TypeScript type invariant can prevent the invalid state, that is better than scanning for it. If a small ESLint or compiler-API check is sufficient, a repository-wide dataflow engine is unnecessary.
+
+See [Software analysis, dataflow and invariants](software-analysis.md).
 
 ## Evidence-provider abstraction
 
@@ -188,8 +181,11 @@ Examples:
 ```text
 repository graph     -> dependency evidence
 Tree-sitter          -> structural evidence
-Semgrep              -> structural/security evidence
-CodeQL               -> deep dataflow evidence
+TypeScript compiler  -> type/invariant evidence
+ESLint               -> local policy evidence
+ts-morph              -> targeted semantic evidence
+Semgrep              -> pattern/dataflow evidence
+CodeQL               -> deep dataflow/security evidence
 Graphify             -> graph/navigation evidence
 Understand Anything  -> synthesized code/domain evidence
 TrueCourse           -> architecture/spec compliance evidence
@@ -218,8 +214,8 @@ The combined prior art suggests the following practical architecture:
       +------------------+------------------+
       |                  |                  |
  canonical docs      structural        semantic /
- CLAUDE.md / ADRs       graph            search
-      |                  |                  |
+ CLAUDE.md / ADRs       graph          dataflow /
+      |                  |             invariants
       +------------------+------------------+
                          |
                       model
