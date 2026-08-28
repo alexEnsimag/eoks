@@ -26,7 +26,8 @@ decision (when evidence justifies it)
 ## Current architecture
 
 - [`architecture.md`](architecture.md) — overall planes, runtime primitives and control loop.
-- [`context.md`](context.md) — context engineering and compilation.
+- [`resource-model.md`](resource-model.md) — canonical vocabulary for Asset, Provider, Representation, Loadout and Context, and their boundaries.
+- [`context.md`](context.md) — context engineering and context compilation.
 - [`context-workbench.md`](context-workbench.md) — inspectable context blocks, budgets and human control.
 - [`knowledge-base.md`](knowledge-base.md) — durable project knowledge and its lifecycle.
 - [`knowledge-representations.md`](knowledge-representations.md) — multiple representations of engineering reality.

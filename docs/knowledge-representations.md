@@ -1,8 +1,8 @@
 # Engineering knowledge as a multi-representation system
 
-A central conclusion from recent EOKS research is that **knowledge is not a graph**. A graph is one representation of knowledge, optimized for questions about relationships and structure.
+A central conclusion from EOKS research is that **knowledge is not a graph**. A graph is one representation of knowledge, optimized for questions about relationships and structure.
 
-This distinction matters because several emerging coding-agent projects appear to overlap when described as "knowledge graphs" even though they solve different problems.
+This distinction matters because emerging coding-agent projects can appear to overlap when described as "knowledge graphs" even though they solve different problems.
 
 ## The compiler analogy
 
@@ -73,7 +73,7 @@ Answers: **What should happen, and in what order?**
 
 Examples include requirements, policies, acceptance criteria, playbooks and agent workflows.
 
-### Rationale / knowledge representation
+### Rationale / canonical knowledge representation
 
 Answers: **Why is this true or why was this decision made?**
 
@@ -88,25 +88,26 @@ This is where durable human-readable knowledge is especially valuable:
 
 A package-level `CLAUDE.md` can be a very effective canonical representation for this category because it is close to the code, reviewed in Git, and naturally scoped to the package.
 
-## Reusable context/knowledge assets
+## Assets are a lifecycle abstraction, not a representation
 
-A useful abstraction above individual representations is the **Context/Knowledge Asset**: a durable, governed resource that can contribute information, procedures or evidence to future workloads.
+EOKS uses **Asset** as a generic governance/lifecycle abstraction for reusable resources. It deliberately does not imply that all resources are the same kind of knowledge.
 
-Examples include:
+For example:
 
 ```text
-Memory            -> experience-derived information
-Skill             -> reusable procedure
-Wiki / document   -> structured domain/project knowledge
-CodeGraph         -> structural code representation
-ADR / decision   -> reviewed rationale
-Test result       -> verification evidence
-Incident record   -> historical/runtime evidence
+Asset
+ ├── Memory              -> experience-derived information
+ ├── Skill               -> reusable procedure
+ ├── Wiki / document     -> structured domain/project knowledge
+ ├── ADR / decision      -> reviewed rationale
+ ├── CodeGraph           -> structural representation
+ ├── Test result         -> verification evidence
+ └── Incident record     -> historical/runtime evidence
 ```
 
-These assets are not semantically interchangeable. A Skill is not a fact, and a CodeGraph is not a canonical source of truth. The value of the abstraction is lifecycle interoperability: assets can carry common metadata such as provenance, scope, freshness, revision, ownership/access, version and validation state while keeping their native representation.
+These have different authority, provenance and update semantics. The shared abstraction exists so they can carry common lifecycle metadata—provenance, scope, freshness, revision, ownership/access, validation state and version—without being forced into one ontology.
 
-TencentDB Agent Memory is useful prior art because its current system explicitly governs Chat Memory, Skills, LLM-Wiki and CodeGraph as reusable assets. See [the dedicated research note](../research/prior-art/tencent-agent-memory.md).
+See [Resource model](resource-model.md) for the canonical definitions of Asset, Provider, Representation, Loadout and Context. TencentDB Agent Memory is useful prior art because it explicitly governs Chat Memory, Skills, LLM-Wiki and CodeGraph as reusable resources.
 
 ## Asset universe versus loadout
 
@@ -115,26 +116,22 @@ The asset universe can be much larger than what a particular agent or task shoul
 ```text
 all available assets
         |
- access / ownership / scope
+ access / ownership / scope / applicability
         |
  agent + task loadout
         |
- relevance / applicability
+ relevance / value / budget
         |
  compiled context
 ```
 
-This introduces a useful boundary:
+The **loadout** is a workload-scoped eligibility/availability boundary. Context compilation is a separate selection and transformation step.
 
-- **Asset governance** decides what may be used.
-- **Loadout selection** decides what is available/expected for a workload.
-- **Context compilation** decides what should enter a particular reasoning step.
-
-This is important for privacy, stale-state control, context cost and task-specific applicability. Retrieval should not be the only gate.
+This matters for access control, stale-state control, task applicability, specialization, portability and reproducibility. Retrieval should not be the only gate.
 
 ## Canonical knowledge does not need a special format
 
-EOKS should not require a graph database, ontology, or a new knowledge format to become useful.
+EOKS should not require a graph database, ontology, or new knowledge format to become useful.
 
 For a personal repository or small team, a strong default is:
 
@@ -149,7 +146,7 @@ repository/
     *.md                    # cross-cutting decisions when needed
 ```
 
-The important distinction is between **canonical knowledge** and **derived indexes**:
+The important distinction is between **canonical knowledge** and **derived representations**:
 
 ```text
 Canonical, human-reviewable
