@@ -45,9 +45,10 @@ Typical contents:
 - files, packages, modules and symbols;
 - imports, calls, inheritance and configuration relationships;
 - data/control flows;
-- dependency and impact relationships.
+- dependency and impact relationships;
+- routes, schemas, events and other framework-level contracts.
 
-A graph is a natural representation here. Deterministic parsers should do as much of this work as possible.
+A graph is a natural representation here. Deterministic parsers should do as much of this work as possible. CodeSight is useful prior art for turning this structural layer into persistent, agent-readable summaries and targeted queries; Graphify-like systems emphasize the graph itself as the primary representation.
 
 ### Semantic representation
 
@@ -88,6 +89,32 @@ This is where durable human-readable knowledge is especially valuable:
 
 A package-level `CLAUDE.md` can be a very effective canonical representation for this category because it is close to the code, reviewed in Git, and naturally scoped to the package.
 
+## Derived context maps are not canonical knowledge
+
+Tools such as CodeSight demonstrate an important intermediate layer between source material and the final model context:
+
+```text
+authoritative sources
+  |  code / ADRs / docs / tests
+  v
+analysis / indexing / classification
+  |
+  +--> structural map
+  +--> wiki index
+  +--> topic article
+  +--> knowledge index
+  |
+  v
+context compiler
+  |
+  v
+model
+```
+
+These generated maps are **derived representations**. Their purpose is to make authoritative evidence cheap to navigate and retrieve. They should carry source revision, provenance and freshness information and should not silently replace the canonical sources they summarize.
+
+CodeSight's code wiki and Markdown knowledge mode are a concrete example: code structure can be compiled into topic-oriented articles, while ADRs, meeting notes, retrospectives, specs and research can be indexed into a compact knowledge map. This is useful prior art, but classification and summaries remain derived evidence unless separately reviewed and promoted.
+
 ## Assets are a lifecycle abstraction, not a representation
 
 EOKS uses **Asset** as a generic governance/lifecycle abstraction for reusable resources. It deliberately does not imply that all resources are the same kind of knowledge.
@@ -101,6 +128,7 @@ Asset
  ├── Wiki / document     -> structured domain/project knowledge
  ├── ADR / decision      -> reviewed rationale
  ├── CodeGraph           -> structural representation
+ ├── Repository map      -> derived structural/navigation representation
  ├── Test result         -> verification evidence
  └── Incident record     -> historical/runtime evidence
 ```
@@ -158,6 +186,7 @@ Derived representations
     +-- graph
     +-- semantic index
     +-- symbol index
+    +-- repository wiki/map
     +-- impact cache
     +-- retrieval metadata
 ```

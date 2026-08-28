@@ -33,6 +33,8 @@ Two related but different goals are useful:
 
 A code graph is often excellent navigation evidence. It does not automatically become semantic truth. Conversely, a durable invariant may need an explicit knowledge representation even when the relevant source files are easy to find.
 
+CodeSight is useful prior art for the navigation side: it deterministically derives repository structure and exposes compact indexes, topic-oriented wiki views and targeted MCP queries. Its generated maps should still be treated as derived evidence, not as a replacement for source code or canonical reviewed knowledge.
+
 ## Evidence providers
 
 Graphs, semantic indexes, timelines, ADRs, static analysis, tests, runtime observations and knowledge bundles are evidence sources/representations. Providers retrieve or derive evidence from them; the context compiler selects and transforms the result.
@@ -41,6 +43,7 @@ Graphs, semantic indexes, timelines, ADRs, static analysis, tests, runtime obser
 Task: change authentication
         |
         +--> structural provider -> affected symbols/files
+        +--> repository-context provider -> routes/schema/wiki evidence
         +--> knowledge provider  -> relevant invariants/decisions
         +--> history provider   -> incidents/recent changes
         +--> verification       -> tests/static checks
@@ -50,6 +53,8 @@ Task: change authentication
 ```
 
 EOKS should prefer the cheapest provider that can reliably answer the question and retain provenance with the resulting evidence.
+
+CodeSight fits here as a **repository-context/evidence provider**. It is particularly useful for deterministic structure, dependency/impact information and progressive-disclosure views. It should not be required as an EOKS dependency; equivalent providers can implement the same conceptual contract.
 
 ## Context sources are heterogeneous
 
@@ -118,12 +123,15 @@ bootstrap context
       +--> Skill retrieval/execution
       +--> Wiki drill-down
       +--> CodeGraph queries
+      +--> repository-context queries
       |
       v
 minimum sufficient task context
 ```
 
 TencentDB Agent Memory is useful prior art for this hybrid model. Its current Memory Proxy does not simply dump all four asset families into every prompt: different memory levels, Skills and session/team context have different delivery modes, while Wiki and CodeGraph can be discovered and queried on demand.
+
+CodeSight's index → targeted article/tool query pattern is another concrete example of progressive disclosure. It is useful evidence for the proposition that a small bootstrap plus targeted retrieval can reduce unnecessary context loading, but the reported token savings should be validated against task outcomes rather than treated as an architectural guarantee.
 
 EOKS should not assume that one delivery mode is universally superior. Compare proactive, reactive and hybrid strategies by task outcome, evidence coverage, discovery work, latency and cost.
 
@@ -156,7 +164,7 @@ OKF / CLAUDE.md / ADRs / other durable representations
 
 ## Context engines and lifecycle hooks
 
-GrapeRoot is useful prior art for a context engine around an existing coding agent. EOKS should not depend on its implementation. Instead, define agent-neutral lifecycle semantics:
+GrapeRoot is useful prior art for a context engine around an existing coding agent. CodeSight is complementary: it is more naturally a repository evidence provider and progressive-disclosure interface than a complete agent lifecycle controller. EOKS should not depend on either implementation. Instead, define agent-neutral lifecycle semantics:
 
 ```text
 prepare context
@@ -193,6 +201,8 @@ compact pointer / summary
         +--> authoritative source
         +--> related evidence
 ```
+
+CodeSight provides a concrete example of this pattern through a compact wiki index followed by targeted topic articles and specialized queries. The EOKS generalization is broader: the pointer may lead to a source file, ADR, graph query, analyzer result, test, runtime trace or another provider.
 
 Different workflow nodes can request different context packages—for example discovery, planning, implementation and verification. Fresh subagents should receive an explicit starting contract rather than repeatedly rediscovering the repository.
 
