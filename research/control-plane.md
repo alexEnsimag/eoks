@@ -1,5 +1,9 @@
 # Control-plane research
 
+The control-plane hypothesis is one part of the broader **AI OS** framing. The useful claim is not that EOKS should reproduce Kubernetes, but that AI workloads may benefit from a layer that coordinates tasks, context, resources, evaluation and feedback above individual agents and models.
+
+For the broader comparison across Kubernetes, operating systems, senior-developer onboarding, compilers/build systems and SRE feedback loops, see [`ai-os-analogies.md`](ai-os-analogies.md).
+
 ## The Kubernetes analogy
 
 One of the strongest architectural questions was whether an AI system needs something analogous to a Kubernetes control plane.
@@ -14,7 +18,7 @@ EOKS
   task intent -> planner/scheduler -> model/tools -> execution -> evaluation -> memory/policy update
 ```
 
-The proposed EOKS control plane would coordinate AI workloads rather than merely run containers.
+Kubernetes scheduling is specifically about matching Pods to Nodes according to requirements and available resources. The EOKS analogy generalizes that idea: a workload declares intent and constraints, and the control plane chooses an execution strategy. citeturn0search1turn0search3
 
 ## What is an AI workload?
 
@@ -31,6 +35,19 @@ A workload may be:
 
 The workload should declare intent and constraints. EOKS decides how to execute it.
 
+This is deliberately different from making **Agent** the fundamental abstraction. An agent is an execution mechanism; a workload is the thing the control plane is responsible for bringing to an acceptable outcome.
+
+A candidate workload declaration is:
+
+```text
+objective
++ constraints
++ required capabilities
++ context requirements
++ assurance / evaluation criteria
++ execution budget
+```
+
 ## Scheduler
 
 The scheduler idea became more interesting than simply “choose an LLM.” A scheduler could consider:
@@ -38,16 +55,20 @@ The scheduler idea became more interesting than simply “choose an LLM.” A sc
 - task type;
 - urgency;
 - expected difficulty;
-- context size;
+- context size and quality requirements;
 - available models;
 - model capabilities;
+- deterministic analyzers and other workers;
 - cost/latency budget;
-- tool requirements;
+- tool requirements and permissions;
 - reliability requirements;
 - historical performance;
-- evaluation results.
+- evaluation results;
+- evidence freshness and locality.
 
-This suggests a future where “which model?” is a scheduling decision, not hard-coded application logic.
+This suggests a future where “which model?” is one scheduling decision among several, rather than hard-coded application logic.
+
+In other words, model routing is a **subset** of workload scheduling. The scheduler may choose a model, but it may also choose context providers, static analyzers, tools, verification steps and an execution graph.
 
 ## Model selection
 
@@ -57,7 +78,7 @@ A possible policy loop is:
 
 ```text
 workload
-   -> candidate models
+   -> candidate resources / models
    -> representative evaluation set
    -> choose model/policy
    -> production execution
@@ -65,7 +86,7 @@ workload
    -> update evidence
 ```
 
-This is analogous to deployment control: model changes should be treated as changes to a production dependency, not as a string replacement in configuration.
+This is analogous to changing a production dependency: model changes should be evaluated as behavioral changes, not treated as a string replacement in configuration.
 
 ## Reconciliation
 
@@ -73,13 +94,29 @@ The Kubernetes analogy becomes particularly valuable around reconciliation. EOKS
 
 - Is the task progressing?
 - Is the model producing useful evidence?
-- Is context becoming polluted?
+- Is context becoming polluted or incomplete?
 - Has a tool failed repeatedly?
 - Should the task be decomposed?
 - Should another model be invoked?
 - Is additional evidence required?
+- Should the workflow branch, retry or escalate?
 
 This points toward a control loop rather than a single agent invocation.
+
+```text
+desired outcome
+      |
+   plan/execute
+      |
+    evaluate
+      |
+   +--+----------------+
+   |                   |
+ acceptable        insufficient
+   |                evidence/result
+  done                  |
+                  reconcile/replan
+```
 
 ## Policies
 
@@ -102,19 +139,31 @@ The important idea is to separate policy from individual agents so that behavior
 An agent framework usually focuses on making one agent execute tools or follow a workflow. EOKS is hypothesized to operate one level above that abstraction:
 
 ```text
-                 EOKS
-                   |
-        +----------+----------+
-        |          |          |
-      Agent      Model       Tools
-        |          |          |
-        +----------+----------+
-                   |
-                workload
+                 EOKS control plane
+                        |
+        +---------------+---------------+
+        |               |               |
+      Agents          Models          Tools
+        |               |               |
+        +---------------+---------------+
+                        |
+                     workload
 ```
 
-The control plane owns the coordination and feedback loop; agents and models are execution resources.
+The control plane owns coordination and feedback; agents, models, analyzers and tools are execution resources.
+
+This does **not** require EOKS to replace existing agents. Existing coding-agent CLIs, MCP servers and specialist analyzers can remain the execution layer while EOKS prepares context, selects resources, observes runs and evaluates outcomes.
 
 ## Open architectural question
 
-The biggest unresolved issue is whether this abstraction genuinely provides value over a well-designed agent runtime. The answer should come from workload-level experiments, especially those involving model switching, context management, evaluation and recurring tasks.
+The biggest unresolved issue is whether this abstraction genuinely provides value over a well-designed agent runtime. The answer should come from workload-level experiments, especially those involving:
+
+- model switching;
+- context management;
+- repository-discovery cost across sessions;
+- evaluation and verification;
+- adaptive replanning;
+- recurring tasks;
+- durable knowledge and memory.
+
+The analogies are therefore **hypothesis-generating tools**, not evidence that a full AI operating system is necessarily required.
