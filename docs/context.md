@@ -51,6 +51,90 @@ Task: change authentication
 
 EOKS should prefer the cheapest provider that can reliably answer the question and retain provenance with the resulting evidence.
 
+## Context/knowledge assets
+
+Recent agent-memory systems suggest a useful abstraction above individual stores: a **reusable asset** is a durable, governed resource that may contribute information, procedures or evidence to future workloads.
+
+Examples include:
+
+- semantic/episodic memory;
+- procedural Skills;
+- project documentation and Wiki pages;
+- structural CodeGraph/indexes;
+- ADRs and decisions;
+- test/evaluation records;
+- runtime or incident knowledge.
+
+These assets should not be treated as semantically identical. A Skill is a procedure; a CodeGraph is a representation; a memory item is an experience-derived claim; an ADR is human-reviewed rationale. They can nevertheless share lifecycle metadata such as provenance, scope, freshness, revision, ownership/access and validation state.
+
+TencentDB Agent Memory is useful prior art for this model: it currently manages Chat Memory, Skill, LLM-Wiki and CodeGraph as reusable assets, with agent/team ownership and loadout concepts. See [TencentDB Agent Memory](../research/prior-art/tencent-agent-memory.md).
+
+## Asset universe, loadout and compiled context
+
+Context selection is clearer when split into three stages:
+
+```text
+asset / knowledge universe
+            |
+       access + scope
+            |
+      agent/task loadout
+            |
+     task + policy + budget
+            |
+      context compiler
+            |
+      compiled context
+```
+
+The **loadout** is the set of assets the workload is allowed and expected to use. It is not the final prompt. The compiler still has to decide which portions are useful for the current reasoning step.
+
+This distinction matters because relevance is not the only eligibility criterion. An asset can be relevant but inaccessible, out of scope, stale, contradictory, unverified or too expensive for the task.
+
+## Proactive, reactive and hybrid context delivery
+
+Context engines can differ in *when* they make information available:
+
+### Proactive
+
+Likely-relevant evidence is compiled and supplied before the model starts reasoning.
+
+```text
+Task -> retrieval/packing -> context -> model
+```
+
+GrapeRoot is useful prior art for this style around coding agents.
+
+### Reactive
+
+The model discovers and requests information through tools as needed.
+
+```text
+Task -> model -> query -> evidence -> model -> query ...
+```
+
+This preserves flexibility but can increase discovery turns, latency and context overhead.
+
+### Hybrid
+
+A compact bootstrap is supplied proactively, while larger or less-certain knowledge remains available through on-demand tools.
+
+```text
+bootstrap context
+      |
+      +--> memory recall
+      +--> Skill retrieval/execution
+      +--> Wiki drill-down
+      +--> CodeGraph queries
+      |
+      v
+minimum sufficient task context
+```
+
+TencentDB Agent Memory is useful prior art for this hybrid model. Its current Memory Proxy does not simply dump all four asset families into every prompt: different memory levels, Skills and session/team context have different delivery modes, while Wiki and CodeGraph can be discovered and queried on demand.
+
+EOKS should not assume that one delivery mode is universally superior. Compare proactive, reactive and hybrid strategies by task outcome, evidence coverage, discovery work, latency and cost.
+
 ## Canonical project knowledge
 
 Hierarchical `CLAUDE.md`-style files are one possible representation for concise, human-reviewed local guidance:
@@ -142,4 +226,4 @@ Model routing chooses **which model** to use; context compilation chooses **what
 
 ## Evaluation boundary
 
-Context interventions must be evaluated on end-to-end task outcomes, not only retrieval or token metrics. The canonical methodology, benchmark design, model-migration process and prior-art evaluation tools live in [Context evaluation, benchmarking and model migration](../research/context-evaluation-and-model-migration.md) and [Evaluation](evaluation.md).
+Context interventions must be evaluated on end-to-end task outcomes, not only retrieval or token metrics. The canonical methodology, benchmark design, model-migration process and prior-art evaluation tools live in [Context evaluation and benchmarking](../research/context-evaluation.md) and [Evaluation](evaluation.md).
