@@ -115,6 +115,29 @@ Outcomes can improve future routing:
 
 The policy should be versioned and evaluated like any other production dependency.
 
+## Learning from development sessions
+
+The control loop can also learn from the developer or from previous agent executions. A coding session should produce a structured trace containing plans, observations, tool calls, edits, failures, corrections, verification and outcome.
+
+A separate learning process can transform traces into candidate procedural knowledge:
+
+```text
+session trace
+    -> episode
+    -> recurring pattern
+    -> validation
+    -> learning record
+    -> candidate skill / policy
+    -> controlled rollout
+    -> evaluation
+```
+
+This is deliberately different from simply retrieving old transcripts. The system is trying to determine **which behaviors worked in which situations**, and whether they should influence future execution.
+
+Learned behavior should be versioned and evaluated. A pattern observed once is evidence, not automatically a policy. Human corrections, repeated successful outcomes and regression evaluations can provide stronger promotion signals.
+
+See [Developer second brain and behavioral learning](developer-second-brain-and-behavioral-learning.md) for the fuller model.
+
 ## Limits of the analogy
 
 Kubernetes manages relatively explicit resources and deterministic workloads. AI execution is probabilistic, semantic and open-ended. EOKS therefore cannot simply copy Kubernetes concepts one-for-one.
