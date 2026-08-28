@@ -246,19 +246,19 @@ Several current systems cover pieces of this space:
 
 ### Mem0
 
-Mem0 is a persistent memory layer for AI agents. Its current documentation describes automatic extraction and retrieval of memories across sessions, with self-hosted and managed options and MCP integration. It is strong prior art for the **memory substrate** but does not by itself define a complete developer-behavior learning loop. citeturn1search0turn1search14
+Persistent memory infrastructure for AI agents. Useful prior art for the **memory substrate**, including automatic memory extraction/retrieval and MCP access. It does not by itself define the complete developer-behavior learning loop proposed here.
 
 ### Zep
 
-Zep provides a memory API and a graph-oriented memory layer. Its documentation describes ingesting chat history and constructing user-level knowledge graphs, with a higher-level memory API and lower-level graph APIs. It is useful prior art for **long-term semantic/graph memory**, but EOKS still needs provenance, validation and behavioral-policy semantics around such a store. citeturn1search6
+Long-term memory and graph-oriented context infrastructure. Useful prior art for **semantic/graph memory**, while EOKS still needs provenance, validation and behavioral-policy semantics around such a store.
 
 ### LangMem
 
-LangMem is particularly relevant to the behavioral-learning hypothesis because it explicitly supports extracting important information, maintaining long-term memory, and optimizing agent behavior through prompt refinement. It also has a background memory manager for extracting and consolidating knowledge. This makes it useful prior art for the **learning/reflection plane**, although EOKS should keep learned policy versioning and evaluation explicit. citeturn1search4
+Especially relevant to the behavioral-learning hypothesis because it provides mechanisms for extracting important information, maintaining long-term memory, and optimizing agent behavior through prompt refinement, including background memory management. Useful prior art for the **learning/reflection plane**, while EOKS should keep policy versioning and evaluation explicit.
 
 ### OpenHands
 
-OpenHands is primarily an AI-driven development runtime/SDK. It is useful as prior art for the **execution and trace-producing side** of the loop rather than as a second-brain system itself. citeturn1search12
+Primarily an AI-driven development runtime/SDK. Useful prior art for the **execution and trace-producing side** of the loop rather than as a second-brain system itself.
 
 These should be treated as composable capability references, not dependencies or claims that any one project implements the full EOKS model.
 
