@@ -16,7 +16,7 @@ A second refinement is equally important: **observability is not confidence, and
 
 A third refinement is that **memory is not one flat store**. Agent systems increasingly separate experience-derived memory, reusable procedures, documentation/knowledge and structural code representations. EOKS should preserve those semantic distinctions while giving them a common lifecycle boundary for provenance, scope, freshness, access, versioning and evaluation.
 
-The current architectural hypothesis is deliberately compositional: OKF can provide durable structured knowledge; Graphify-like systems can provide structural evidence; GrapeRoot-like systems can provide proactive context optimization around existing coding agents; TencentDB Agent Memory demonstrates multi-resolution memory, Skills, Wiki and CodeGraph as governed reusable assets; specialized analyzers and tests can provide deterministic evidence; and EOKS can coordinate these resources through task, context, run, decision, policy, evaluation and outcome primitives.
+The current architectural hypothesis is deliberately compositional: OKF can provide durable structured knowledge; Graphify-like systems can provide structural evidence; GrapeRoot-like systems can provide proactive context optimization around existing coding agents; TencentDB Agent Memory demonstrates multi-resolution memory, Skills, Wiki and CodeGraph as governed reusable resources; specialized analyzers and tests can provide deterministic evidence; and EOKS can coordinate these resources through task, context, run, decision, policy, evaluation and outcome primitives. The canonical vocabulary for how these resources relate is in [Resource model](docs/resource-model.md).
 
 ```text
                          EOKS CONTROL PLANE
@@ -24,7 +24,7 @@ The current architectural hypothesis is deliberately compositional: OKF can prov
                                   |
         +-------------------------+-------------------------+
         |                         |                         |
-  KNOWLEDGE / ASSET PLANE   CONTEXT PLANE            EXECUTION PLANE
+       RESOURCES             CONTEXT PLANE            EXECUTION PLANE
   memory · skills · docs    selection · assembly      workflows · agents
   graphs · decisions        ranking · compression     reasoning strategies
   evidence                  progressive disclosure    tools · artifacts
@@ -46,6 +46,7 @@ The repository separates **current architecture** from **exploratory research**.
 
 - [Vision](docs/vision.md)
 - [Architecture](docs/architecture.md)
+- [Resource model](docs/resource-model.md) — canonical vocabulary for reusable resources, Asset, Provider, Representation, Loadout and Context.
 - [Context engineering](docs/context.md)
 - [Context Workbench architecture](docs/context-workbench.md)
 - [Knowledge base](docs/knowledge-base.md)
@@ -95,9 +96,9 @@ The current practical hypothesis is intentionally conservative:
 2. Keep cross-cutting architectural rationale in a small number of Markdown/ADR documents.
 3. Derive structural information automatically with deterministic analysis and optional graphs.
 4. Treat organizational/system context—such as ownership, service boundaries and architectural rationale—as another evidence source when the task requires it; do not assume repository-local context is sufficient.
-5. Maintain reusable memory, Skills and knowledge assets with explicit provenance, scope, freshness, ownership/access and lifecycle rather than treating them as one undifferentiated memory store.
-6. Use an agent/task loadout to constrain which assets are eligible for a workload before context relevance is optimized.
-7. Use context compilation to select only task-relevant evidence from the eligible asset/evidence set.
+5. Maintain reusable memory, Skills and knowledge resources with explicit provenance, scope, freshness, ownership/access and lifecycle rather than treating them as one undifferentiated memory store.
+6. Use an agent/task loadout to constrain which resources are eligible for a workload before context relevance is optimized.
+7. Use context compilation to select only task-relevant evidence from the eligible resource/evidence set.
 8. Treat context as an inspectable, budgeted artifact; the proposed Context Workbench provides blocks, provenance, selection rationale, context diffs and a graph view without requiring manual curation for every task.
 9. Treat agent workflows and reasoning strategies as execution-layer resources.
 10. Learn continuously through candidate extraction and controlled promotion rather than silently rewriting canonical knowledge.
