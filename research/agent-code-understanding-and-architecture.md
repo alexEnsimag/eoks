@@ -40,7 +40,7 @@ Understand Anything   static      TrueCourse    deterministic
 
 ## Understand Anything
 
-[Understand Anything](https://github.com/Egonex-AI/Understand-Anything) turns a repository into an interactive knowledge graph. Its current implementation combines deterministic parsing (including Tree-sitter) with LLM analysis and produces a graph covering files, functions, classes and dependencies. It also exposes architectural/domain views, guided tours, semantic search, diff impact analysis and explanations. The project supports multiple agent/IDE environments rather than Claude Code alone.
+[Understand Anything](https://github.com/Egonex-AI/Understand-Anything) turns a repository into an interactive knowledge graph. Its current implementation combines deterministic parsing with LLM analysis and produces a graph covering files, functions, classes and dependencies. It also exposes structural/domain views, guided exploration, semantic search and change-impact analysis. The project supports multiple coding-agent/IDE environments rather than being limited to Claude Code.
 
 ### EOKS interpretation
 
@@ -67,13 +67,13 @@ The important idea is that an agent should be able to request *code understandin
 
 - Makes repository structure visible to humans and agents.
 - Combines deterministic structural facts with LLM-generated explanations.
-- Can persist the graph and reuse it between sessions.
-- Diff impact analysis is particularly relevant to an EOKS execution/evaluation loop.
-- The project has substantial community traction and broad platform support.
+- Can persist knowledge for reuse between sessions.
+- Change-impact analysis is particularly relevant to an EOKS execution/evaluation loop.
+- Has substantial community traction and broad platform support.
 
 ### Limitations / questions
 
-- Initial analysis can be expensive in tokens on large repositories; incremental analysis reduces the ongoing cost.
+- Initial analysis can be expensive on large repositories; incremental analysis is important for ongoing cost.
 - A graph is not automatically a good context. EOKS still needs retrieval, relevance and context-budget policies.
 - LLM-derived relationships and summaries need provenance and validation if they become durable knowledge.
 - A visually impressive graph should not become the definition of the system's architecture.
@@ -86,7 +86,7 @@ The important idea is that an agent should be able to request *code understandin
 
 ## TrueCourse
 
-[TrueCourse](https://github.com/truecourse-ai/truecourse) takes a different approach. It combines deterministic code analysis with LLM rules and adds a specification-to-guard pipeline. Its analysis covers architectural/code defects such as circular dependencies, layer violations and dead modules, while the guard workflow turns documented behavior from PRDs/ADRs/READMEs and related specifications into scenario tests that can be executed to detect business-logic drift.
+[TrueCourse](https://github.com/truecourse-ai/truecourse) takes a different approach. It combines deterministic code analysis with optional LLM rules and adds a specification-to-guard pipeline. Its analysis covers architectural/code defects such as circular dependencies and layer violations, while the guard workflow turns documented behavior from PRDs, ADRs, READMEs and related specifications into scenario tests that can be executed to detect business-logic drift.
 
 ### EOKS interpretation
 
@@ -107,8 +107,8 @@ That distinction maps naturally to EOKS's evidence/evaluation/control loop.
 - Uses deterministic analysis where deterministic analysis is appropriate.
 - Architecture checks can catch structural drift that ordinary tests may miss.
 - The spec -> scenario -> deterministic execution model is more interesting than simply asking an LLM to review a PR.
-- Repo-local JSON artifacts make the results inspectable and versionable.
-- Can use Claude Code for LLM-powered steps while retaining a deterministic path for non-LLM analysis.
+- Repo-local artifacts are inspectable and can be versioned.
+- LLM-powered steps can use Claude Code or provider APIs, while deterministic analysis remains useful without an LLM.
 
 ### Limitations / questions
 
@@ -127,11 +127,9 @@ That distinction maps naturally to EOKS's evidence/evaluation/control loop.
 
 These projects have different kinds of community evidence.
 
-Understand Anything has very strong visible GitHub adoption and a broad ecosystem of integrations. This makes it useful prior art for the proposition that reusable code knowledge can become a shared artifact rather than being regenerated independently by each agent session.
+Understand Anything currently has much stronger visible community traction and contribution activity. TrueCourse has a smaller community footprint, but its architectural-governance thesis is strategically interesting. Adoption should be treated as a maturity/tool-selection signal, not as evidence that a particular abstraction is correct.
 
-TrueCourse is much smaller, but its architectural-governance thesis is strategically interesting. Its lower adoption should be treated as a maturity/adoption signal, not as evidence that the underlying problem is unimportant.
-
-For EOKS, community size should therefore be one input to tool selection, not the architecture itself. A small project may contain the more important abstraction, while a large project may validate only one implementation approach.
+For EOKS, avoid hard-coding volatile star/fork counts into the conceptual model. A tooling evaluation can record adoption, release activity, issue/PR activity and maintenance signals separately from the capability contract. See [Current state of adjacent agent tooling](agent-tooling-current-state.md) for the current evidence snapshot.
 
 ---
 
@@ -183,6 +181,7 @@ An evidence provider can answer a bounded question about a workload and return:
 - provenance;
 - scope/revision;
 - confidence or validation status;
+- freshness;
 - cost/latency characteristics.
 
 Examples:
