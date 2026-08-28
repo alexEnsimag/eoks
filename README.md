@@ -12,6 +12,8 @@ EOKS is not a prompt framework, vector database, memory store, agent framework o
 
 A recent refinement is important: **knowledge is not a graph, and context engineering is not the knowledge layer**. EOKS should maintain multiple representations of engineering reality and compile task-specific context from them.
 
+A second refinement is equally important: **observability is not confidence, and confidence is not control**. Tracing and monitoring systems provide execution evidence; EOKS can combine that evidence with model-level uncertainty, deterministic checks and outcomes to estimate workload-specific reliability and decide what to do next.
+
 ```text
                          EOKS CONTROL PLANE
               scheduling · policies · resource selection
@@ -27,10 +29,10 @@ A recent refinement is important: **knowledge is not a graph, and context engine
         +-------------------------+-------------------------+
                                   |
                          EVALUATION / FEEDBACK
-                  evidence · quality · confidence · outcomes
+                evidence · quality · reliability · outcomes
                                   |
                            OBSERVABILITY
-                decisions · cost · latency · provenance
+          traces · cost · latency · provenance · uncertainty
 ```
 
 ## Documentation
@@ -66,6 +68,8 @@ The current practical hypothesis is intentionally conservative:
 8. Learn continuously through candidate extraction and controlled promotion rather than silently rewriting canonical knowledge.
 9. Update representations incrementally; do not rebuild the entire knowledge base after every change.
 10. For software engineering, prefer the cheapest reliable deterministic evidence source that answers the question: types before custom analysis, lightweight rules before deep dataflow, and deeper analyzers only when the invariant requires them.
+11. Treat observability traces as sensors for the control loop. Combine operational metrics, model uncertainty, evidence agreement, deterministic checks and outcomes rather than trusting a single model confidence number.
+12. Calibrate reliability signals against actual task outcomes before allowing them to drive automatic stop/verify/branch/model-switch decisions.
 
 This gives EOKS a path from a simple Git repository to richer knowledge infrastructure without requiring a graph database or a new canonical format on day one.
 
@@ -76,6 +80,7 @@ This gives EOKS a path from a simple Git repository to richer knowledge infrastr
 - [Context quality model](research/context-quality-model.md)
 - [Context workbench](research/context-workbench.md)
 - [Evaluation and model switching](research/evaluation-and-model-switching.md)
+- [LLM observability and reliability signals](research/llm-observability-and-reliability.md) — how tracing, model-level uncertainty, external evidence and calibration can become sensors for the EOKS control loop.
 - [Control loop](research/control-loop.md)
 - [Behavioral memory and learning how developers work](docs/behavioral-memory.md) — how session traces can become validated procedural knowledge, skills and policies.
 - [Learning from development sessions](research/session-learning.md)
