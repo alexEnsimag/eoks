@@ -151,9 +151,9 @@ The conductor chooses the smallest topology that satisfies the workload's requir
 
 ## Claude Code as a concrete execution substrate
 
-Claude Code provides a useful reference implementation for these concepts. Its current primitives include custom subagents, background sessions, isolated worktrees and experimental agent teams. Custom subagents are particularly useful for reusable roles such as a read-only explorer, test/validation worker or independent reviewer. Agent teams add direct teammate communication and shared task coordination, but introduce substantially more token and coordination overhead. citehttps://code.claude.com/docs/en/sub-agents
+Claude Code provides a useful reference implementation for these concepts. Its current primitives include custom subagents, background sessions, isolated worktrees and experimental agent teams. Custom subagents are particularly useful for reusable roles such as a read-only explorer, test/validation worker or independent reviewer. Agent teams add direct teammate communication and shared task coordination, but introduce substantially more token and coordination overhead. See the [Claude Code subagents documentation](https://code.claude.com/docs/en/sub-agents).
 
-Agent teams should therefore be treated as an optional scaling mechanism, not the default architecture. Claude Code's documentation explicitly positions subagents for focused delegated work and agent teams for cases where independent workers need to communicate and coordinate. Agent teams are experimental and disabled by default. citehttps://code.claude.com/docs/en/agent-teams
+Agent teams should therefore be treated as an optional scaling mechanism, not the default architecture. Claude Code's documentation positions subagents for focused delegated work and agent teams for cases where independent workers need to communicate and coordinate; agent teams are experimental and disabled by default. See the [Claude Code agent teams documentation](https://code.claude.com/docs/en/agent-teams).
 
 This distinction maps naturally onto EOKS:
 
@@ -173,7 +173,7 @@ The execution substrate is replaceable; the EOKS workflow semantics should not d
 
 Conductor-style Claude Code plugins are useful **implementation experiments** for the orchestration concept: persistent task/session state, explicit workflow phases, session discovery and lightweight coordination can be valuable primitives. They should not automatically become an EOKS architectural dependency.
 
-For example, the community `claude-conductor` project exposes a conductor skill/commands and tracks session states such as planning, coding, reviewing, blocked and done. This is useful prior art for a thin orchestration layer, but it is an implementation of the idea rather than the EOKS abstraction itself. citehttps://github.com/code-katz/claude-conductor
+For example, the community [`claude-conductor`](https://github.com/code-katz/claude-conductor) project exposes a conductor skill/commands and tracks session states such as planning, coding, reviewing, blocked and done. This is useful prior art for a thin orchestration layer, but it is an implementation of the idea rather than the EOKS abstraction itself.
 
 The architectural rule is:
 
