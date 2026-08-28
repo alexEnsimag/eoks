@@ -14,7 +14,9 @@ A recent refinement is important: **knowledge is not a graph, and context engine
 
 A second refinement is equally important: **observability is not confidence, and confidence is not control**. Tracing and monitoring systems provide execution evidence; EOKS can combine that evidence with model-level uncertainty, deterministic checks and outcomes to estimate workload-specific reliability and decide what to do next.
 
-The current architectural hypothesis is deliberately compositional: OKF can provide durable structured knowledge; Graphify-like systems can provide structural evidence; GrapeRoot-like systems can provide proactive context optimization around existing coding agents; specialized analyzers and tests can provide deterministic evidence; and EOKS can coordinate these resources through task, context, run, decision, policy, evaluation and outcome primitives.
+A third refinement is that **memory is not one flat store**. Agent systems increasingly separate experience-derived memory, reusable procedures, documentation/knowledge and structural code representations. EOKS should preserve those semantic distinctions while giving them a common lifecycle boundary for provenance, scope, freshness, access, versioning and evaluation.
+
+The current architectural hypothesis is deliberately compositional: OKF can provide durable structured knowledge; Graphify-like systems can provide structural evidence; GrapeRoot-like systems can provide proactive context optimization around existing coding agents; TencentDB Agent Memory demonstrates multi-resolution memory, Skills, Wiki and CodeGraph as governed reusable assets; specialized analyzers and tests can provide deterministic evidence; and EOKS can coordinate these resources through task, context, run, decision, policy, evaluation and outcome primitives.
 
 ```text
                          EOKS CONTROL PLANE
@@ -22,11 +24,10 @@ The current architectural hypothesis is deliberately compositional: OKF can prov
                                   |
         +-------------------------+-------------------------+
         |                         |                         |
-  KNOWLEDGE PLANE          CONTEXT PLANE            EXECUTION PLANE
- canonical knowledge       selection · assembly      workflows · agents
- graphs · semantic         ranking · compression     reasoning strategies
- history · runtime         progressive disclosure    tools · artifacts
- evidence
+  KNOWLEDGE / ASSET PLANE   CONTEXT PLANE            EXECUTION PLANE
+  memory · skills · docs    selection · assembly      workflows · agents
+  graphs · decisions        ranking · compression     reasoning strategies
+  evidence                  progressive disclosure    tools · artifacts
         |                         |                         |
         +-------------------------+-------------------------+
                                   |
@@ -71,6 +72,7 @@ The repository separates **current architecture** from **exploratory research**.
 The [`research/`](research/) directory preserves exploratory reasoning, comparisons and experiments. It is intentionally less normative than `docs/`; research notes may contain competing hypotheses. See [`research/README.md`](research/README.md) for its map.
 
 - [Knowledge, context and the EOKS control plane](research/knowledge-context-control-plane.md) — synthesis of the recent OKF, GrapeRoot and Graphify discussion, including the proposed minimal runtime model and the boundary between knowledge, context, execution and control.
+- [TencentDB Agent Memory](research/prior-art/tencent-agent-memory.md) — multi-resolution memory, Skills, Wiki, CodeGraph, governance/loadouts and hybrid proactive/on-demand context delivery.
 - [Agent code understanding and architecture tooling](research/agent-code-understanding-and-architecture.md) — how repository knowledge graphs, deterministic analysis, architecture governance and AI coding tools can map onto EOKS.
 - [Context engineering](research/context-engineering.md)
 - [Context quality model](research/context-quality-model.md)
@@ -93,16 +95,19 @@ The current practical hypothesis is intentionally conservative:
 2. Keep cross-cutting architectural rationale in a small number of Markdown/ADR documents.
 3. Derive structural information automatically with deterministic analysis and optional graphs.
 4. Treat organizational/system context—such as ownership, service boundaries and architectural rationale—as another evidence source when the task requires it; do not assume repository-local context is sufficient.
-5. Use context compilation to select only task-relevant evidence.
-6. Treat context as an inspectable, budgeted artifact; the proposed Context Workbench provides blocks, provenance, selection rationale, context diffs and a graph view without requiring manual curation for every task.
-7. Treat agent workflows and reasoning strategies as execution-layer resources.
-8. Learn continuously through candidate extraction and controlled promotion rather than silently rewriting canonical knowledge.
-9. Update representations incrementally; do not rebuild the entire knowledge base after every change.
-10. For software engineering, prefer the cheapest reliable deterministic evidence source that answers the question: types before custom analysis, lightweight rules before deep dataflow, and deeper analyzers only when the invariant requires them.
-11. Treat observability traces as sensors for the control loop. Combine operational metrics, model uncertainty, evidence agreement, deterministic checks and outcomes rather than trusting a single model confidence number.
-12. Calibrate reliability signals against actual task outcomes before allowing them to drive automatic stop/verify/branch/model-switch decisions.
-13. Prefer an integration/sidecar model around existing coding agents before building a new agent runtime; the GrapeRoot launcher architecture is useful prior art for this approach.
-14. Keep the EOKS semantic model small until real run traces demonstrate that additional primitives are necessary.
+5. Maintain reusable memory, Skills and knowledge assets with explicit provenance, scope, freshness, ownership/access and lifecycle rather than treating them as one undifferentiated memory store.
+6. Use an agent/task loadout to constrain which assets are eligible for a workload before context relevance is optimized.
+7. Use context compilation to select only task-relevant evidence from the eligible asset/evidence set.
+8. Treat context as an inspectable, budgeted artifact; the proposed Context Workbench provides blocks, provenance, selection rationale, context diffs and a graph view without requiring manual curation for every task.
+9. Treat agent workflows and reasoning strategies as execution-layer resources.
+10. Learn continuously through candidate extraction and controlled promotion rather than silently rewriting canonical knowledge.
+11. Update representations incrementally; do not rebuild the entire knowledge base after every change.
+12. For software engineering, prefer the cheapest reliable deterministic evidence source that answers the question: types before custom analysis, lightweight rules before deep dataflow, and deeper analyzers only when the invariant requires them.
+13. Treat observability traces as sensors for the control loop. Combine operational metrics, model uncertainty, evidence agreement, deterministic checks and outcomes rather than trusting a single model confidence number.
+14. Calibrate reliability signals against actual task outcomes before allowing them to drive automatic stop/verify/branch/model-switch decisions.
+15. Prefer an integration/sidecar model around existing coding agents before building a new agent runtime; the GrapeRoot launcher architecture is useful prior art for this approach.
+16. Compare proactive, reactive and hybrid context delivery rather than assuming that pre-injection or tool-driven exploration is universally better.
+17. Keep the EOKS semantic model small until real run traces demonstrate that additional primitives are necessary.
 
 This gives EOKS a path from a simple Git repository to richer knowledge infrastructure without requiring a graph database or a new canonical format on day one.
 

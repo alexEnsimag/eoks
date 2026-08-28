@@ -32,6 +32,7 @@ When a research conclusion becomes stable, its canonical statement should move i
 - [`memory-lifecycle.md`](memory-lifecycle.md) — lifecycle and invalidation.
 - [`session-learning.md`](session-learning.md) — learning from development-session traces.
 - [`prior-art/agent-memory.md`](prior-art/agent-memory.md) — memory-system prior art.
+- [`prior-art/tencent-agent-memory.md`](prior-art/tencent-agent-memory.md) — TencentDB Agent Memory: multi-resolution memory, Skills, Wiki, CodeGraph, governance/loadouts and hybrid context delivery.
 - [`claude-learning-okf-hindsight.md`](claude-learning-okf-hindsight.md) — Claude Code knowledge/memory mechanisms, OKF and Hindsight.
 - [`prior-art/hindsight-and-okf.md`](prior-art/hindsight-and-okf.md) — Hindsight/OKF comparison.
 

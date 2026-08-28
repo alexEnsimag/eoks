@@ -88,6 +88,50 @@ This is where durable human-readable knowledge is especially valuable:
 
 A package-level `CLAUDE.md` can be a very effective canonical representation for this category because it is close to the code, reviewed in Git, and naturally scoped to the package.
 
+## Reusable context/knowledge assets
+
+A useful abstraction above individual representations is the **Context/Knowledge Asset**: a durable, governed resource that can contribute information, procedures or evidence to future workloads.
+
+Examples include:
+
+```text
+Memory            -> experience-derived information
+Skill             -> reusable procedure
+Wiki / document   -> structured domain/project knowledge
+CodeGraph         -> structural code representation
+ADR / decision   -> reviewed rationale
+Test result       -> verification evidence
+Incident record   -> historical/runtime evidence
+```
+
+These assets are not semantically interchangeable. A Skill is not a fact, and a CodeGraph is not a canonical source of truth. The value of the abstraction is lifecycle interoperability: assets can carry common metadata such as provenance, scope, freshness, revision, ownership/access, version and validation state while keeping their native representation.
+
+TencentDB Agent Memory is useful prior art because its current system explicitly governs Chat Memory, Skills, LLM-Wiki and CodeGraph as reusable assets. See [the dedicated research note](../research/prior-art/tencent-agent-memory.md).
+
+## Asset universe versus loadout
+
+The asset universe can be much larger than what a particular agent or task should use:
+
+```text
+all available assets
+        |
+ access / ownership / scope
+        |
+ agent + task loadout
+        |
+ relevance / applicability
+        |
+ compiled context
+```
+
+This introduces a useful boundary:
+
+- **Asset governance** decides what may be used.
+- **Loadout selection** decides what is available/expected for a workload.
+- **Context compilation** decides what should enter a particular reasoning step.
+
+This is important for privacy, stale-state control, context cost and task-specific applicability. Retrieval should not be the only gate.
+
 ## Canonical knowledge does not need a special format
 
 EOKS should not require a graph database, ontology, or a new knowledge format to become useful.
