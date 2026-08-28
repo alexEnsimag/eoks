@@ -41,47 +41,33 @@ problem
   -> outcome
 ```
 
-Repeated trajectories reveal patterns that are difficult to express as ordinary facts. For example, a developer may consistently inspect a particular subsystem before changing code, prefer a minimal change before considering a redesign, or use a specific verification sequence after modifying a risky component.
+Repeated trajectories reveal patterns that are difficult to express as ordinary facts. The goal is not to imitate every historical action, but to discover **repeatable, outcome-linked procedures**.
 
-The goal is not to imitate every historical action. It is to discover **repeatable, outcome-linked procedures**.
+## Second-brain use cases
+
+A useful developer second brain can support several layers:
+
+1. **Personal engineering knowledge** — solutions, architecture decisions, debugging discoveries, code patterns and lessons learned.
+2. **Project memory** — constraints, conventions, decisions, known failures, goals and historical rationale.
+3. **Debugging memory** — reusable investigation episodes: `symptom -> hypotheses -> evidence -> root cause -> fix -> verification`.
+4. **Session learning** — recurring task decomposition, evidence-gathering, tool usage, verification habits, dead ends and human corrections.
+5. **Career and organizational memory** — durable records of projects, impact, incidents and technical decisions that support handoffs, reviews and onboarding.
+
+The useful distinction is that the system should retain both the **answer** and the trajectory that produced it.
 
 ## Three useful memory classes
 
 ### Semantic memory
 
-Facts and durable knowledge:
-
-- architecture;
-- domain concepts;
-- conventions;
-- constraints;
-- known failure modes.
-
-This is closely related to the existing EOKS knowledge-base model.
+Facts and durable knowledge: architecture, domain concepts, conventions, constraints and known failure modes.
 
 ### Episodic memory
 
-Specific past experiences:
-
-- a production incident;
-- a difficult debugging session;
-- a successful implementation;
-- a failed approach and its correction;
-- a previous task with similar shape.
-
-Episodes are useful as evidence and examples. They should not automatically become universal rules.
+Specific past experiences: incidents, difficult debugging sessions, successful implementations, failed approaches and corrections. Episodes are evidence, not automatically universal rules.
 
 ### Procedural / behavioral memory
 
-Generalized ways of working:
-
-- investigation procedures;
-- planning patterns;
-- implementation heuristics;
-- review checklists;
-- verification sequences;
-- reusable agent workflows;
-- preferences about when to escalate or ask for review.
+Generalized ways of working: investigation procedures, planning patterns, implementation heuristics, review checklists, verification sequences, reusable workflows and escalation preferences.
 
 Procedural memory is the most interesting class for continuous agent improvement because it can directly influence future execution.
 
@@ -105,15 +91,13 @@ validated procedure
 execution policy / skill
 ```
 
-A single session is usually insufficient evidence that a behavior is desirable. A behavior may have happened because of an unusual constraint, a mistaken assumption, or a one-off incident.
+A single session is usually insufficient evidence. A behavior may have happened because of an unusual constraint, a mistaken assumption, or a one-off incident.
 
-Patterns should therefore carry provenance and confidence, including where they were observed, what outcomes followed, and whether they have been validated across multiple examples.
+Patterns should carry provenance, confidence, scope, prerequisites, supporting sessions, outcomes and counterexamples.
 
 ## Learning from outcomes
 
-Frequency alone is not enough. A repeated behavior may simply be a habit.
-
-A stronger candidate pattern connects behavior to outcome:
+Frequency alone is not enough. A repeated behavior may simply be a habit. A stronger candidate connects behavior to outcome:
 
 ```text
 procedure P
@@ -123,27 +107,17 @@ procedure P
    +--> task class C --> failure
 ```
 
-EOKS should therefore distinguish:
+EOKS should distinguish:
 
 - **observed** — this happened;
 - **repeated** — this happened several times;
 - **successful** — this was associated with good outcomes;
-- **validated** — there is enough evidence to recommend it;
+- **validated** — evidence supports recommending it;
 - **deprecated** — later evidence shows it should no longer be used.
-
-This is analogous to knowledge freshness and invalidation, but applied to behavior.
 
 ## Candidate skills and policies
 
-A useful destination for validated procedural memory is not necessarily a prose note. It may become a reusable:
-
-- skill;
-- workflow;
-- checklist;
-- planner heuristic;
-- tool-selection policy;
-- verification policy;
-- escalation rule.
+Validated procedural memory does not have to remain prose. It may become a skill, workflow, checklist, planner heuristic, tool-selection policy, verification policy or escalation rule.
 
 For example:
 
@@ -153,113 +127,171 @@ Candidate:
 before modifying batching configuration."
 
 Evidence:
-- 7 related sessions
-- 6 successful outcomes
-- 1 exception caused by unrelated infrastructure failure
+- related sessions
+- successful and exceptional outcomes
+- commits / tests / reviews
 
 Promotion:
 "telemetry-change-investigation" skill
 ```
 
-The generated artifact should retain links to its supporting evidence and remain reversible.
+The generated artifact should retain evidence links and remain reversible.
 
-## Hot-path vs background learning
-
-Learning can happen during a task or after it.
+## Hot path vs background learning
 
 ### Hot path
 
-The agent explicitly records important observations while working.
-
-Advantages:
-
-- immediate availability;
-- explicit intent;
-- useful for high-confidence facts.
-
-Costs:
-
-- adds latency and cognitive/tool overhead;
-- asks the executing agent to reason about its own memory while solving the task.
+The executing agent records important observations while working. This gives immediate availability and explicit intent, but adds latency and cognitive/tool overhead.
 
 ### Background path
 
-A separate process analyzes completed sessions and extracts/consolidates candidate memories.
+A separate process analyzes completed sessions and extracts/consolidates candidate memories. This can compare many sessions and is particularly attractive for behavioral learning because useful patterns usually require multiple episodes.
 
-Advantages:
+The background path should therefore be the default research direction for discovering general procedures, while high-confidence facts can still be captured during execution.
 
-- no impact on task latency;
-- can compare many sessions;
-- better suited to pattern discovery and generalization.
+## Session traces as learning evidence
 
-Costs:
-
-- delayed learning;
-- requires careful provenance and validation;
-- extraction quality becomes an important evaluation problem.
-
-For behavioral learning, background analysis is particularly attractive because patterns usually require multiple episodes rather than a single observation.
-
-## Continuous learning loop
-
-The resulting EOKS loop is:
+A coding session should be represented as a trace rather than only a transcript:
 
 ```text
-                 +-------------------+
-                 |   development     |
-                 |      activity     |
-                 +---------+---------+
-                           |
-                           v
-                      observation
-                           |
-                           v
-                       session
-                        traces
-                           |
-                           v
-                   pattern extraction
-                           |
-                 +---------+---------+
-                 |                   |
-          episodic memory     candidate procedure
-                 |                   |
-                 +---------+---------+
-                           |
-                           v
-                     validation
-                           |
-                           v
-                 skill / policy / rule
-                           |
-                           v
-                    future execution
-                           |
-                           +-------> outcome
-                                         |
-                                         +--> new observation
+Goal
+  -> plan
+  -> observations / evidence
+  -> files inspected
+  -> commands and tools used
+  -> hypotheses
+  -> edits
+  -> failures / corrections
+  -> tests / verification
+  -> human feedback
+  -> final outcome
+```
+
+Useful events include task start/completion, plan revisions, tool calls, artifacts inspected, hypotheses, tests, failures, corrections, human intervention, acceptance/rejection and cost/latency/model information.
+
+A transcript preserves what was said. A trace makes the **decision process and outcome** queryable.
+
+Sensitive data should be filtered before persistence, with explicit retention and promotion policies.
+
+## From traces to learned patterns
+
+```text
+session trace
+    -> episode
+    -> recurring pattern
+    -> validation
+    -> Learning Record
+    -> candidate skill / policy
+    -> controlled rollout
+    -> evaluation
+```
+
+The output should be proposals with evidence, not silent prompt mutation.
+
+## Learning Record
+
+A useful primitive is:
+
+```text
+LearningRecord
+  situation
+  action / strategy
+  evidence
+  outcome
+  evaluation
+  provenance
+  confidence
+  scope
+  validity
+  status: candidate | validated | promoted | deprecated
+```
+
+A memory says what is known; a Learning Record captures **what behavior was tried in what situation and what happened**. This can produce reusable skills, project policies, routing policies, verification policies and context-selection heuristics.
+
+## Why transcript RAG is insufficient
+
+A vector store containing historical conversations can answer:
+
+> Have I seen this problem before?
+
+Behavioral learning needs to answer:
+
+> What did I tend to do in situations like this, did it work, and should the agent do something similar now?
+
+That requires structured episodes, outcome/evaluation signals, provenance, temporal validity, confidence, promotion rules and regression evaluation. Historical transcripts remain valuable evidence, but they should not themselves become the learned policy.
+
+## Continuous improvement loop
+
+```text
+observe
+  -> extract
+  -> validate
+  -> store
+  -> retrieve
+  -> execute
+  -> evaluate
+  -> compare against previous outcomes
+  -> update candidate policy / skill
+  -> evaluate again
 ```
 
 This turns the second brain from a passive archive into a **learning substrate for the control loop**.
 
-## Architectural implication for EOKS
+## Reflection questions
 
-EOKS should not become a monolithic "developer clone" or automatically rewrite agent prompts after every session. The stronger abstraction is a lifecycle for behavioral knowledge:
+A periodic reflection process can ask:
 
-1. observe work;
-2. preserve the trace and outcome;
-3. extract candidate patterns;
-4. group similar episodes;
-5. test whether the pattern correlates with successful outcomes;
-6. validate against source evidence and counterexamples;
-7. promote into a skill, policy or reusable workflow;
-8. retrieve it selectively for future tasks;
-9. measure whether it actually improves outcomes;
-10. invalidate or revise it when evidence changes.
+- Where did work repeatedly waste time?
+- Which mistakes recur?
+- Which developer corrections recur?
+- Which evidence sources consistently resolve a class of problem?
+- Which tools are used together?
+- Which verification steps correlate with successful outcomes?
+- Which behaviors should become reusable skills?
+- Which instructions are redundant or contradictory?
+- Which routing decisions should change?
+- What new evaluation should be added?
 
-This keeps learning compatible with the existing EOKS principles of provenance, progressive disclosure, evaluation and controlled promotion.
+## Learning plane
 
-## Open questions
+This suggests a learning plane alongside the execution/control plane:
+
+```text
+                  EOKS CONTROL PLANE
+          scheduling · routing · policies
+                         |
+        +----------------+----------------+
+        |                |                |
+     CONTEXT           MEMORY          EXECUTION
+        |                |                |
+        +----------------+----------------+
+                         |
+                    EVALUATION
+                         |
+                    OBSERVABILITY
+                         |
+                    LEARNING PLANE
+                         |
+          trace analysis / reflection /
+          pattern extraction / proposals
+                         |
+                  versioned knowledge
+                         |
+                    back to control
+```
+
+The learning plane should not be another autonomous agent runtime. Its job is to transform accumulated evidence into candidate improvements that can be evaluated and versioned.
+
+## Existing tools as capability references
+
+- **LangMem** — particularly relevant prior art for semantic, episodic and procedural memory plus background extraction/reflection and behavior optimization.
+- **Mem0** — persistent memory and memory extraction/retrieval infrastructure.
+- **Zep** — long-term memory and graph-oriented context infrastructure.
+- **OpenHands** — primarily an execution runtime/SDK and a useful source of agent execution-trace prior art.
+
+These are capability references, not EOKS dependencies. EOKS remains broader because it coordinates memory with evidence providers, context assembly, execution policy, scheduling and evaluation.
+
+## Research questions
 
 - What is the minimum useful session trace?
 - How should successful outcomes be defined for software-engineering tasks?
@@ -268,8 +300,8 @@ This keeps learning compatible with the existing EOKS principles of provenance, 
 - How should contradictory procedures coexist?
 - How should developer-specific behavior differ from project-specific policy?
 - Can a learned procedure be evaluated offline against historical sessions?
-- When should a learned pattern become a skill versus remain retrievable evidence?
+- When should a learned pattern become a skill versus remain evidence?
 - How can model changes affect the apparent success of a learned procedure?
 - How should humans approve, correct or delete learned behavior?
 
-The key research question is empirical: **does learning procedural patterns from development traces measurably improve future task outcomes enough to justify the additional complexity?**
+The key falsifiable question is empirical: **does learning procedural patterns from real development traces measurably improve future software-engineering task outcomes enough to justify the added complexity?**
