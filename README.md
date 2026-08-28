@@ -38,6 +38,7 @@ A recent refinement is important: **knowledge is not a graph, and context engine
 - [Vision](docs/vision.md)
 - [Architecture](docs/architecture.md)
 - [Context engineering](docs/context.md)
+- [Context Workbench architecture](docs/context-workbench.md)
 - [Knowledge base](docs/knowledge-base.md)
 - [Knowledge as a multi-representation system](docs/knowledge-representations.md)
 - [Agent workflows and reasoning strategies](docs/agent-workflows.md)
@@ -58,9 +59,10 @@ The current practical hypothesis is intentionally conservative:
 2. Keep cross-cutting architectural rationale in a small number of Markdown/ADR documents.
 3. Derive structural information automatically with deterministic analysis and optional graphs.
 4. Use context compilation to select only task-relevant evidence.
-5. Treat agent workflows and reasoning strategies as execution-layer resources.
-6. Learn continuously through candidate extraction and controlled promotion rather than silently rewriting canonical knowledge.
-7. Update representations incrementally; do not rebuild the entire knowledge base after every change.
+5. Treat context as an inspectable, budgeted artifact; the proposed Context Workbench provides blocks, provenance, selection rationale, context diffs and a graph view without requiring manual curation for every task.
+6. Treat agent workflows and reasoning strategies as execution-layer resources.
+7. Learn continuously through candidate extraction and controlled promotion rather than silently rewriting canonical knowledge.
+8. Update representations incrementally; do not rebuild the entire knowledge base after every change.
 
 This gives EOKS a path from a simple Git repository to richer knowledge infrastructure without requiring a graph database or a new canonical format on day one.
 
