@@ -50,19 +50,64 @@ Compare transcript memory, curated Markdown/files, structured records and graph 
 
 Specifically test whether context compilation can reconstruct useful continuity after a session is cleared or a fresh subagent starts, without relying on conversation compaction as the primary persistence mechanism.
 
-## 6. Model routing and migration
+Also compare **flat versus multi-resolution memory**. Test whether L0/L1/L2/L3-style representations—or another hierarchical scheme—improve continuity and retrieval cost while preserving provenance and allowing drill-down to source evidence.
+
+## 6. Reusable context/knowledge assets
+
+Treat reusable memory, Skills, Wiki pages, CodeGraph indexes, decisions and evaluation records as candidate **context/knowledge assets** with different semantics but common lifecycle metadata.
+
+Test:
+
+- asset ownership and access boundaries;
+- scope/applicability filtering;
+- freshness and invalidation;
+- versioning and provenance;
+- asset-level evaluation;
+- portability across agents and harnesses.
+
+TencentDB Agent Memory is useful prior art for a governed asset model spanning Chat Memory, Skill, LLM-Wiki and CodeGraph. The EOKS hypothesis should remain broader and implementation-agnostic.
+
+## 7. Agent/workload loadouts
+
+Test whether an explicit loadout—assets available and intended for a particular agent or workload—improves context quality compared with unrestricted retrieval.
+
+Compare:
+
+```text
+unrestricted asset universe
+        vs
+fixed loadout
+        vs
+task-specific loadout
+```
+
+Measure irrelevant retrieval, unauthorized exposure, stale-asset use, task outcome and context cost. Separate **eligibility** (access/scope/applicability) from **selection** (relevance/value) and from **compilation** (what actually enters the context).
+
+## 8. Proactive, reactive and hybrid context delivery
+
+Compare:
+
+- proactive context packing before reasoning;
+- reactive tool-based exploration;
+- hybrid bootstrap + on-demand retrieval.
+
+GrapeRoot is useful prior art for proactive context around an existing coding agent. TencentDB Agent Memory is useful prior art for a hybrid architecture where some memory/Skills are surfaced proactively while Wiki/CodeGraph can be discovered and queried on demand.
+
+Hold the workload and asset universe constant where possible. Measure discovery turns, tool calls, latency, token cost, evidence coverage and end-to-end task outcome.
+
+## 9. Model routing and migration
 
 Construct a heterogeneous workload and compare always-strongest-model against capability/cost-aware routing. Include model upgrades and regression testing. Hold context composition constant when comparing models where possible.
 
 The detailed reliability, model-switching and model/context-interaction methodology is [Evaluation, reliability and model switching](../research/evaluation-and-model-switching.md).
 
-## 7. Deterministic evidence
+## 10. Deterministic evidence
 
 For software engineering, compare LLM-only reasoning against hybrid workflows using structural graphs, tests, type checking, static analysis and dataflow/taint analysis.
 
 Test **analysis escalation**: type/compiler checks → lightweight rules → targeted compiler/AST analysis → dataflow → deeper interprocedural analysis. Measure setup cost, runtime, coverage, false positives/negatives and usefulness to the agent rather than assuming the deepest analyzer is best.
 
-## 8. Invariants and barriers
+## 11. Invariants and barriers
 
 Test whether agents can reliably identify architectural invariants from concrete bug investigations and express them independently of a particular analysis tool.
 
@@ -70,19 +115,19 @@ Compare prevention through API/type design with increasingly powerful verificati
 
 > **Hypothesis:** invariants are a more durable abstraction than individual analyzer rules.
 
-## 9. Evidence-provider selection
+## 12. Evidence-provider selection
 
 Prototype a policy that chooses among graph queries, type checking, tests, static analyzers, runtime evidence and LLM reasoning based on the task. Measure whether the control plane can answer engineering questions with a cheaper sufficient provider instead of always invoking the deepest available analysis.
 
-## 10. Control-plane prototype
+## 13. Control-plane prototype
 
 Implement the smallest scheduler that accepts a task, chooses context sources/tools/model, executes, evaluates and records the decision. Do not begin with a distributed platform; prove the control loop locally first.
 
-## 11. Continuous assurance
+## 14. Continuous assurance
 
 Explore whether evaluation results can automatically alter future routing/context policies. The interesting system is not one that merely measures failures, but one that becomes better at choosing how to work.
 
-## 12. Institutional and system context
+## 15. Institutional and system context
 
 Test whether adding service ownership, upstream/downstream boundaries, architectural rationale and validated session knowledge improves software-engineering outcomes compared with repository-only context.
 
@@ -90,7 +135,7 @@ Distinguish repository context, structural dependency context, ownership metadat
 
 Also test session-to-institutional-knowledge promotion and cross-harness portability, with provenance, scope, freshness, contradiction handling and rollback/invalidation.
 
-## 13. LLM observability and reliability signals
+## 16. LLM observability and reliability signals
 
 Test whether observability can become a useful sensor layer for the control loop. Record execution traces, model/version, context manifest, token usage, latency/cost, uncertainty signals where available, evidence agreement, deterministic checks, evaluator/human scores and final correctness.
 
@@ -106,7 +151,7 @@ Do not allow a reliability signal to control the live loop until it has demonstr
 
 See [LLM observability and reliability signals](../research/llm-observability-and-reliability.md).
 
-## 14. Controlled context and model benchmark
+## 17. Controlled context and model benchmark
 
 Use a versioned golden set of approximately 20–30 representative software-engineering tasks before introducing a new context system or model. Run controlled context configurations and then compare candidate models on the same configurations. Measure task success, tests, correctness, completeness, groundedness, serious regressions, tool calls, tokens, latency and cost.
 
