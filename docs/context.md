@@ -1,10 +1,10 @@
 # Context engineering
 
-Context engineering is the discipline of constructing the information available to a model for a specific reasoning step.
+Context engineering is the broader discipline of constructing the information available to a model for a specific reasoning step.
 
 > **Knowledge is persistent; context is compiled for a task.**
 
-Context engineering is therefore the runtime boundary between durable knowledge/evidence and model input. A repository, graph, memory store or knowledge bundle can contain much more information than should enter a model context.
+The concrete EOKS operation is **context compilation**: selecting, transforming, ordering, compressing and budgeting information for a particular reasoning step. See [Resource model](resource-model.md) for the vocabulary boundary between resources, assets, providers, loadouts and context.
 
 ## Context is not storage
 
@@ -35,7 +35,7 @@ A code graph is often excellent navigation evidence. It does not automatically b
 
 ## Evidence providers
 
-Graphs, semantic indexes, timelines, ADRs, static analysis, tests, runtime observations and knowledge bundles are **providers**, not context themselves. The context compiler selects and transforms their output.
+Graphs, semantic indexes, timelines, ADRs, static analysis, tests, runtime observations and knowledge bundles are evidence sources/representations. Providers retrieve or derive evidence from them; the context compiler selects and transforms the result.
 
 ```text
 Task: change authentication
@@ -51,49 +51,41 @@ Task: change authentication
 
 EOKS should prefer the cheapest provider that can reliably answer the question and retain provenance with the resulting evidence.
 
-## Context/knowledge assets
+## Context sources are heterogeneous
 
-Recent agent-memory systems suggest a useful abstraction above individual stores: a **reusable asset** is a durable, governed resource that may contribute information, procedures or evidence to future workloads.
+Memory, Skills, project documentation, decisions, CodeGraph/indexes, test results, runtime observations and historical records can all contribute to context. They should retain their semantic distinctions and authority rather than being flattened into one "memory" store.
 
-Examples include:
+These resources can share the generic governance/lifecycle abstraction described in [Resource model](resource-model.md), but **Asset is not a new semantic knowledge category**.
 
-- semantic/episodic memory;
-- procedural Skills;
-- project documentation and Wiki pages;
-- structural CodeGraph/indexes;
-- ADRs and decisions;
-- test/evaluation records;
-- runtime or incident knowledge.
-
-These assets should not be treated as semantically identical. A Skill is a procedure; a CodeGraph is a representation; a memory item is an experience-derived claim; an ADR is human-reviewed rationale. They can nevertheless share lifecycle metadata such as provenance, scope, freshness, revision, ownership/access and validation state.
-
-TencentDB Agent Memory is useful prior art for this model: it currently manages Chat Memory, Skill, LLM-Wiki and CodeGraph as reusable assets, with agent/team ownership and loadout concepts. See [TencentDB Agent Memory](../research/prior-art/tencent-agent-memory.md).
+TencentDB Agent Memory is useful prior art because it explicitly combines Chat Memory, Skills, LLM-Wiki and CodeGraph with governance and agent loadouts. Its detailed mapping and current delivery model are documented in [TencentDB Agent Memory](../research/prior-art/tencent-agent-memory.md).
 
 ## Asset universe, loadout and compiled context
 
-Context selection is clearer when split into three stages:
+The selection boundary is:
 
 ```text
-asset / knowledge universe
-            |
-       access + scope
-            |
-      agent/task loadout
-            |
-     task + policy + budget
-            |
-      context compiler
-            |
-      compiled context
+all reusable resources
+          |
+ governance: access / ownership / scope / lifecycle
+          |
+       agent/task loadout
+          |
+ relevance / applicability / value / budget
+          |
+    context compilation
+          |
+     compiled context
 ```
 
-The **loadout** is the set of assets the workload is allowed and expected to use. It is not the final prompt. The compiler still has to decide which portions are useful for the current reasoning step.
+A **loadout** is the workload-scoped set of assets an agent/task is allowed and expected to use. It is not the final prompt. Context compilation still decides what is useful for the current reasoning step.
 
-This distinction matters because relevance is not the only eligibility criterion. An asset can be relevant but inaccessible, out of scope, stale, contradictory, unverified or too expensive for the task.
+This distinction matters because relevance is not the only eligibility criterion. A resource can be relevant but inaccessible, out of scope, stale, contradictory, unverified or too expensive for the task.
+
+For the formal vocabulary, use [Resource model](resource-model.md) rather than redefining "asset" in multiple documents.
 
 ## Proactive, reactive and hybrid context delivery
 
-Context engines can differ in *when* they make information available:
+Context engines can differ in *when* they make information available.
 
 ### Proactive
 
