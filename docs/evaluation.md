@@ -2,7 +2,7 @@
 
 Evaluation is a first-class EOKS subsystem. If the system cannot measure whether a context, model, tool or orchestration decision improved an outcome, it cannot reliably optimize that decision.
 
-The detailed benchmark methodology and community-tool survey live in [Context evaluation, benchmarking and model migration](../research/context-evaluation-and-model-migration.md). This page defines the canonical evaluation concepts; the research note contains the experimental detail.
+The detailed benchmark methodology and community-tool survey live in [Context evaluation](../research/context-evaluation.md). The probabilistic uncertainty and control-signal discussion lives in [LLM uncertainty, semantic entropy and control](../research/llm-uncertainty-and-control.md). This page defines the canonical evaluation concepts; the research notes contain the experimental detail.
 
 ## What should be evaluated
 
@@ -15,7 +15,8 @@ The detailed benchmark methodology and community-tool survey live in [Context ev
 - robustness to missing, stale or contradictory information;
 - regression across model/context versions;
 - calibration of reliability signals;
-- usefulness of uncertainty signals for execution decisions.
+- usefulness of uncertainty signals for execution decisions;
+- stopping and branching policy quality.
 
 For coding-agent workloads, evaluate the **whole task**, not merely the textual answer. Tests, deterministic checks, files changed, regressions, repository exploration, tool calls, latency, tokens and cost are often more informative than prose quality alone.
 
@@ -66,6 +67,8 @@ Hold the model and task set constant when measuring context. Hold context and ta
 
 An LLM's stated confidence is evidence, not ground truth. EOKS should combine model self-assessment with external signals such as tests, static analysis, schema validation, evidence agreement, execution outcomes and human review where appropriate.
 
+Where exposed, token log probabilities provide model-native signals from the forward pass. Derived measures include mean/length-normalized log probability, top-token margins and predictive entropy. When token probabilities are unavailable, sampled semantic entropy, semantic agreement and external evidence can provide alternative signals.
+
 Keep three concepts separate:
 
 ```text
@@ -73,13 +76,50 @@ observability
   -> what happened?
 
 reliability estimation
-  -> how much should the result be trusted?
+  -> how much should the result be trusted for this decision?
 
 control
   -> what should happen next?
 ```
 
-Potential reliability signals include logprobs where exposed, semantic agreement, evidence contradictions, deterministic checks, tool outcomes, historical task success and evaluator/human scores. Raw uncertainty signals should be calibrated against actual outcomes for the relevant workload and decision; they should not automatically be treated as probabilities of correctness.
+Also keep these quantities separate:
+
+```text
+model uncertainty != evidence strength != probability of correctness
+```
+
+Raw entropy, logprob-derived statistics and model self-ratings should not automatically be treated as probabilities of correctness. A reliability signal must be calibrated against actual outcomes for the relevant workload and decision.
+
+Useful calibration/evaluation families include reliability diagrams, Expected Calibration Error (ECE), Brier score, AUROC and risk-coverage/rejection curves. The metric should match the decision being controlled: correctness probability, ranking, selective acceptance, stop/continue, routing or expected utility.
+
+## Evaluation as control evidence
+
+Evaluation is not merely reporting. Its outputs become evidence for future EOKS decisions:
+
+```text
+run
+ |
+v
+outcome + trace
+ |
+v
+evaluation / calibration
+ |
+v
+policy evidence
+ |
++--> stop
++--> retrieve / verify
++--> branch / replan
++--> context-selection update
++--> model migration decision
++--> evidence-provider selection
++--> knowledge promotion / invalidation
+```
+
+A graph should prefer evidence-based termination over arbitrary iteration counts where practical. Candidate stopping signals include validator success, sufficient evidence coverage, calibrated uncertainty below a workload-specific threshold, independent agreement, lack of new relevant evidence, marginal information gain below a threshold, or expected value of another step falling below its cost.
+
+These are policy inputs, not universal thresholds. Long-horizon workflows require trajectory-level evaluation because step-level uncertainty does not simply multiply into a correct trajectory probability; steps are often correlated and later validation can compensate for earlier errors.
 
 ## Model migration
 
@@ -97,6 +137,7 @@ tool calls / exploration
 tokens
 latency
 cost
+reliability calibration
 ```
 
 Do not immediately collapse these into one score. A candidate that improves the average while regressing a high-value task class may not be safe to promote.
@@ -126,26 +167,41 @@ promote or roll back
 
 New production edge cases should feed back into the offline dataset.
 
-## Evaluation as control evidence
+## Evaluation layers
 
-Evaluation is not merely reporting. Its outputs become evidence for future EOKS decisions:
+EOKS can separate evaluation by scope:
 
-```text
-run
- |
-v
-outcome + trace
- |
-v
-evaluation / calibration
- |
-v
-policy evidence
- |
-+--> context-selection update
-+--> model migration decision
-+--> evidence-provider selection
-+--> knowledge promotion / invalidation
-```
+1. **Unit evaluation** — deterministic functions, tools and validators.
+2. **Component evaluation** — retrieval, context compilation, memory selection or evidence providers.
+3. **Task evaluation** — complete representative workload outcomes.
+4. **Workflow evaluation** — multi-step/agent behavior, branching and termination.
+5. **System evaluation** — cost, latency, reliability and operational behavior.
 
-The long-term objective is continuous assurance: EOKS should accumulate evidence about which strategies work for which workload classes, at what cost, and with what failure modes.
+This decomposition helps localize regressions instead of attributing every change to the model.
+
+## Context and model interaction
+
+Model and context interventions can interact. A new model may compensate for weak retrieval, exploit structured context better, or react differently to a large context pack.
+
+Use an explicit matrix when this interaction matters:
+
+| | Baseline | Context engine | + durable knowledge | + structural evidence |
+|---|---:|---:|---:|---:|
+| Model A | A | B | C | D |
+| Model B | E | F | G | H |
+
+This separates model effects from context effects and exposes interaction effects. The effects should not be assumed additive.
+
+## Research questions
+
+- Which reliability signals predict correctness for each workload class?
+- How well can those signals be calibrated?
+- When does semantic uncertainty add value over token-level signals?
+- How should step-level uncertainty be aggregated into trajectory-level risk?
+- How much evaluation is required before switching models safely?
+- When is verification cheaper than the expected cost of an error?
+- Can stopping policies be learned from calibrated uncertainty and marginal value?
+- Can the system learn model/task/context affinity?
+- Which context interventions remain valuable after a model upgrade?
+
+These questions should be answered empirically through the benchmark methodology rather than becoming architecture assumptions first.

@@ -19,11 +19,11 @@ When a research conclusion becomes stable, its canonical statement should move i
 - [`context-quality-model.md`](context-quality-model.md) — dimensions and candidate metrics for context quality.
 - [`context-workbench.md`](context-workbench.md) — exploratory workbench model.
 - [`context-evaluation.md`](context-evaluation.md) — canonical controlled methodology for evaluating context interventions, durable knowledge, structural evidence and community evaluation tooling.
-- [`control-loop.md`](control-loop.md) — reconciliation/control-loop model.
+- [`control-loop.md`](control-loop.md) — reconciliation/control-loop model, including uncertainty-aware stop/continue and branching policies.
 - [`control-plane.md`](control-plane.md) — scheduling, model selection and workload management.
 - [`ai-os-analogies.md`](ai-os-analogies.md) — AI-OS framing and cross-domain analogies.
 - [`core-model.md`](core-model.md) — resource and semantic-model exploration.
-- [`design-patterns.md`](design-patterns.md) — recurring patterns.
+- [`design-patterns.md`](design-patterns.md) — recurring patterns, including uncertainty-aware graph control.
 - [`evolution.md`](evolution.md) — how the EOKS hypothesis changed over time.
 
 ### Memory and learning
@@ -39,6 +39,7 @@ When a research conclusion becomes stable, its canonical statement should move i
 ### Evaluation and reliability
 
 - [`evaluation-and-model-switching.md`](evaluation-and-model-switching.md) — reliability, confidence, model/task affinity and safe model migration.
+- [`llm-uncertainty-and-control.md`](llm-uncertainty-and-control.md) — probabilistic model signals, entropy, semantic entropy, calibration, semantic agreement and using uncertainty as a graph/control signal.
 - [`context-evaluation.md`](context-evaluation.md) — controlled context/evidence benchmark methodology and community evaluation tooling.
 - [`llm-observability-and-reliability.md`](llm-observability-and-reliability.md) — observability, uncertainty, external evidence and calibration.
 - [`observations-and-questions.md`](observations-and-questions.md) — unresolved questions.

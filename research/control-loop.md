@@ -52,6 +52,8 @@ After each meaningful execution step, EOKS observes the actual state and compare
                                    policy
 ```
 
+The important addition for probabilistic AI workloads is that **evaluation produces control evidence**, not just a score for a dashboard. The evidence may include deterministic validation, source coverage, tool outcomes, agreement between attempts, and model-native uncertainty signals such as logprob-derived entropy where available.
+
 ## Why a scheduler matters
 
 The scheduler can make choices that are awkward to encode inside an individual agent:
@@ -63,7 +65,9 @@ The scheduler can make choices that are awkward to encode inside an individual a
 - retry policy;
 - verification requirements;
 - escalation;
-- cost/latency tradeoffs.
+- cost/latency tradeoffs;
+- stop/continue policy;
+- branch selection based on evaluation evidence.
 
 This is the strongest part of the Kubernetes analogy: **policy and resource selection become infrastructure concerns.**
 
@@ -79,9 +83,75 @@ small reasoning task       -> efficient model
 complex coding task        -> stronger coding model
 high-risk result           -> model + verification
 ambiguous task             -> information gathering
+high uncertainty           -> retrieve / verify / branch / escalate
 ```
 
 The exact routing policy should be learned/evaluated empirically.
+
+## Reliability signals as control inputs
+
+EOKS should distinguish **model uncertainty**, **evidence strength** and **probability of correctness**. They may be correlated but are not interchangeable.
+
+Where providers expose token probabilities, candidate signals include:
+
+- mean or length-normalized log probability;
+- token-level predictive entropy;
+- top-token margin;
+- uncertainty on critical fields or tool arguments;
+- entropy trajectories during reasoning.
+
+Where token probabilities are unavailable, alternatives include sampled semantic entropy, semantic agreement/self-consistency, external validators and evidence coverage.
+
+Raw signals should not automatically be interpreted as calibrated probabilities of correctness. Calibration requires representative outcomes for the workload and the decision being controlled.
+
+See [LLM uncertainty, semantic entropy and control](llm-uncertainty-and-control.md).
+
+## Stop/continue decisions
+
+An agent graph should not rely only on fixed iteration counts when a measurable termination criterion is available.
+
+A node should define:
+
+```text
+goal
+  -> evidence
+  -> evaluation
+  -> acceptance criteria
+  -> continuation policy
+  -> budget / safety limit
+```
+
+Possible stop conditions include:
+
+```text
+validator passes
+required evidence coverage reached
+calibrated uncertainty is below threshold
+independent attempts converge
+no new relevant evidence is discovered
+marginal information gain falls below ε
+expected value of another step is below its cost
+```
+
+These are workload-specific policies, not universal thresholds. A useful research direction is to estimate the expected value of another action from historical outcomes and compare it with cost/latency.
+
+## Graph branching
+
+The same evaluation state can select different execution paths:
+
+```text
+                    evaluation
+                        |
+          +-------------+-------------+
+          |             |             |
+       sufficient     uncertain      failed
+          |             |             |
+         stop       retrieve       repair/replan
+                        |
+                    evaluate again
+```
+
+This is the graph-oriented form of reconciliation. The graph is not merely a fixed chain of prompts; it is a policy over state transitions.
 
 ## Verification as a resource
 
@@ -97,7 +167,8 @@ Escalation is another control action, not necessarily failure. EOKS can detect t
 - invoke a stronger model;
 - use a specialized tool;
 - ask a human;
-- split the task.
+- split the task;
+- change the representation or reasoning strategy.
 
 ## Policy learning
 
