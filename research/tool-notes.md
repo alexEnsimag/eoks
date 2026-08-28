@@ -34,6 +34,35 @@ See [Agent code understanding and architecture tooling](agent-code-understanding
 
 The Agent Memory work sharpened the distinction between a large context window and persistent memory. The important EOKS question is not simply how to store memories, but how to decide what is worth remembering and how to prevent bad memories from contaminating future contexts.
 
+## Agent memory and continuous learning
+
+Agent-memory systems add an important dimension to the EOKS research: persistent memory can represent not only facts but experiences and generalized behavior.
+
+### LangMem
+
+LangMem is particularly relevant prior art because it explicitly distinguishes semantic, episodic and procedural memory and supports both active/hot-path memory operations and background extraction/consolidation. It also explores prompt optimization based on experience.
+
+For EOKS, this demonstrates that memory can be treated as evolving state rather than a static vector database. The EOKS abstraction remains broader: it must connect observations, evidence, memory, execution policy, context assembly and evaluation into one control loop.
+
+### Mem0 and Zep
+
+Mem0 and Zep are useful prior art for persistent memory, extraction and retrieval across interactions. Their relevance to EOKS is primarily the memory layer. Persistence alone does not establish that a memory is correct, fresh, appropriately scoped, or useful for a future task.
+
+### Execution traces
+
+Agent execution runtimes and observability systems provide a complementary evidence source: the trajectory of an agent performing work. A separate background reflection process can analyze completed traces to discover recurring patterns without adding latency to the task itself.
+
+This leads to a useful EOKS distinction:
+
+```text
+observability = record what happened
+memory       = retain / retrieve what may matter later
+learning     = generalize from repeated evidence
+control      = use that evidence to decide what happens next
+```
+
+See [Agent memory and continuous-learning prior art](prior-art/agent-memory.md) and [Learning from development sessions](session-learning.md).
+
 ## XIRP / Spotify
 
 XIRP was useful as infrastructure prior art: large organizations need shared systems around AI applications rather than every team inventing its own execution environment.
@@ -166,7 +195,11 @@ A useful interpretation is that these projects form different layers of an ecosy
                                    |
                               agent runtime
                                    |
-                             outcomes / traces
+                        traces / episodes / outcomes
+                                   |
+                         background reflection
+                                   |
+                     behavioral memory / procedures
 ```
 
 This is intentionally not a claim that the tools were designed as EOKS components. It is a map of where their capabilities could fit in the hypothesis.
