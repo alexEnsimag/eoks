@@ -2,7 +2,7 @@
 
 Evaluation is a first-class EOKS subsystem. If the system cannot measure whether a context, model, tool or orchestration decision improved an outcome, it cannot reliably optimize that decision.
 
-The detailed benchmark methodology and community-tool survey live in [Context evaluation, benchmarking and model migration](../research/context-evaluation-and-model-migration.md). The probabilistic uncertainty and control-signal discussion lives in [LLM uncertainty, semantic entropy and control](../research/llm-uncertainty-and-control.md). This page defines the canonical evaluation concepts; the research notes contain the experimental detail.
+The detailed benchmark methodology and community-tool survey live in [Context evaluation](../research/context-evaluation.md). The probabilistic uncertainty and control-signal discussion lives in [LLM uncertainty, semantic entropy and control](../research/llm-uncertainty-and-control.md). This page defines the canonical evaluation concepts; the research notes contain the experimental detail.
 
 ## What should be evaluated
 
