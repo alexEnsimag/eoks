@@ -105,6 +105,45 @@ A useful context-quality model should consider:
 
 The goal is not maximum information. It is maximum useful evidence per unit of context and reasoning cost.
 
+"Context entropy" can be retained as an intuitive research question, but EOKS should not assume that one scalar entropy measure is sufficient. The more actionable approach is to expose the dimensions above and measure how context composition affects outcomes.
+
+A promising derived metric is **marginal context value**: the change in expected task quality attributable to a block relative to its token/latency cost. Initially this is a benchmark concept rather than a claim that online task-quality probabilities can be estimated precisely.
+
+## Context blocks and workbench
+
+Context should be represented conceptually as **inspectable blocks** rather than an opaque concatenated prompt. Blocks may represent task constraints, canonical knowledge, decisions, structural evidence, dependency slices, raw evidence, tests, runtime observations, history, procedures or working hypotheses.
+
+The proposed Context Workbench provides a human-facing view over these blocks. It should allow automatic selection while making the selection inspectable and optionally editable:
+
+- include/exclude/pin blocks;
+- inspect provenance and freshness;
+- ask why a block was selected or omitted;
+- inspect token cost;
+- compare context compositions;
+- impose a context budget;
+- review a context diff before execution;
+- save successful context recipes for future tasks.
+
+A graph view can complement the block view, but should represent relationships among task requirements, knowledge, code and evidence rather than simply reproduce the repository dependency graph.
+
+See [Context Workbench](context-workbench.md) for the proposed model, context layers, quality dimensions, context contracts, learning loop and UI/benchmark ideas.
+
+## Context layers
+
+A useful decomposition is:
+
+```text
+L0 task
+L1 constraints
+L2 persistent knowledge
+L3 structural context
+L4 evidence
+L5 working memory
+L6 reasoning state
+```
+
+Different workflow nodes can request different layer budgets. This is an information-architecture boundary, not a requirement that models reason in a particular way.
+
 ## Static versus dynamic context
 
 Large repository-wide instruction files can create a poor tradeoff: they are always available but may be irrelevant to the current task. EOKS should prefer **progressive disclosure** and task-scoped retrieval.
@@ -130,6 +169,20 @@ compact pointer / summary
         |
         +--> related evidence
 ```
+
+## Subagent context contracts
+
+Subagents are a particularly important consumer of compiled context. A fresh subagent should receive an explicit starting contract containing known facts, relevant nodes, task scope and unresolved questions when available. It should still be allowed to discover missing evidence.
+
+This avoids conflating **isolation** with **rediscovery**: isolated reasoning can be valuable, while repeated reconstruction of repository knowledge is often unnecessary cost.
+
+## Relationship to compaction and model routing
+
+Conversation compaction and context compilation solve different problems. Compaction attempts to preserve useful information inside a continuing conversation; context compilation reconstructs task-specific context from durable knowledge and authoritative evidence after a context boundary or fresh subagent starts.
+
+Similarly, model routing chooses a model while context compilation chooses the information supplied to that model. A router cannot fix waste caused by a strong model repeatedly rediscovering the same repository.
+
+For EOKS experiments, context optimization should therefore be measured independently before assuming that model routing is the primary cost lever.
 
 ## Continuous knowledge lifecycle
 
@@ -165,4 +218,6 @@ We need empirical benchmarks showing when a context intervention improves task s
 - regression/error rate;
 - stale-knowledge incidents;
 - usefulness of persistent knowledge;
-- whether a context intervention improves the outcome for a particular model.
+- whether a context intervention improves the outcome for a particular model;
+- which context blocks were selected, omitted, manually changed and ultimately useful;
+- the cost/benefit of context budgets and block-level optimization.

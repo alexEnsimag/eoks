@@ -12,7 +12,7 @@ EOKS is best understood as a set of cooperating planes rather than a single agen
  canonical knowledge       selection · assembly      workflows · agents
  graphs · semantic         ranking · compression     reasoning strategies
  history · runtime         progressive disclosure    tools · artifacts
- evidence
+ evidence                  context workbench
         |                         |                         |
         +-------------------------+-------------------------+
                                   |
@@ -58,6 +58,49 @@ A graph, semantic index or memory store should normally be queried by this plane
 
 A useful mental model is a **context budget**, not a context window: every item has relevance, freshness, reliability, cost and interaction effects.
 
+### Context Workbench
+
+The Context Workbench is the proposed interactive observability/control surface for this plane. Context should be represented conceptually as inspectable blocks or clusters rather than an opaque concatenated prompt. A block can represent knowledge, a decision, a dependency slice, raw evidence, a test result, a Git event, a procedure or working memory.
+
+The workbench should let the system automatically assemble context while allowing humans to inspect and, when useful, edit it:
+
+- include, exclude or pin blocks;
+- inspect provenance, freshness, confidence and token cost;
+- explain why a block was selected or omitted;
+- enforce a token/latency budget;
+- compare automatic and optimized context compositions;
+- view relationships among task, knowledge, code and evidence as a graph;
+- save successful context recipes;
+- feed manual edits and task outcomes back into future selection policies.
+
+This is **context observability and control**, not a requirement that humans manually curate every prompt. The default should remain automatic compilation, with intervention available when the system is uncertain or the user wants to inspect the decision.
+
+See [Context Workbench](context-workbench.md).
+
+## Context quality
+
+Context quality should be treated as multidimensional rather than reduced immediately to one scalar. Useful dimensions include relevance, coverage, redundancy, reliability, uncertainty, freshness, dependency completeness, provenance, contradiction risk, ordering/structure and token/latency cost.
+
+A promising experimental metric is **marginal context value**: the change in task quality associated with adding a block relative to its resource cost. This is a benchmark framing, not a claim that online task-quality probabilities can be estimated exactly.
+
+The objective is not maximum information. It is maximum useful evidence per unit of context and reasoning cost.
+
+## Context layers
+
+Context can be decomposed into layers so different workflow nodes can request different information budgets:
+
+```text
+L0 task
+L1 constraints
+L2 persistent knowledge
+L3 structural context
+L4 evidence
+L5 working memory
+L6 reasoning state
+```
+
+This is an information-architecture boundary, not a prescription for how the model must reason. If a layer distinction does not improve quality, cost or observability, it should not be imposed merely for structure.
+
 ## Execution plane
 
 The execution plane runs workflows, reasoning strategies, agents and tools; obtains artifacts; modifies repositories; executes tests; and records outcomes.
@@ -77,6 +120,8 @@ Confidence should be evidence-oriented rather than only model-reported. Examples
 - review outcomes;
 - runtime observations;
 - freshness and provenance of the underlying source.
+
+Context evaluation should additionally record what was included, omitted and manually changed, so context-selection policies can be compared against outcomes.
 
 ## Continuous knowledge updates
 
@@ -101,15 +146,68 @@ Cheap deterministic updates should happen frequently. LLM-heavy reasoning should
 
 Hooks are event boundaries into this lifecycle. They should not imply that the entire knowledge system is recomputed after every tool call.
 
+## Context invalidation
+
+Context caches and derived context blocks must be revision-aware. A useful dependency is:
+
+```text
+source revision
+      |
+knowledge/evidence representation
+      |
+context block
+      |
+compiled context
+```
+
+When an authoritative source changes, affected derived representations and cached context should be invalidated or marked stale according to their dependency scope. This is another reason provenance and freshness belong in the context plane rather than being added only as UI metadata.
+
+## Subagents
+
+Subagents provide isolation but can also create repeated repository-discovery cost. EOKS should distinguish **isolated reasoning** from **isolated knowledge**.
+
+Where available, a subagent should receive a context contract containing the task, known facts, relevant nodes, scope and unresolved questions. The subagent remains free to retrieve missing evidence, but does not have to reconstruct the entire repository from zero.
+
+This should be benchmarked rather than assumed to improve outcomes.
+
+## Compaction and session boundaries
+
+Conversation compaction is one mechanism for continuing a long session; it is not equivalent to persistent knowledge or task-specific context compilation. EOKS should make it possible to clear or replace a conversation while reconstructing the minimum sufficient context from durable knowledge and authoritative evidence.
+
+## Model routing
+
+Model routing is orthogonal to context engineering. Routing chooses a model; context compilation chooses the information supplied to that model.
+
+A useful control flow is:
+
+```text
+task
+ |
+context compilation
+ |
+optimized context
+ |
+capability / complexity policy
+ |
+model selection
+ |
+model
+```
+
+This allows context optimization to be evaluated independently before introducing routing as a cost optimization. A router cannot eliminate waste caused by a strong model repeatedly rediscovering the same repository.
+
 ## Observability
 
 Observability should expose not only latency and token counts, but **why the system made information and execution decisions**:
 
 - retrieved and omitted context;
+- context blocks and their relationships;
 - evidence providers queried;
 - model/reasoning strategy selected;
 - tools invoked;
 - evidence considered;
 - evaluation outcome;
 - confidence and provenance signals;
-- knowledge updates and invalidations.
+- knowledge updates and invalidations;
+- manual context edits;
+- context policy/version used.
