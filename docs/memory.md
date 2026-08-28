@@ -1,33 +1,30 @@
 # Memory
 
-EOKS treats memory as a deliberate persistence layer, not simply an ever-growing conversation transcript.
+EOKS treats memory as deliberate persistence for future work, not as an ever-growing transcript.
 
-## Useful distinctions
+## Semantic types
 
-### Working memory
-Information needed by the current task or reasoning chain.
+- **Working** — information needed by the current task or reasoning chain.
+- **Episodic** — what happened in a previous interaction or execution: actions, observations, failures and outcomes.
+- **Semantic** — durable facts, concepts, decisions and relationships.
+- **Project** — evolving codebase/project state: architecture decisions, constraints, conventions, known failures and goals.
+- **Procedural** — how work is performed: debugging strategies, decomposition patterns, verification habits and successful workflows.
+- **Policy** — what should happen; requires stronger validation and versioning before influencing execution.
+- **Preference** — human choices that may guide behavior but should not automatically become engineering rules.
 
-### Episodic memory
-What happened in a previous interaction or execution: actions, observations, failures and outcomes.
+These are semantic distinctions, not necessarily separate stores.
 
-### Semantic memory
-Durable facts, concepts, decisions and relationships extracted from experience or external sources.
+## Memory versus other resources and context
 
-### Project memory
-The evolving state of a codebase/project: architecture decisions, constraints, conventions, known failures and current goals.
+Memory is one semantic type of reusable resource. A reviewed ADR, source-derived graph or test result can be reusable without being memory. `Asset`, `Provider`, `Representation`, `Loadout` and `Context` are the generic resource/context vocabulary; see [Resource model](resource-model.md).
 
-### Procedural memory
-How work is performed: recurring debugging strategies, decomposition patterns, verification habits, review workflows and successful sequences of actions.
+Context is the task-specific projection supplied to a reasoning step. Memory is therefore one possible source for future context, not the context itself.
 
-### Policy memory
-What should happen. A policy is stronger than an observation and should require evidence, validation and versioning before it influences future execution.
+Different resources can share governance metadata—provenance, scope, freshness, ownership/access, version and validation state—without becoming one semantic category.
 
-### Preference memory
-Human choices that may guide behavior but should not automatically be generalized into engineering rules.
+## Multi-resolution memory
 
-## Memory can be multi-resolution
-
-Memory does not have to be a flat collection of records or embeddings. A useful hierarchy is:
+Memory can be represented at several resolutions:
 
 ```text
 raw conversation / observation
@@ -42,91 +39,95 @@ scenario / project memory
 durable pattern / profile
 ```
 
-The exact number of levels is implementation-specific. The important properties are that higher-level summaries can provide cheap context bootstrapping, lower-level records remain available for verification, and every abstraction retains provenance to the evidence from which it was derived.
+The exact number of levels is implementation-specific. Higher-level summaries can provide cheap bootstrapping while lower-level evidence remains available for verification. Every abstraction should retain provenance.
 
-TencentDB Agent Memory is useful prior art here: its current Chat Memory model uses L0 conversation, L1 atomic memory, L2 scenario memory and L3 core/profile memory. EOKS should treat that as a concrete design pattern, not as a universal ontology. See [TencentDB Agent Memory](../research/prior-art/tencent-agent-memory.md).
-
-## Memory is not the generic Asset abstraction
-
-Memory is one semantic type of reusable resource. A Skill, document, decision, CodeGraph or test result can also be reusable, but those are not automatically memories.
-
-EOKS uses **Asset** only as a generic lifecycle/governance abstraction across such heterogeneous resources. The canonical terminology and the asset → loadout → context boundary are defined in [Resource model](resource-model.md).
-
-This distinction matters because different resources have different authority and lifecycle semantics:
-
-```text
-Memory       -> experience-derived information
-Skill        -> reusable procedure
-Decision     -> reviewed rationale
-CodeGraph    -> structural representation/evidence
-Test result  -> verification evidence
-```
-
-They can share metadata such as provenance, scope, freshness, ownership/access, version and validation state without becoming one semantic category.
+TencentDB Agent Memory is useful prior art: its current Chat Memory model uses L0 conversation, L1 atomic memory, L2 scenario memory and L3 core/profile memory. EOKS treats this as a design pattern, not a universal ontology. See [TencentDB Agent Memory](../research/prior-art/tencent-agent-memory.md).
 
 ## Memory lifecycle
 
-A memory candidate should have a lifecycle:
+A memory candidate follows:
 
 `observe -> extract -> validate -> store -> retrieve -> use -> evaluate -> update/expire`
 
-The difficult part is not storage. It is deciding **what deserves persistence**, how confidence and provenance are retained, and how stale or contradictory memories are handled.
+The hard problem is deciding what deserves persistence and how stale, contradictory or low-quality memory is handled.
 
-For behavioral learning, the lifecycle should be extended with explicit promotion:
+For behavioral learning, extend this with explicit promotion:
 
-`trace -> episode -> pattern candidate -> validate -> learning record -> promote to skill/policy -> evaluate`
+`trace -> episode -> pattern candidate -> validate -> Learning Record -> promote -> evaluate`
 
-An observed behavior should not silently become canonical project policy. Repeated evidence, outcomes and human corrections can strengthen a candidate, while contradictory evidence can keep it scoped or prevent promotion.
+An observed behavior must not silently become canonical project policy. Repeated evidence, outcomes and human corrections can strengthen a candidate; counterexamples can keep it scoped or prevent promotion.
 
-## Skills as procedural memory made reusable
+## Procedural / behavioral memory
 
-A useful Skill should be treated as a governed procedural asset rather than a prompt snippet. Relevant metadata can include:
+A persistent knowledge base describes **what is true**. Procedural memory captures **how work gets done**. A useful development trajectory is:
 
-- applicability/trigger boundaries;
-- version;
-- execution steps;
-- resources;
-- validation rules;
-- provenance and supporting outcomes;
-- owner/scope/visibility;
-- lifecycle status.
+```text
+problem -> hypothesis -> evidence -> failed attempt -> correction
+        -> implementation -> verification -> review -> outcome
+```
 
-This is consistent with the existing Learning Record model: a Skill should be promoted from evidence and outcomes, not merely from repetition.
+A coding session should be represented as a trace, not only a transcript:
 
-## Memory versus context
+```text
+Goal -> plan -> observations/evidence -> tools/files -> hypotheses
+     -> edits -> failures/corrections -> verification -> human feedback -> outcome
+```
 
-Memory is a source for future contexts. Context is the task-specific projection of available knowledge. A memory item can be correct but still be inappropriate for a particular context.
+Useful events include task start/completion, plan revisions, tool calls, artifacts inspected, hypotheses, tests, failures, corrections, human intervention, acceptance/rejection and cost/latency/model information. Sensitive data requires explicit filtering, retention and promotion policies.
 
-This distinction becomes especially important for developer behavioral memory. Knowing that a developer used a particular workflow in one project does not mean the workflow is appropriate for every task.
+Observation is not learning. Distinguish:
 
-## Graph memory
+`observed -> repeated -> successful -> validated -> deprecated`
 
-Graphs are promising for representing entities, dependencies, decisions and provenance. They are especially interesting for software-engineering workloads where relationships such as `symbol -> caller -> dependency -> commit -> test` matter.
+Patterns should retain provenance, scope, prerequisites, supporting sessions, outcomes and counterexamples. A single successful session is usually insufficient evidence for a generalized procedure.
 
-But EOKS should not require a graph. A local collection of structured files can be a valid implementation of the same conceptual contract.
+## Learning Records and Skills
 
-## Learning records
-
-A useful primitive for behavioral memory is a **Learning Record**:
+A **Learning Record** captures:
 
 ```text
 situation
-  -> action / strategy
-  -> evidence
-  -> outcome
-  -> evaluation
-  -> provenance
-  -> confidence
-  -> scope / validity
-  -> status
+  action / strategy
+  evidence
+  outcome
+  evaluation
+  provenance
+  confidence
+  scope / validity
+  status: candidate | validated | promoted | deprecated
 ```
 
-This differs from ordinary memory. A memory says what is known; a learning record captures **what was tried in a situation and what happened**. Learning records can eventually produce reusable skills, verification policies, routing policies or context-selection heuristics.
+A memory says what is known; a Learning Record captures what was tried in a situation and what happened. It can produce reusable Skills, workflows, planner heuristics, tool-selection policies, verification policies or escalation rules.
 
-## Design questions
+A **Skill** is a governed procedural asset rather than a prompt snippet. It should carry applicability/trigger boundaries, version, execution steps, validation rules, provenance, supporting outcomes, scope/visibility and lifecycle status.
 
-Can memory systems expose enough provenance and confidence that the control plane can reason about **whether to trust a memory**, rather than treating retrieved text as ground truth?
+The executing agent can record important observations immediately, while background processing compares completed sessions and extracts candidate patterns. This keeps general learning off the critical path where possible.
 
-Can EOKS distinguish a useful personal pattern from a generally valid engineering policy, and require stronger evidence before promoting one into the latter?
+## Why transcript RAG is insufficient
 
-How should multi-resolution memory handle source changes, contradictions and invalidation so that a durable summary does not outlive the evidence that supports it?
+Historical retrieval can answer "Have I seen this before?" Behavioral learning additionally asks "What worked in similar situations, under what conditions, and should it be reused now?" That requires structured episodes, outcome/evaluation signals, provenance, temporal validity, promotion rules and regression evaluation. Transcripts remain evidence, not learned policy by themselves.
+
+## Graph memory
+
+Graphs are promising for entities, dependencies, decisions and provenance, especially relationships such as `symbol -> caller -> dependency -> commit -> test`. But EOKS does not require a graph; structured files or other stores can implement the same conceptual contract. A graph is a representation/evidence mechanism, not a universal memory ontology.
+
+## Learning and control
+
+```text
+observe -> extract -> validate -> store -> retrieve -> execute
+                                           |
+                                           v
+evaluate -> compare outcomes -> update candidate -> controlled rollout -> evaluate
+```
+
+Learning is currently a **cross-cutting lifecycle**, not a separate mandatory EOKS plane. It transforms evidence into candidate improvements that can be evaluated and versioned; it must not silently rewrite canonical knowledge or policy.
+
+A learned pattern must retain scope: a personal preference is not automatically a project rule; a project convention is not automatically a general engineering principle; and a procedure effective for one model is not necessarily effective for another.
+
+## Research boundary
+
+The key falsifiable question is: **does learning procedural patterns from real development traces measurably improve future software-engineering outcomes enough to justify the added complexity?**
+
+Important questions include minimum useful traces, promotion thresholds, accidental habits, contradictory procedures, developer-vs-project scope, offline evaluation, model changes and human approval/deletion.
+
+LangMem, Mem0, Zep and similar systems are capability references rather than EOKS dependencies. Their extraction, storage, retrieval and reflection mechanisms are useful prior art; EOKS is broader because it connects memory with evidence, context compilation, execution policy, scheduling and evaluation.
