@@ -47,6 +47,7 @@ A recent refinement is important: **knowledge is not a graph, and context engine
 - [Control plane](docs/control-plane.md)
 - [Evaluation](docs/evaluation.md)
 - [Software engineering](docs/software-engineering.md)
+- [Software analysis, dataflow and invariants](docs/software-analysis.md)
 - [Prior art](docs/prior-art.md)
 - [Terminology](docs/terminology.md)
 - [Open questions](docs/open-questions.md)
@@ -63,6 +64,7 @@ The current practical hypothesis is intentionally conservative:
 6. Treat agent workflows and reasoning strategies as execution-layer resources.
 7. Learn continuously through candidate extraction and controlled promotion rather than silently rewriting canonical knowledge.
 8. Update representations incrementally; do not rebuild the entire knowledge base after every change.
+9. For software engineering, prefer the cheapest reliable deterministic evidence source that answers the question: types before custom analysis, lightweight rules before deep dataflow, and deeper analyzers only when the invariant requires them.
 
 This gives EOKS a path from a simple Git repository to richer knowledge infrastructure without requiring a graph database or a new canonical format on day one.
 
