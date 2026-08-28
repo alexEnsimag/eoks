@@ -50,6 +50,9 @@ EOKS is not a prompt framework, vector database, memory store, agent framework o
 - [Context workbench](research/context-workbench.md)
 - [Evaluation and model switching](research/evaluation-and-model-switching.md)
 - [Control loop](research/control-loop.md)
+- [Behavioral memory and learning how developers work](docs/behavioral-memory.md) — how session traces can become validated procedural knowledge, skills and policies.
+- [Learning from development sessions](research/session-learning.md)
+- [Agent memory and continuous-learning prior art](research/prior-art/agent-memory.md)
 - [Tool notes](research/tool-notes.md)
 
 ## Status
