@@ -10,6 +10,16 @@ A particularly important consequence is that a coding agent should not need to r
 
 See [Knowledge base and persistent project knowledge](knowledge-base.md).
 
+## Canonical knowledge vs memory
+
+A useful coding-agent environment can have multiple persistence mechanisms with different trust levels:
+
+- **Canonical project knowledge** — explicit, validated instructions, invariants, architectural constraints and durable decisions. A `CLAUDE.md`-style file is one practical representation.
+- **Semantic memory** — historical material retrieved because it may be relevant to the current task.
+- **Candidate knowledge** — automatically extracted observations, proposed rules, skills or decisions that have not yet been validated.
+
+These should not be conflated. A memory retrieval system should not silently become the source of truth, and an automatic session summarizer should not silently rewrite canonical project policy.
+
 ## Context quality
 
 A useful context-quality model should consider:
@@ -29,7 +39,7 @@ The goal is not maximum information. It is maximum useful evidence per unit of c
 
 ## Context splitting
 
-Different reasoning steps often need different context. Splitting context can reduce noise and make decisions inspectable: discovery context, implementation context, verification context and historical/project context can be maintained separately.
+Different reasoning steps often need different context. Splitting context can reduce noise and make decisions inspectable: discovery context, design/planning context, implementation context, verification context and historical/project context can be maintained separately.
 
 This connects to the idea of **context entropy**: a large heterogeneous context may contain substantial information while having poor signal-to-noise for the current task.
 
@@ -48,3 +58,27 @@ A practical knowledge base does not need to start with a hosted database or grap
 ## Open problem
 
 We need empirical benchmarks showing when a context intervention improves task success, rather than assuming that more structure or more retrieved tokens are beneficial. In particular, EOKS should measure whether persistent project knowledge reduces redundant repository discovery without increasing errors caused by stale or incorrect memory.
+
+## Coding-agent workflow as a context lifecycle
+
+Claude Code plugins and hooks expose a useful concrete workflow for studying this problem. An execution workflow can produce decisions, failures, tool traces and review outcomes that become inputs to the knowledge lifecycle.
+
+A useful loop is:
+
+```text
+session start
+    |
+retrieve canonical knowledge + relevant memory
+    |
+work / execute / verify
+    |
+session end
+    |
+extract candidate facts, rules, skills and decisions
+    |
+validate + promote selectively
+    |
+updated knowledge / memory
+```
+
+The important architectural boundary is between **observation**, **candidate extraction**, **validation/promotion**, and **retrieval**. This makes a session-finalizer hook an instance of the general EOKS knowledge lifecycle rather than a special-case Claude Code feature.
