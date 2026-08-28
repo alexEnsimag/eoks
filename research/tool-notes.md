@@ -75,6 +75,48 @@ Guard the system      -> evidence about what should exist / happen
 
 For EOKS, TrueCourse is therefore closer to **evaluation + policy enforcement** than context retrieval. The interesting architectural idea is not necessarily the tool itself, but the possibility of making architecture and behavioral constraints executable and feeding their results into the control loop.
 
+## Claude Code workflow systems
+
+The Claude Code plugin discussion adds a complementary set of prior-art categories. The important point is to compare capabilities and ownership boundaries rather than accumulate plugins.
+
+### Superpowers
+
+Superpowers is an opinionated development workflow centered on structured design, implementation, testing and review. It is useful prior art for **execution policy**: a task can have explicit stages and quality gates rather than relying on unconstrained agent behavior.
+
+### modularity
+
+modularity is interesting because it operationalizes an explicit architectural concept rather than providing only generic LLM code review. It is therefore useful prior art for **architecture evidence/evaluation**. It is not a foundational EOKS dependency and should be selected when its particular analysis is useful.
+
+### Conductor-style orchestration
+
+Conductor-style workflows overlap with Superpowers around planning and execution. The useful distinction is between cross-task orchestration (decomposition, dependencies and scheduling) and within-task execution policy (design, implementation, tests and review). Installing multiple overlapping workflow engines without a clear ownership boundary risks duplicated planning and state.
+
+### `CLAUDE.md` management
+
+A `CLAUDE.md`-style mechanism is best understood as **canonical project knowledge + policy**: durable conventions, invariants, architecture constraints and decisions that should be reliably available to an agent. It is complementary to semantic memory rather than a replacement for it.
+
+### memsearch-style memory
+
+Semantic memory systems such as memsearch are useful for historical recall and retrieval of potentially relevant prior work. They should be treated as evidence/candidates rather than automatically trusted canonical facts because retrieval can surface stale or contradictory material.
+
+### `/simplify` and simplicity policies
+
+A `/simplify`-style pass is a useful post-implementation evaluation/refactoring activity. It is different from a continuous design policy that prefers simple solutions during planning and implementation. EOKS can model both as policy/evaluation signals without adopting a particular command.
+
+### Session finalization hooks
+
+A particularly interesting pattern is a session-end hook or explicit finalization step that extracts candidate decisions, rules, skills and project facts from completed work. The hook should feed the knowledge lifecycle:
+
+```text
+agent observations
+      -> candidate extraction
+      -> provenance + validation
+      -> promotion to canonical knowledge or memory
+      -> later retrieval
+```
+
+The important safeguard is that automatic extraction should not silently rewrite trusted project policy.
+
 ## LLM observability tools
 
 The observability discussion considered whether existing tracing/monitoring systems could provide metrics about model calculations, confidence or behavior.
@@ -94,7 +136,7 @@ The tooling discussion suggests adding a conceptual category between raw sources
 
 An evidence provider answers a bounded question and returns facts or derived relationships together with provenance, scope/revision, validation/confidence and cost/latency characteristics.
 
-Examples include repository graphs, Semgrep, CodeQL, Understand Anything, TrueCourse, tests and runtime observability.
+Examples include repository graphs, Semgrep, CodeQL, Understand Anything, TrueCourse, modularity-style architecture analysis, tests and runtime observability.
 
 This makes context selection a policy problem rather than a token-budget problem: the control plane should select the minimum sufficient evidence for a workload instead of indiscriminately running every analyzer or stuffing every result into the prompt.
 
@@ -103,23 +145,28 @@ This makes context selection a policy problem rather than a token-budget problem
 A useful interpretation is that these projects form different layers of an ecosystem:
 
 ```text
-                 EOKS policy / control
-                         |
-        +----------------+----------------+
-        |                                 |
-   context/evidence                   evaluation
-        |                                 |
- Understand Anything                 TrueCourse
- CodeSight                            tests / guards
-        |                                 |
-     Graphify                      Semgrep / CodeQL
-        +---------------+-----------------+
-                        |
-                 evidence layer
-                        |
-                  context assembly
-                        |
-                   agent runtime
+                         EOKS CONTROL / POLICY
+                                  |
+            +---------------------+----------------------+
+            |                                            |
+       orchestration                               knowledge loop
+            |                                            |
+   task decomposition                         observe -> extract
+   dependency scheduling                      -> validate -> promote
+            |                                            |
+       execution policy                          canonical knowledge
+            |                                      + semantic memory
+       Superpowers                                     |
+            |                                      context assembly
+            +----------------------+---------------------+
+                                   |
+                             evidence providers
+                                   |
+             code graphs / modularity / tests / static analysis
+                                   |
+                              agent runtime
+                                   |
+                             outcomes / traces
 ```
 
 This is intentionally not a claim that the tools were designed as EOKS components. It is a map of where their capabilities could fit in the hypothesis.
