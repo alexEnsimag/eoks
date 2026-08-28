@@ -1,118 +1,140 @@
-# Evaluation, confidence and model switching
+# Evaluation, reliability and model switching
 
-## The problem
+This note owns the **reliability and model-migration** questions. The broader benchmark design—especially context interventions, OKF, GrapeRoot, Graphify and community evaluation harnesses—is in [Context evaluation and benchmarking](context-evaluation.md).
 
-A recurring concern was whether an AI system can expose meaningful metrics about its own work. “Confidence” is attractive, but a model's stated confidence is not automatically calibrated evidence of correctness.
+## Operational reliability
 
-The useful target is therefore **operational confidence**: a set of signals that helps EOKS decide whether an outcome is trustworthy enough for the workload's requirements.
+A model's stated confidence is not automatically calibrated evidence of correctness. EOKS should instead reason about **operational reliability**: evidence that helps decide whether an outcome is trustworthy enough for the workload and whether more verification is justified.
 
-## Possible evidence sources
-
-Confidence can be estimated from multiple layers:
+Useful evidence can include:
 
 - model self-assessment;
 - agreement between independent attempts;
-- deterministic validators;
-- tests;
+- deterministic validators and tests;
 - static analysis;
-- tool output;
-- source provenance;
-- retrieval quality;
+- tool execution outcomes;
+- source provenance and evidence quality;
 - consistency with known project decisions;
 - successful execution;
 - historical performance on similar tasks;
-- human feedback.
+- human review where appropriate.
 
 No single signal should be assumed sufficient.
 
-## Confidence as a control signal
+## Reliability is a control signal
 
-The interesting use is not displaying a confidence number to a user. It is feeding evidence back into the control loop:
+The useful output is not necessarily a confidence number shown to a user. It is evidence that can change execution policy:
 
 ```text
 execution
    -> evidence
    -> evaluation
-   -> confidence / risk estimate
+   -> reliability / risk estimate
    -> policy
       |       |
       |       +--> accept
-      +----------> retry / verify / escalate / change model
+      +----------> verify / retrieve / retry / escalate / change model
 ```
 
-This makes evaluation part of orchestration.
+This makes evaluation part of orchestration rather than a dashboard attached after execution.
 
-## Context evaluation
+## Calibration
 
-We discussed the possibility of measuring context quality independently from final task success. Candidate measurements include:
+Raw entropy, logprob-derived statistics and model self-ratings should not automatically be interpreted as probabilities of correctness. A reliability signal must be calibrated against actual outcomes for the relevant workload and decision.
 
-- relevance;
-- coverage;
-- redundancy;
-- contradictions;
-- provenance;
-- freshness;
-- token cost;
-- retrieval precision;
-- retrieval recall;
-- downstream success.
+Potential evaluation families include calibration error and proper scoring rules for probabilistic decisions, but the appropriate metric depends on the control decision: binary correctness, ranking, expected utility, stop/continue selection or model routing can require different treatment.
 
-A key experiment would compare two contexts for the same task and ask not “which looks better?” but “which produces better outcomes under controlled conditions?”
+The principle is:
 
-## Model switching
-
-A practical motivation came from observing meaningful behavior differences between model generations. Replacing one model with another can change:
-
-- instruction following;
-- coding style;
-- reasoning patterns;
-- tool use;
-- context sensitivity;
-- failure modes;
-- latency/cost;
-- willingness to ask for missing information.
-
-Therefore model switching should be evaluated as a workload-level change.
-
-A useful benchmark should include representative real tasks rather than only generic benchmark scores.
+> **Reliability is workload- and decision-dependent; calibrate it against outcomes rather than assuming a raw model score is trustworthy.**
 
 ## Evaluation layers
 
-A possible evaluation hierarchy:
+EOKS can separate evaluation by scope:
 
-1. **unit evaluation** — deterministic functions and tool calls;
-2. **component evaluation** — retrieval, context compiler, memory selection;
-3. **task evaluation** — complete workload outcomes;
-4. **workflow evaluation** — multi-step/agent behavior;
-5. **system evaluation** — cost, latency, reliability and operational behavior.
+1. **Unit evaluation** — deterministic functions, tools and validators.
+2. **Component evaluation** — retrieval, context compilation, memory selection or evidence providers.
+3. **Task evaluation** — complete representative workload outcomes.
+4. **Workflow evaluation** — multi-step/agent behavior.
+5. **System evaluation** — cost, latency, reliability and operational behavior.
 
-This allows EOKS to identify whether a regression came from the model, context, retrieval, tool, orchestration policy or evaluation itself.
+This decomposition helps localize regressions instead of attributing every change to the model.
 
-## Continuous evaluation
+## Model switching
 
-The broader idea resembles continuous assurance: don't evaluate only before deployment. Observe actual workloads and continuously collect evidence.
+Replacing a model is a workload-level dependency change. Two models with similar benchmark scores can differ in instruction following, coding behavior, tool use, context sensitivity, failure modes, latency and cost.
 
-This creates a feedback cycle:
+The relevant question is:
+
+> **Is the candidate model better for the workload under the context and execution policy actually used?**
+
+Maintain a versioned golden task set and compare at least:
 
 ```text
-                    +------------------+
-                    |      policy      |
-                    +--------+---------+
-                             |
-                             v
-workload -> context -> model/tools -> outcome
-   ^                                   |
-   |                                   v
-   +----------- memory <--- evaluation
+task success
+correctness / completeness
+groundedness
+tests / deterministic checks
+serious regressions
+tool calls / exploration
+tokens
+latency
+cost
 ```
+
+Do not immediately collapse these dimensions into one score. A candidate that improves the average while regressing an important task class may not be safe to promote.
+
+## Model × context interaction
+
+Model and context interventions can interact. A new model may compensate for weak retrieval, exploit structured context better, or react differently to a large context pack.
+
+Use an explicit matrix when this interaction matters:
+
+| | Baseline | Context engine | + durable knowledge | + structural evidence |
+|---|---:|---:|---:|---:|
+| Model A | A | B | C | D |
+| Model B | E | F | G | H |
+
+This separates model effects from context effects and exposes interaction effects. The effects should not be assumed additive.
+
+## Canary and regression workflow
+
+```text
+candidate model
+      |
+      v
+versioned golden set
+      |
+      v
+compare with production model
+      |
+      +-- critical regression --> reject / investigate
+      |
+      v
+staged / canary evaluation
+      |
+      v
+production traces + evaluation
+      |
+      v
+promote or roll back
+```
+
+Production edge cases should feed back into the offline dataset. This turns model selection into continuous assurance rather than a one-time benchmark exercise.
+
+## Model/task affinity
+
+A single global ranking can hide useful specialization. EOKS can maintain evidence about which model performs reliably for which workload classes and under which context policies. A future router can use that evidence together with cost, latency, context requirements and verification availability.
+
+This should be learned from representative outcomes rather than assumed from model branding or generic benchmark rankings.
 
 ## Research questions
 
-- Can confidence be calibrated against actual outcomes?
-- Which signals predict correctness best for coding tasks?
-- Can context-quality metrics predict outcome quality before execution?
+- Which reliability signals predict correctness for each workload class?
+- How well can those signals be calibrated?
 - How much evaluation is required before switching models safely?
-- Can the scheduler learn model/task affinity?
-- When does verification cost more than the expected error reduction?
+- When is verification cheaper than the expected cost of an error?
+- Can the system learn model/task/context affinity?
+- Which context interventions remain valuable after a model upgrade?
 
-These are empirical questions and should become benchmarks before becoming architecture.
+These questions should be answered empirically through the benchmark methodology rather than becoming architecture assumptions first.
