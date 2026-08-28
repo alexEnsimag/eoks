@@ -6,6 +6,10 @@ Context engineering is the discipline of constructing the information available 
 
 A repository, knowledge base, graph or memory store can contain far more information than should enter a model's context. The important operation is the **selection and transformation boundary** between external knowledge and model input.
 
+A particularly important consequence is that a coding agent should not need to reconstruct the full repository context from zero at the start of every session. Durable project knowledge can move stable, high-value facts outside the model context and make them retrievable on demand.
+
+See [Knowledge base and persistent project knowledge](knowledge-base.md).
+
 ## Context quality
 
 A useful context-quality model should consider:
@@ -33,10 +37,14 @@ This connects to the idea of **context entropy**: a large heterogeneous context 
 
 The system should prefer exposing the minimum sufficient information and retrieving additional detail when evidence shows it is needed. This resembles filesystem/document navigation more than stuffing an entire corpus into a prompt.
 
+Persistent knowledge strengthens progressive disclosure: stable project facts can be retrieved as compact summaries first, with links back to source evidence when deeper inspection is required.
+
 ## Structured representations
 
 Files, Markdown, JSON/YAML, relational data, embeddings and graphs are representations, not ends in themselves. A structure is valuable when it improves retrieval, reasoning, validation or maintenance.
 
+A practical knowledge base does not need to start with a hosted database or graph. A disciplined collection of local files can be a canonical representation if entries have clear semantics, provenance, freshness and lifecycle rules.
+
 ## Open problem
 
-We need empirical benchmarks showing when a context intervention improves task success, rather than assuming that more structure or more retrieved tokens are beneficial.
+We need empirical benchmarks showing when a context intervention improves task success, rather than assuming that more structure or more retrieved tokens are beneficial. In particular, EOKS should measure whether persistent project knowledge reduces redundant repository discovery without increasing errors caused by stale or incorrect memory.
