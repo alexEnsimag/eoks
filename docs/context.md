@@ -208,6 +208,72 @@ future retrieval and workflow selection
 
 The important architectural boundary is between **observation**, **candidate extraction**, **validation/promotion**, and **retrieval**. A session-finalizer hook is therefore one instance of the general EOKS knowledge lifecycle rather than a special-case memory feature.
 
+## Knowledge bundles and OKF
+
+OKF is a useful concrete representation because it is intentionally not a hosted memory service. The current OKF v0.2 specification defines a bundle as a directory tree of Markdown concept documents with YAML frontmatter. `type` is the only always-required frontmatter field; additional fields are allowed, and consumers are expected to tolerate unknown fields.
+
+A local Git-tracked directory can therefore be a valid OKF bundle without running a server:
+
+```text
+knowledge/
+  architecture/
+    authentication.md
+  decisions/
+    event-processing.md
+  invariants/
+    auth.md
+```
+
+EOKS should distinguish **OKF compatibility** from the broader concept of project knowledge. A team can use its own Markdown conventions when interoperability is not required; when it wants an OKF bundle, it should follow the OKF specification rather than merely applying the label to an arbitrary directory.
+
+The important architectural boundary remains:
+
+```text
+OKF / Markdown / ADRs / other durable representations
+                         |
+                         v
+                  knowledge provider
+                         |
+                         v
+                  context compiler
+```
+
+OKF is therefore a portable representation, not an EOKS runtime or mandatory storage layer.
+
+## GrapeRoot-like context engines and hooks
+
+GrapeRoot is useful prior art for a context engine that sits around an existing coding agent. Its current public documentation describes a first-run project scan that extracts files, functions, classes and import edges into a local graph, followed by a local MCP server and agent integration. It also documents hooks that re-inject context when Claude compacts its memory and record session information.
+
+This suggests a useful event boundary for EOKS, while avoiding a dependency on GrapeRoot itself:
+
+```text
+SessionStart / context boundary
+        |
+        v
+context compiler
+        |
+        +-- knowledge providers
+        +-- structural graphs
+        +-- evidence providers
+        +-- session state
+        |
+        v
+compiled context
+        |
+        v
+agent
+        |
+PreToolUse (optional policy/evidence check)
+        |
+tool execution
+        |
+PostToolUse / outcome observation
+```
+
+The exact hook names are agent-specific. EOKS should define lifecycle semantics such as **prepare context**, **before execution**, **observe outcome** and **finalize/persist**, then provide adapters for Claude Code/GrapeRoot-like hooks, MCP, or other agent runtimes.
+
+A key benchmark requirement is to test whether pre-injection actually improves task outcomes. Reduced exploration or token usage alone is not sufficient evidence of better context.
+
 ## Open problem
 
 We need empirical benchmarks showing when a context intervention improves task success, rather than assuming that more structure or more retrieved tokens are beneficial. EOKS should measure at least:
@@ -220,4 +286,8 @@ We need empirical benchmarks showing when a context intervention improves task s
 - usefulness of persistent knowledge;
 - whether a context intervention improves the outcome for a particular model;
 - which context blocks were selected, omitted, manually changed and ultimately useful;
-- the cost/benefit of context budgets and block-level optimization.
+- the cost/benefit of context budgets and block-level optimization;
+- model/context interaction during model upgrades;
+- regression of representative task classes before promoting a new model or context policy.
+
+See [Context evaluation, benchmarking and model migration](../research/context-evaluation-and-model-migration.md) for the detailed experimental methodology.

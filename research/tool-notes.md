@@ -247,6 +247,40 @@ trace
 
 See [LLM observability and reliability signals](llm-observability-and-reliability.md) for the detailed model and proposed experiments.
 
+## Evaluation and model-benchmarking tools
+
+Evaluation infrastructure is another distinct capability rather than part of the context engine itself.
+
+### Promptfoo
+
+Promptfoo is useful prior art for repeatable model/prompt/configuration comparisons, assertions and coding-agent evaluation. It is a plausible lightweight first harness for a local EOKS experiment because the same workload can be run against multiple configurations.
+
+### Langfuse
+
+Langfuse is useful when evaluation needs to connect offline experiments with production traces. Its dataset/experiment/score model supports a loop of collecting representative examples, running candidate configurations, comparing runs and feeding newly discovered production edge cases back into the dataset.
+
+### Aider benchmarks
+
+Aider provides useful prior art for evaluating coding agents through end-to-end repository outcomes, including test results, rather than relying only on textual answer grading. This is a better mental model for EOKS software-engineering benchmarks than generic QA scores alone.
+
+### OpenHands benchmarks
+
+OpenHands benchmark infrastructure is useful prior art for evaluating agentic software-engineering workloads across models and execution environments. It reinforces the idea that the agent/tool/environment combination can be the unit of evaluation.
+
+### OpenAI Evals and private eval frameworks
+
+General eval harnesses demonstrate the importance of workload-specific/private evaluation sets. Public benchmark scores are useful evidence about broad capabilities, but EOKS should maintain a golden set representing the actual tasks and assurance requirements it controls.
+
+The key distinction is:
+
+```text
+experiment runner -> runs configurations
+trace store       -> records what happened
+benchmark         -> defines representative tasks
+evaluator         -> scores outcomes
+EOKS              -> uses the resulting evidence for policy/control
+```
+
 ## Evidence providers
 
 The tooling discussion suggests adding a conceptual category between raw sources and assembled context: **evidence providers**.
@@ -304,7 +338,7 @@ Other tools discussed are useful as capability references rather than direct EOK
 
 - **CodeRabbit** — AI-assisted PR review; primarily evaluation/feedback.
 - **Sourcegraph Cody** — large-codebase retrieval and coding assistance; primarily context + execution.
-- **Aider** — agentic coding workflow; primarily execution.
+- **Aider** — agentic coding workflow; primarily execution and evaluation prior art.
 - **Claude Code + custom checks** — general execution runtime combined with project-specific policy/evaluation.
 
 The architectural conclusion is that EOKS should compose such capabilities through explicit contracts rather than becoming another monolithic coding agent.

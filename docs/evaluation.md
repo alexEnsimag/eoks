@@ -147,8 +147,118 @@ The benchmark must measure both quality and cost so that larger contexts are not
 
 Reliability experiments should hold context composition constant when possible; otherwise improvements may be incorrectly attributed to the model or uncertainty signal when the real cause is different information supplied to the model.
 
+## Benchmark before optimization
+
+A practical first benchmark should use roughly 20–30 representative real tasks from the target workload. Include different task classes such as repository navigation, understanding, debugging, impact analysis, implementation, refactoring and verification. Record a baseline before introducing a context engine, knowledge layer or model change.
+
+For each task, record the task contract, configuration, context manifest, execution trace, outcome and evaluation. This makes attribution possible:
+
+```text
+task
+  -> context decision
+  -> context manifest
+  -> model/tool decisions
+  -> run trace
+  -> outcome
+  -> evaluation
+```
+
+Do not evaluate only textual answer quality for coding agents. Include tests, correctness, completeness, regressions, tool calls, repository rediscovery, tokens, latency and cost.
+
+### Context metrics versus outcome metrics
+
+Retrieval metrics such as precision, recall and relevance are useful diagnostics, but they do not prove that a context intervention improved the task. Conversely, a model may compensate for incomplete retrieval through additional exploration.
+
+A useful experimental quantity is **marginal context value**: the change in task quality attributable to adding a context block relative to its additional token/latency cost. Another useful diagnostic is **context necessity**, labeling selected blocks as essential, useful, irrelevant or misleading after a run.
+
+## Controlled context experiments
+
+Do not introduce multiple context interventions simultaneously. A useful sequence is:
+
+```text
+baseline
+  -> GrapeRoot-like context engine
+  -> + durable knowledge (for example OKF)
+  -> Graphify-like structural evidence
+  -> combined configuration
+```
+
+Hold the model and task set constant when measuring a context intervention. Conversely, hold the context composition constant when comparing models. The goal is to make the causal attribution of an observed improvement or regression as clear as possible.
+
+## Model migration scorecard
+
+A model upgrade should be evaluated as a workload-level dependency migration rather than by a single leaderboard score. A candidate scorecard should include:
+
+| Dimension | Current model | Candidate model |
+|---|---:|---:|
+| task success | | |
+| tests passing | | |
+| correctness | | |
+| completeness | | |
+| groundedness | | |
+| serious regressions | | |
+| tool calls | | |
+| tokens | | |
+| latency | | |
+| cost | | |
+
+Do not immediately collapse these dimensions into one number. A candidate can be better on average while regressing a high-value task class.
+
+### Model/context interaction
+
+Model and context changes can interact. A useful benchmark matrix is:
+
+| | Baseline context | GrapeRoot | GrapeRoot + OKF | Graph context |
+|---|---:|---:|---:|---:|
+| Model A | A | B | C | D |
+| Model B | E | F | G | H |
+
+This allows separate estimates for model effect, context-engine effect, incremental knowledge/evidence effects and interaction effects. The effects should not be assumed additive.
+
+This matters for model migration because a new model may compensate for weak retrieval, exploit structured context better, or respond differently to large context packs. Therefore model and context migration should be tested together as well as independently.
+
+## Canary and regression workflow
+
+```text
+new model/version
+       |
+       v
+run golden set
+       |
+       v
+compare with production model
+       |
+       +-- critical regression? -- yes --> reject / investigate
+       |
+       no
+       v
+staged/canary evaluation
+       |
+       v
+production traces + online evaluation
+       |
+       v
+promote or roll back
+```
+
+Online evaluation should feed newly discovered edge cases back into the offline dataset. This creates continuous assurance rather than a benchmark that becomes stale after a model migration.
+
+## Evaluation tools and community prior art
+
+EOKS does not need to implement an evaluation framework from scratch. Existing tools can occupy different roles:
+
+- **Promptfoo** — repeatable comparisons of models, prompts and configurations, including coding-agent evaluation;
+- **Langfuse** — datasets, experiments, traces, scores and offline/online evaluation loops;
+- **Aider benchmarks** — end-to-end coding-agent evaluation with repository/test outcomes;
+- **OpenHands benchmarks** — broader software-engineering and agent benchmark infrastructure;
+- **OpenAI Evals and similar frameworks** — reusable evaluation harnesses and private/workload-specific evals.
+
+These should be treated as experiment/evaluation infrastructure, not as the EOKS control plane itself.
+
 ## Evaluation loop
 
 `task -> context/model/tool decision -> execution -> outcome -> evidence -> evaluation -> calibration -> policy update`
 
 The long-term goal is continuous assurance: the system should accumulate evidence about which strategies work for which workload classes, and whether its own reliability signals are predictive enough to drive future control decisions.
+
+See [Context evaluation, benchmarking and model migration](../research/context-evaluation-and-model-migration.md) for the detailed experimental methodology and tool map.

@@ -34,6 +34,7 @@ These notes are a reconstruction of the EOKS discussions available to the projec
 - [`context-engineering.md`](context-engineering.md) — context as a managed resource; quality, entropy, blocks, graphs, compression and interactive control.
 - [`context-quality-model.md`](context-quality-model.md) — dimensions and candidate metrics for context quality.
 - [`context-workbench.md`](context-workbench.md) — exploratory workbench model and experiments; the current architectural counterpart is [`docs/context-workbench.md`](../docs/context-workbench.md).
+- [`context-evaluation-and-model-migration.md`](context-evaluation-and-model-migration.md) — controlled context experiments, OKF/GrapeRoot/Graphify ablations, community evaluation tooling, model migration scorecards and model/context interaction experiments.
 - [`control-loop.md`](control-loop.md) — reconciliation/control-loop model and feedback.
 - [`control-plane.md`](control-plane.md) — scheduling, model selection, workload management and reconciliation.
 - [`ai-os-analogies.md`](ai-os-analogies.md) — cross-domain framing of the AI-OS hypothesis through Kubernetes, operating systems, senior-developer onboarding, compiler/build-system and SRE/control-loop analogies.
@@ -53,6 +54,7 @@ These notes are a reconstruction of the EOKS discussions available to the projec
 ### Evaluation and reliability
 
 - [`evaluation-and-model-switching.md`](evaluation-and-model-switching.md) — confidence, metrics, evaluation, regressions and changing models.
+- [`context-evaluation-and-model-migration.md`](context-evaluation-and-model-migration.md) — practical benchmark methodology for context interventions and model upgrades, including A/B/ablation matrices and community tooling.
 - [`llm-observability-and-reliability.md`](llm-observability-and-reliability.md) — observability, model-level uncertainty, external evidence, calibration and control.
 - [`observations-and-questions.md`](observations-and-questions.md) — observations and unresolved questions captured during the research.
 

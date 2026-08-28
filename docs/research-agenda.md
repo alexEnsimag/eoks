@@ -8,6 +8,8 @@ Treat context quality as multidimensional rather than assuming a single "context
 
 A useful experimental quantity is **marginal context value**: the change in task quality associated with adding a block relative to its token/latency cost. This should initially be treated as a benchmark metric, not as an assumed online probability model.
 
+Also test **context necessity**: after a run, label selected blocks as essential, useful, irrelevant or misleading. This helps distinguish more retrieval from better retrieval.
+
 ## 2. Context observability and workbench
 
 Prototype a UI that shows context as inspectable blocks/clusters: source, relevance, provenance, freshness, confidence and token cost. Allow humans to understand what the model saw and what it did not see.
@@ -172,3 +174,55 @@ Do not allow a reliability signal to control the live loop until it has demonstr
 > **Observability supplies the sensors; evaluation supplies outcome labels; calibration turns raw signals into workload-specific reliability evidence; the control plane uses that evidence to choose the next action.**
 
 See [LLM observability and reliability signals](../research/llm-observability-and-reliability.md).
+
+## 14. Controlled context and model-migration benchmark
+
+Build a small golden set of approximately 20–30 representative software-engineering tasks before introducing a new context system or model. Include navigation, understanding, debugging, impact analysis, implementation, refactoring and verification.
+
+For every task, preserve the task contract and capture the configuration, context manifest, tool/agent trace, outcome, evaluation, tokens, latency and cost.
+
+Run controlled configurations such as:
+
+```text
+A  baseline agent
+B  + GrapeRoot-like context engine
+C  + durable knowledge (for example OKF)
+D  + Graphify-like structural evidence
+E  combined context/evidence configuration
+```
+
+Then compare candidate models on the same configurations:
+
+```text
+                     context configuration
+                  A        B        C        D
+model A          A        B        C        D
+model B          E        F        G        H
+```
+
+This separates model effects, context effects, knowledge/evidence effects and interaction effects. It is especially important for model upgrades because a new model may exploit structured context differently from an older one.
+
+Use multiple evaluation dimensions rather than a single average score: task success, tests passing, correctness, completeness, groundedness, serious regressions, tool calls, tokens, latency and cost.
+
+Treat a model migration as a staged dependency change:
+
+```text
+golden-set regression
+       -> candidate comparison
+       -> critical-regression gate
+       -> canary / staged evaluation
+       -> production trace evaluation
+       -> promote or roll back
+```
+
+Add newly discovered production edge cases back to the golden set. The benchmark should therefore evolve with the workload rather than remain a one-time release test.
+
+### Community tooling to investigate
+
+- **Promptfoo** for local/repeatable model and configuration comparisons, assertions and coding-agent evals.
+- **Langfuse** for datasets, experiments, traces, scores and offline/online evaluation loops.
+- **Aider benchmarks** for end-to-end coding-agent outcomes and test-based evaluation.
+- **OpenHands benchmarks** for broader software-engineering/agent benchmark infrastructure.
+- **OpenAI Evals and similar frameworks** for reusable evaluation harnesses and private workload-specific evals.
+
+The architectural question is not which framework EOKS should adopt. It is which experiment, trace and evaluation capabilities EOKS should expose so that these systems can be used interchangeably beneath the control plane.
