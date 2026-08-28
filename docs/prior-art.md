@@ -1,6 +1,6 @@
 # Prior art and adjacent systems
 
-EOKS is a synthesis, not a claim that these ideas are new. Recent research suggests that the ecosystem is converging on several distinct layers: canonical project knowledge, organizational/system context, structural/semantic representations, context compilation, workflows, reasoning strategies, memory/learning, and evaluation.
+EOKS is a synthesis, not a claim that these ideas are new. Recent work suggests that the ecosystem is converging on several distinct layers: canonical project knowledge, organizational/system context, structural/semantic representations, context compilation, workflows, reasoning strategies, memory/learning, trust/evidence and evaluation.
 
 The important EOKS question is not "which tool wins?" but **which layer does a tool implement, what evidence does it produce, and how can that evidence participate in the control loop?**
 
@@ -11,15 +11,15 @@ Scores below are **EOKS-fit scores, not product-quality rankings**. They reflect
 | Tool / concept | EOKS role | Fit | Main reason to try | Main caveat |
 |---|---|---:|---|---|
 | Hierarchical `CLAUDE.md` | canonical local knowledge | **9.5/10** | Cheap, human-reviewable, Git-native, naturally scoped | Can become stale/manual if not reviewed |
-| GrapeRoot | context optimization / agent context | **9.5/10** | Directly attacks repeated repository/context work | More runtime-oriented than canonical knowledge |
+| GrapeRoot | context optimization / agent integration | **9.5/10** | Directly attacks repeated repository/context work and demonstrates a sidecar around existing agents | Core graph engine is proprietary; broader assurance/control loop is outside its scope |
 | Graphify | structural graph / navigation | **9/10** | Excellent visualization, relationships and queryable structure | Graph is evidence, not complete knowledge or dataflow proof |
-| TrueCourse | architecture analysis + spec/behavior guard | **9/10** | Connects deterministic analysis, docs and executable assurance | Not primarily a `CLAUDE.md` generator |
+| TrueCourse | architecture analysis + spec/behavior guard | **9/10** | Connects deterministic analysis, docs and executable assurance | Not primarily a context/control-plane runtime |
 | Xirp | institutional/system context + shared session continuity | **9/10** | Connects coding agents to services, ownership, architecture and prior work | Publicly presented as beta; scope is broader than repository knowledge but narrower than an EOKS control plane |
 | Understand Anything | code/domain knowledge graph | **8.5/10** | Interactive graph, guided understanding, impact/change analysis | Full graph generation can itself be expensive; incremental path is still evolving |
 | Hermes | agent learning / reflection | **8.5/10** | Interesting direction for turning experience into reusable capability | Requires careful promotion/governance |
 | Liza | multi-agent execution + auditability | **8/10** | Strong workflow/review/documentation ideas | More execution-focused than knowledge infrastructure |
-| OKF | portable structured knowledge convention | **8/10 conceptually** | Useful interoperability target if richer machine-readable knowledge becomes necessary | Adds a format/lifecycle before it is clear the project needs one |
-| ADHD-style reasoning strategies | reasoning strategy layer | **8/10** | Useful primitive for divergent/convergent or adversarial thinking | The specific "ADHD" framing is less important than the reusable strategy concept |
+| OKF | portable structured knowledge convention | **9/10 conceptually** | Gives durable, human/agent-friendly knowledge a portable representation with provenance/lifecycle concepts | EOKS should consume it rather than duplicate its schema or make it mandatory |
+| ADHD-style reasoning strategies | reasoning strategy layer | **8/10** | Useful primitive for divergent/convergent or adversarial thinking | The specific naming is less important than the reusable strategy concept |
 | Obsidian | human thinking / research workspace | **8/10** | Good place for cross-cutting architecture/research before promotion to canonical docs | Should not be required at agent runtime |
 | OpenWolf | interaction-derived summaries / context optimization | **8/10** | Demonstrates incremental repository memory around agent interactions | Generated summaries need provenance and validation |
 | CodeSight | repository understanding / context | **7.5/10** | Useful prior art for codebase context | Less central to the current canonical-knowledge approach |
@@ -30,6 +30,172 @@ Scores below are **EOKS-fit scores, not product-quality rankings**. They reflect
 | ts-morph / compiler API | targeted custom analysis | **8.5/10** | Pragmatic middle ground for TypeScript-specific invariants | Can accidentally grow into a home-grown dataflow engine |
 
 These scores should be treated as experiment priorities, not permanent evaluations.
+
+## The emerging layer model
+
+The recent comparisons suggest a more precise division of labor:
+
+```text
+             durable knowledge
+                    |
+        +-----------+-----------+
+        |                       |
+       OKF                 project docs / ADRs
+        |
+        +-------------------+
+                            |
+                     representations
+                  /       |        \
+             Graphify   RAG/index   analyzers
+                  \       |        /
+                   +------+-------+
+                          |
+                   context compiler
+                          |
+                    GrapeRoot-like
+                          |
+                    existing agent
+                          |
+                 execution + tools
+                          |
+                     evaluation
+                          |
+                       outcome
+                          |
+                       EOKS
+                 control / feedback
+```
+
+This is not a claim that the tools literally implement this exact stack. It is an EOKS architectural mapping.
+
+## OKF
+
+OKF is best understood as a **knowledge representation/interchange layer**, not as an agent runtime or control plane. Its current direction is particularly relevant because it treats structured knowledge as durable files that can be consumed by both people and agents and adds explicit concepts around provenance, verification/trust and lifecycle/freshness.
+
+That makes OKF a strong candidate for the durable knowledge plane of EOKS, but EOKS should not require all knowledge to be converted to OKF. Source code, compiler facts, runtime observations, tests and other authoritative evidence may be cheaper or more appropriate in their native form.
+
+The EOKS boundary is therefore:
+
+```text
+OKF / Markdown / graphs / tests / runtime evidence
+                       |
+                       v
+               knowledge/evidence
+                       |
+                       v
+              EOKS context compiler
+                       |
+                       v
+                     model
+```
+
+The important idea from OKF's trust direction is that **knowledge should carry evidence about where it came from, who/what generated it, when it was verified and whether it is stale**. EOKS can use those signals in task-specific policies without turning them into a universal confidence scalar.
+
+See [Knowledge, context and the EOKS control plane](../research/knowledge-context-control-plane.md).
+
+## GrapeRoot
+
+GrapeRoot is particularly relevant to the **context/execution boundary**. Its public documentation describes a local code graph, a context packer that pre-injects relevant structured context before the coding agent reasons, session memory that weights previously touched files, and optional graph-aware MCP tools for deeper exploration.
+
+The important architectural evolution is from reactive graph access:
+
+```text
+agent -> MCP graph query -> result -> agent -> more queries
+```
+
+toward proactive pre-injection:
+
+```text
+question -> graph/context retrieval -> packed context -> agent
+```
+
+The latter reduces exploration turns and protocol overhead. GrapeRoot still leaves an MCP escape hatch for cases where deeper exploration is needed.
+
+Its `dgc`/`graperoot` launcher is also instructive: it prepares the local environment, starts a local graph/MCP service, configures agent integration/hooks and launches the existing coding agent. This is strong prior art for an **EOKS sidecar/control layer around an existing agent**.
+
+The public repository contains the launcher/tooling, while the core graph engine is proprietary. Therefore EOKS should treat its architecture as observed prior art and benchmark its claims rather than depending on or reproducing inaccessible internals.
+
+### GrapeRoot's EOKS boundary
+
+GrapeRoot primarily addresses:
+
+- structural repository understanding;
+- task-context retrieval and packing;
+- token/read budgets;
+- session-aware context weighting;
+- local MCP exploration;
+- agent launch/integration.
+
+It is not, from the public architecture, a complete system for:
+
+- task assurance policies;
+- selecting among heterogeneous evidence providers;
+- model/reasoning-strategy routing based on policy;
+- deterministic outcome evaluation across workflows;
+- delayed outcome feedback;
+- promotion/invalidation of canonical organizational knowledge.
+
+So EOKS should treat GrapeRoot as a **resource/provider for context compilation and agent integration**, not as an EOKS replacement.
+
+### GrapeRoot versus Graphify
+
+These are complementary examples of two different context architectures:
+
+| | GrapeRoot | Graphify |
+|---|---|---|
+| Primary role | proactive context optimization | structural graph/navigation |
+| Delivery | pre-injected context | agent-queryable graph/MCP |
+| Session memory | explicit | not its defining role |
+| Structural graph | internal input to context packing | central product output |
+| Agent integration | launcher + hooks + MCP | MCP/query integration |
+| EOKS layer | context/execution | knowledge/evidence |
+
+This is not an argument that pre-injection is universally better. A useful EOKS experiment should compare proactive, reactive and hybrid context strategies on cost, latency, evidence coverage and task outcome.
+
+## Graphify
+
+Graphify is a particularly strong example of the structural representation discussed in EOKS. Its current implementation uses local Tree-sitter-based parsing for code, produces an interactive `graph.html`, a human-readable `GRAPH_REPORT.md` and a queryable `graph.json`, and distinguishes extracted from inferred relationships. It can also expose the graph through MCP and install guidance/hooks for coding assistants.
+
+This makes it valuable for three separate reasons:
+
+1. **visualization** — a human can see the shape of a codebase;
+2. **navigation/impact analysis** — an agent can query relationships instead of rediscovering them through grep;
+3. **incremental/compiler thinking** — the graph can serve as a dependency representation used to identify affected areas.
+
+A recent experiment exposed an important boundary: Graphify can provide structural relationships without proving a value-flow invariant. A workspace value that reaches a persistence sink only becomes safe after crossing a scope-stamp/masked-secret barrier; answering whether the value can bypass that barrier is a semantic dataflow question. This is not a reason to turn Graphify into a security scanner. It is evidence that EOKS needs to compose structural graphs with specialized semantic evidence providers.
+
+Graphify should still not be equated with "the knowledge base". The graph is one representation, especially strong for structural questions.
+
+## Understand Anything
+
+Understand Anything is a strong adjacent system because it combines deterministic parsing with LLM analysis to produce an interactive knowledge graph, including structural and business-domain views, guided tours and change-impact capabilities. It is explicitly positioned for both humans and coding agents.
+
+An important implementation detail is its auto-update hook path: it can detect when the stored graph was built from a different Git commit and prompt an update, while its chat/diff skills are instructed to check graph freshness and read only the graph sections needed.
+
+This is valuable EOKS prior art for **incremental knowledge representations** and for the principle that agents should query a representation selectively rather than dump the entire graph into context. Its issue tracker also contains an open discussion about incremental updates consuming more tokens than the initial build, which is a useful warning: incremental does not automatically mean cheap.
+
+## TrueCourse
+
+TrueCourse is best understood as **architecture/code intelligence plus specification-to-behavior assurance**, not primarily as a documentation generator. It combines deterministic rules with LLM review and has a separate `spec -> scenario tests -> guard` workflow for detecting when implementation drifts from documented behavior. Results are stored locally in `.truecourse/` as JSON artifacts.
+
+For EOKS, this belongs primarily in **evaluation/policy/evidence**, with a secondary relationship to canonical knowledge:
+
+```text
+PRDs / ADRs / docs
+       |
+       v
+  executable specs
+       |
+       v
+ implementation
+       |
+       v
+   guard result
+       |
+       +--> evaluation / confidence / feedback
+```
+
+It can help maintain the truthfulness of the knowledge system, but it should not be assumed to automatically author good `CLAUDE.md` files.
 
 ## Xirp / Spotify
 
@@ -88,76 +254,6 @@ These projects illustrate complementary meanings of system understanding:
 The EOKS conclusion is **composition rather than competition**: a context compiler could combine Xirp-like organizational/system evidence with Graphify-like structural evidence and authoritative source material.
 
 See [the dedicated Xirp research note](../research/prior-art/xirp.md) for the detailed mapping and proposed experiments.
-
-## GrapeRoot
-
-GrapeRoot was discussed as a context-aware CLI around Claude. Its most relevant EOKS role is the **context/execution side**: reduce repeated repository exploration and improve the information supplied to an agent for a task.
-
-It should not be treated as the canonical knowledge base. A useful EOKS composition is:
-
-```text
-canonical knowledge + derived evidence
-                 |
-                 v
-          context compilation
-                 |
-              GrapeRoot-like
-                 |
-               agent
-```
-
-The key evaluation is whether it reduces discovery/tool-call cost without hiding relevant evidence or increasing errors.
-
-## Graphify
-
-Graphify is a particularly strong example of the structural representation discussed in EOKS. Its current implementation uses local Tree-sitter-based parsing for code, produces an interactive `graph.html`, a human-readable `GRAPH_REPORT.md` and a queryable `graph.json`, and distinguishes extracted from inferred relationships. It can also expose the graph through MCP and install guidance/hooks for coding assistants.
-
-This makes it valuable for three separate reasons:
-
-1. **visualization** — a human can see the shape of a codebase;
-2. **navigation/impact analysis** — an agent can query relationships instead of rediscovering them through grep;
-3. **incremental/compiler thinking** — the graph can serve as a dependency representation used to identify affected areas.
-
-A recent experiment exposed an important boundary: Graphify can provide structural relationships without proving a value-flow invariant. A workspace value that reaches a persistence sink only becomes safe after crossing a scope-stamp/masked-secret barrier; answering whether the value can bypass that barrier is a semantic dataflow question. This is not a reason to turn Graphify into a security scanner. It is evidence that EOKS needs to compose structural graphs with specialized semantic evidence providers.
-
-Graphify should still not be equated with "the knowledge base". The graph is one representation, especially strong for structural questions.
-
-## Understand Anything
-
-Understand Anything is a strong adjacent system because it combines deterministic parsing with LLM analysis to produce an interactive knowledge graph, including structural and business-domain views, guided tours and change-impact capabilities. It is explicitly positioned for both humans and coding agents.
-
-An important implementation detail is its auto-update hook path: it can detect when the stored graph was built from a different Git commit and prompt an update, while its chat/diff skills are instructed to check graph freshness and read only the graph sections needed.
-
-This is valuable EOKS prior art for **incremental knowledge representations** and for the principle that agents should query a representation selectively rather than dump the entire graph into context. Its issue tracker also contains an open discussion about incremental updates consuming more tokens than the initial build, which is a useful warning: incremental does not automatically mean cheap.
-
-## TrueCourse
-
-TrueCourse is best understood as **architecture/code intelligence plus specification-to-behavior assurance**, not primarily as a documentation generator. It combines deterministic rules with LLM review and has a separate `spec -> scenario tests -> guard` workflow for detecting when implementation drifts from documented behavior. Results are stored locally in `.truecourse/` as JSON artifacts.
-
-For EOKS, this belongs primarily in **evaluation/policy/evidence**, with a secondary relationship to canonical knowledge:
-
-```text
-PRDs / ADRs / docs
-       |
-       v
-  executable specs
-       |
-       v
- implementation
-       |
-       v
-   guard result
-       |
-       +--> evaluation / confidence / feedback
-```
-
-It can help maintain the truthfulness of the knowledge system, but it should not be assumed to automatically author good `CLAUDE.md` files.
-
-## OKF
-
-OKF was discussed as a structured, portable file-oriented knowledge convention. The EOKS conclusion is intentionally conservative: **a representation can be meaningful without requiring hosting infrastructure**, and a local collection of Markdown/JSON files can implement a useful subset of the same idea.
-
-Hierarchical `CLAUDE.md` files can therefore be seen as a pragmatic subset of the canonical-knowledge problem: scoped, human-readable, Git-versioned and loaded near the code where needed. OKF becomes more valuable if EOKS later needs machine-readable interoperability across many tools, explicit schemas, richer provenance or cross-project federation.
 
 ## Hermes
 
@@ -289,7 +385,22 @@ The combined prior art suggests the following practical architecture:
                          |
                     evaluation
                          |
-                  learning/update
+                      outcome
+                         |
+                      feedback
+```
+
+The newer synthesis adds an explicit control-plane boundary around this stack:
+
+```text
+Task
+  -> Policy
+  -> Context compiler
+  -> Resource selection
+  -> Run
+  -> Evaluation
+  -> Outcome
+  -> Feedback
 ```
 
 This is deliberately compositional. No single project needs to become EOKS.

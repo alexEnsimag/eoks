@@ -14,6 +14,8 @@ A recent refinement is important: **knowledge is not a graph, and context engine
 
 A second refinement is equally important: **observability is not confidence, and confidence is not control**. Tracing and monitoring systems provide execution evidence; EOKS can combine that evidence with model-level uncertainty, deterministic checks and outcomes to estimate workload-specific reliability and decide what to do next.
 
+The current architectural hypothesis is deliberately compositional: OKF can provide durable structured knowledge; Graphify-like systems can provide structural evidence; GrapeRoot-like systems can provide proactive context optimization around existing coding agents; specialized analyzers and tests can provide deterministic evidence; and EOKS can coordinate these resources through task, context, run, decision, policy, evaluation and outcome primitives.
+
 ```text
                          EOKS CONTROL PLANE
               scheduling · policies · resource selection
@@ -54,6 +56,24 @@ A second refinement is equally important: **observability is not confidence, and
 - [Terminology](docs/terminology.md)
 - [Open questions](docs/open-questions.md)
 
+## Research
+
+- [Knowledge, context and the EOKS control plane](research/knowledge-context-control-plane.md) — synthesis of the recent OKF, GrapeRoot and Graphify discussion, including the proposed minimal runtime model and the boundary between knowledge, context, execution and control.
+- [Agent code understanding and architecture tooling](research/agent-code-understanding-and-architecture.md) — how repository knowledge graphs, deterministic analysis, architecture governance and AI coding tools can map onto EOKS.
+- [Context engineering](research/context-engineering.md)
+- [Context quality model](research/context-quality-model.md)
+- [Context workbench](research/context-workbench.md)
+- [Evaluation and model switching](research/evaluation-and-model-switching.md)
+- [LLM observability and reliability signals](research/llm-observability-and-reliability.md) — how tracing, model-level uncertainty, external evidence and calibration can become sensors for the EOKS control loop.
+- [Control loop](research/control-loop.md)
+- [Behavioral memory and learning how developers work](docs/behavioral-memory.md) — how session traces can become validated procedural knowledge, skills and policies.
+- [Learning from development sessions](research/session-learning.md)
+- [Agent memory and continuous-learning prior art](research/prior-art/agent-memory.md)
+- [Claude Code learning stack](research/claude-learning-okf-hindsight.md) — decomposition of `CLAUDE.md`, Skills, Hooks, memory engines, OKF and optional graph/retrieval systems.
+- [Hindsight and OKF](research/prior-art/hindsight-and-okf.md) — why persistent learning engines and portable knowledge formats are complementary layers.
+- [Xirp / Spotify](research/prior-art/xirp.md) — institutional/system context, shared coding-session continuity and living documentation as coding-agent prior art.
+- [Tool notes](research/tool-notes.md)
+
 ## Practical coding-agent direction
 
 The current practical hypothesis is intentionally conservative:
@@ -70,25 +90,10 @@ The current practical hypothesis is intentionally conservative:
 10. For software engineering, prefer the cheapest reliable deterministic evidence source that answers the question: types before custom analysis, lightweight rules before deep dataflow, and deeper analyzers only when the invariant requires them.
 11. Treat observability traces as sensors for the control loop. Combine operational metrics, model uncertainty, evidence agreement, deterministic checks and outcomes rather than trusting a single model confidence number.
 12. Calibrate reliability signals against actual task outcomes before allowing them to drive automatic stop/verify/branch/model-switch decisions.
+13. Prefer an integration/sidecar model around existing coding agents before building a new agent runtime; the GrapeRoot launcher architecture is useful prior art for this approach.
+14. Keep the EOKS semantic model small until real run traces demonstrate that additional primitives are necessary.
 
 This gives EOKS a path from a simple Git repository to richer knowledge infrastructure without requiring a graph database or a new canonical format on day one.
-
-## Research
-
-- [Agent code understanding and architecture tooling](research/agent-code-understanding-and-architecture.md) — how repository knowledge graphs, deterministic analysis, architecture governance and AI coding tools can map onto EOKS.
-- [Context engineering](research/context-engineering.md)
-- [Context quality model](research/context-quality-model.md)
-- [Context workbench](research/context-workbench.md)
-- [Evaluation and model switching](research/evaluation-and-model-switching.md)
-- [LLM observability and reliability signals](research/llm-observability-and-reliability.md) — how tracing, model-level uncertainty, external evidence and calibration can become sensors for the EOKS control loop.
-- [Control loop](research/control-loop.md)
-- [Behavioral memory and learning how developers work](docs/behavioral-memory.md) — how session traces can become validated procedural knowledge, skills and policies.
-- [Learning from development sessions](research/session-learning.md)
-- [Agent memory and continuous-learning prior art](research/prior-art/agent-memory.md)
-- [Claude Code learning stack](research/claude-learning-okf-hindsight.md) — decomposition of `CLAUDE.md`, Skills, Hooks, memory engines, OKF and optional graph/retrieval systems.
-- [Hindsight and OKF](research/prior-art/hindsight-and-okf.md) — why persistent learning engines and portable knowledge formats are complementary layers.
-- [Xirp / Spotify](research/prior-art/xirp.md) — institutional/system context, shared coding-session continuity and living documentation as coding-agent prior art.
-- [Tool notes](research/tool-notes.md)
 
 ## Status
 
