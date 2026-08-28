@@ -2,14 +2,14 @@
 
 This note is a **capability map**, not a second source of detailed architecture or methodology. Individual projects are prior art; EOKS does not assume that any of them are dependencies.
 
-For detailed treatment of context engines and knowledge representations, see [Context engineering](../docs/context.md) and [Context evaluation and benchmarking](context-evaluation.md). For reliability and model migration, see [Evaluation, reliability and model switching](evaluation-and-model-switching.md). For the detailed TencentDB Agent Memory analysis, see [TencentDB Agent Memory](prior-art/tencent-agent-memory.md).
+For canonical terminology and resource boundaries, see [Resource model](../docs/resource-model.md). For detailed context treatment, see [Context engineering](../docs/context.md). For knowledge representations, see [Knowledge representations](../docs/knowledge-representations.md). For evaluation, see [Context evaluation](context-evaluation.md) and [Evaluation, reliability and model switching](evaluation-and-model-switching.md).
 
 ## Capability map
 
 | Project / family | Primary EOKS-relevant capability | Where it fits |
 |---|---|---|
-| **GrapeRoot** | repository graph + context assembly around an agent | context engine / runtime adapter |
-| **TencentDB Agent Memory** | multi-resolution memory + Skills + Wiki + CodeGraph assets, governance and agent loadouts | memory / knowledge-asset infrastructure |
+| **GrapeRoot** | repository graph + context assembly around an agent | context compilation / runtime adapter |
+| **TencentDB Agent Memory** | multi-resolution memory + Skills + Wiki + CodeGraph resources, governance and agent loadouts | reusable resources / memory & knowledge infrastructure |
 | **OKF** | portable Markdown + YAML-frontmatter knowledge bundle | knowledge representation |
 | **Graphify** | code relationship/structure graph | structural evidence provider |
 | **CodeSight** | repository code-understanding/context generation | evidence provider |
@@ -38,13 +38,17 @@ For detailed treatment of context engines and knowledge representations, see [Co
 
 ### GrapeRoot is not TencentDB Agent Memory, and neither is EOKS
 
-GrapeRoot primarily demonstrates proactive context optimization and agent integration around a coding agent. TencentDB Agent Memory is broader memory/knowledge-asset infrastructure: it manages multi-resolution chat memory, Skills, Wiki and CodeGraph with governance and agent loadouts. EOKS is broader still: it is exploring the control/evaluation layer that selects among such resources and learns from outcomes.
+GrapeRoot primarily demonstrates proactive context optimization and agent integration around a coding agent. TencentDB Agent Memory is broader reusable-resource infrastructure: it manages multi-resolution chat memory, Skills, Wiki and CodeGraph with governance and agent loadouts. EOKS is broader still: it is exploring the control/evaluation layer that selects among such resources and learns from outcomes.
+
+### Asset is not another semantic knowledge category
+
+EOKS uses **Asset** as a generic lifecycle/governance abstraction for reusable resources. Memory, Skills, documents, decisions and derived representations can be assets, but they retain their own semantics and authority. See [Resource model](../docs/resource-model.md).
 
 ### GrapeRoot is not OKF
 
 GrapeRoot is a context/runtime mechanism; OKF is a representation format. An EOKS implementation can use an OKF bundle as one knowledge provider without using GrapeRoot, and can use a GrapeRoot-like context engine without adopting OKF.
 
-### Tencent's four asset families are not an EOKS ontology
+### Tencent's four resource families are not an EOKS ontology
 
 Chat Memory, Skill, LLM-Wiki and CodeGraph are a useful implementation decomposition. EOKS should preserve the semantic distinctions—experience, procedure, knowledge representation and evidence—but should not assume these four categories are universal or exhaustive.
 
