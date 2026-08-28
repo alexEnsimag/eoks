@@ -39,6 +39,10 @@ The current architectural hypothesis is deliberately compositional: OKF can prov
 
 ## Documentation
 
+The repository separates **current architecture** from **exploratory research**. See [`docs/README.md`](docs/README.md) for the document map and ownership rules.
+
+### Architecture and design
+
 - [Vision](docs/vision.md)
 - [Architecture](docs/architecture.md)
 - [Context engineering](docs/context.md)
@@ -52,11 +56,19 @@ The current architectural hypothesis is deliberately compositional: OKF can prov
 - [Evaluation](docs/evaluation.md)
 - [Software engineering](docs/software-engineering.md)
 - [Software analysis, dataflow and invariants](docs/software-analysis.md)
+
+### Governance and research management
+
+- [Architectural decisions](docs/decisions.md)
+- [Research agenda](docs/research-agenda.md)
+- [Open questions](docs/open-questions.md)
 - [Prior art](docs/prior-art.md)
 - [Terminology](docs/terminology.md)
-- [Open questions](docs/open-questions.md)
+- [History](docs/history.md)
 
 ## Research
+
+The [`research/`](research/) directory preserves exploratory reasoning, comparisons and experiments. It is intentionally less normative than `docs/`; research notes may contain competing hypotheses. See [`research/README.md`](research/README.md) for its map.
 
 - [Knowledge, context and the EOKS control plane](research/knowledge-context-control-plane.md) — synthesis of the recent OKF, GrapeRoot and Graphify discussion, including the proposed minimal runtime model and the boundary between knowledge, context, execution and control.
 - [Agent code understanding and architecture tooling](research/agent-code-understanding-and-architecture.md) — how repository knowledge graphs, deterministic analysis, architecture governance and AI coding tools can map onto EOKS.
@@ -66,7 +78,6 @@ The current architectural hypothesis is deliberately compositional: OKF can prov
 - [Evaluation and model switching](research/evaluation-and-model-switching.md)
 - [LLM observability and reliability signals](research/llm-observability-and-reliability.md) — how tracing, model-level uncertainty, external evidence and calibration can become sensors for the EOKS control loop.
 - [Control loop](research/control-loop.md)
-- [Behavioral memory and learning how developers work](docs/behavioral-memory.md) — how session traces can become validated procedural knowledge, skills and policies.
 - [Learning from development sessions](research/session-learning.md)
 - [Agent memory and continuous-learning prior art](research/prior-art/agent-memory.md)
 - [Claude Code learning stack](research/claude-learning-okf-hindsight.md) — decomposition of `CLAUDE.md`, Skills, Hooks, memory engines, OKF and optional graph/retrieval systems.
@@ -78,7 +89,7 @@ The current architectural hypothesis is deliberately compositional: OKF can prov
 
 The current practical hypothesis is intentionally conservative:
 
-1. Use hierarchical `CLAUDE.md` files as human-reviewable, canonical package/project knowledge.
+1. Use hierarchical `CLAUDE.md` files as human-reviewable, canonical package/project knowledge and policy where appropriate.
 2. Keep cross-cutting architectural rationale in a small number of Markdown/ADR documents.
 3. Derive structural information automatically with deterministic analysis and optional graphs.
 4. Treat organizational/system context—such as ownership, service boundaries and architectural rationale—as another evidence source when the task requires it; do not assume repository-local context is sufficient.
