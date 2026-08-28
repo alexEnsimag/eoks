@@ -112,3 +112,23 @@ The first control loop should expose context selection and **evidence-provider s
 Explore whether evaluation results can automatically alter future routing/context policies. The interesting system is not one that merely measures failures, but one that becomes better at choosing how to work.
 
 For context specifically, study whether repeated human include/exclude actions predict useful future selection, while guarding against overfitting a preference observed on one task, repository revision or model.
+
+## 12. Institutional and system context
+
+Xirp highlights a dimension that is easy to miss when context research is framed only around repository contents: agents may need **organizational/system context** such as service ownership, upstream/downstream boundaries, architectural rationale and knowledge accumulated by previous engineers or agents.
+
+Test whether adding this context improves software-engineering outcomes compared with repository-only context. The benchmark should distinguish at least:
+
+1. repository/code context only;
+2. repository context + structural dependency graph;
+3. repository context + ownership/service metadata;
+4. repository context + relevant architectural decisions/history;
+5. a task-scoped combination selected by a context compiler.
+
+Measure task success, incorrect-but-plausible decisions, discovery work, context cost and stale-context failures. The key question is whether broader context improves decisions **when selected selectively**, rather than whether more information is always better.
+
+Also test **session-to-institutional-knowledge promotion**: whether useful discoveries from one coding session can be validated and made available to later engineers or agents without turning transient or incorrect reasoning into canonical knowledge.
+
+Important lifecycle properties to measure include provenance, source revision, scope/applicability, freshness, contradiction handling, human correction and rollback/invalidation.
+
+Finally, test **cross-harness portability**: whether the same promoted knowledge and compiled context remain useful when execution switches between different coding-agent/model harnesses. This helps separate durable EOKS knowledge/context capabilities from vendor-specific agent state.

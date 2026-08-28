@@ -1,6 +1,6 @@
 # Prior art and adjacent systems
 
-EOKS is a synthesis, not a claim that these ideas are new. Recent research suggests that the ecosystem is converging on several distinct layers: canonical project knowledge, structural/semantic representations, context compilation, workflows, reasoning strategies, memory/learning, and evaluation.
+EOKS is a synthesis, not a claim that these ideas are new. Recent research suggests that the ecosystem is converging on several distinct layers: canonical project knowledge, organizational/system context, structural/semantic representations, context compilation, workflows, reasoning strategies, memory/learning, and evaluation.
 
 The important EOKS question is not "which tool wins?" but **which layer does a tool implement, what evidence does it produce, and how can that evidence participate in the control loop?**
 
@@ -14,6 +14,7 @@ Scores below are **EOKS-fit scores, not product-quality rankings**. They reflect
 | GrapeRoot | context optimization / agent context | **9.5/10** | Directly attacks repeated repository/context work | More runtime-oriented than canonical knowledge |
 | Graphify | structural graph / navigation | **9/10** | Excellent visualization, relationships and queryable structure | Graph is evidence, not complete knowledge or dataflow proof |
 | TrueCourse | architecture analysis + spec/behavior guard | **9/10** | Connects deterministic analysis, docs and executable assurance | Not primarily a `CLAUDE.md` generator |
+| Xirp | institutional/system context + shared session continuity | **9/10** | Connects coding agents to services, ownership, architecture and prior work | Publicly presented as beta; scope is broader than repository knowledge but narrower than an EOKS control plane |
 | Understand Anything | code/domain knowledge graph | **8.5/10** | Interactive graph, guided understanding, impact/change analysis | Full graph generation can itself be expensive; incremental path is still evolving |
 | Hermes | agent learning / reflection | **8.5/10** | Interesting direction for turning experience into reusable capability | Requires careful promotion/governance |
 | Liza | multi-agent execution + auditability | **8/10** | Strong workflow/review/documentation ideas | More execution-focused than knowledge infrastructure |
@@ -29,6 +30,64 @@ Scores below are **EOKS-fit scores, not product-quality rankings**. They reflect
 | ts-morph / compiler API | targeted custom analysis | **8.5/10** | Pragmatic middle ground for TypeScript-specific invariants | Can accidentally grow into a home-grown dataflow engine |
 
 These scores should be treated as experiment priorities, not permanent evaluations.
+
+## Xirp / Spotify
+
+[Xirp](https://xirp.spotify.com/) is particularly relevant to EOKS because it makes **institutional/system context** explicit as a coding-agent concern.
+
+Its public site describes an agentic development environment that connects coding sessions to services, ownership, dependencies, documentation and architectural decisions. It also describes a Portal-based Workspace for sharing work items, sessions and docs, and a mechanism for turning knowledge from coding sessions into living documentation for future engineers or agents. Xirp is presented as a beta and as a harness that can work with Claude, Gemini and Codex.
+
+The EOKS-relevant insight is:
+
+> **A coding agent needs context about the system and organization around the code, not just the files in front of it.**
+
+This adds a useful dimension to the existing knowledge model:
+
+```text
+service ownership       -> organizational evidence
+service dependencies    -> structural evidence
+architecture decisions  -> historical/canonical evidence
+session discoveries     -> candidate durable knowledge
+code/docs               -> authoritative implementation evidence
+                    |
+                    v
+             context compilation
+                    |
+                  agent
+```
+
+Xirp therefore spans the **context + execution boundary**, with a particularly strong emphasis on system awareness and shared session continuity. It is not itself the EOKS control plane, and its generated documentation should not be treated as automatically canonical truth.
+
+The most important EOKS caution is the knowledge lifecycle:
+
+```text
+session
+  -> observations / decisions / artifacts
+  -> candidate knowledge
+  -> validation + provenance + scope
+  -> promotion / update / invalidation
+  -> future retrieval
+```
+
+Not every piece of session reasoning deserves to survive as institutional knowledge. A generated summary can be useful evidence while still being wrong, temporary or stale.
+
+### Xirp versus Graphify
+
+These projects illustrate complementary meanings of system understanding:
+
+| | Xirp | Graphify |
+|---|---|---|
+| Primary focus | System/organizational context for coding agents | Structural code/repository representation |
+| Ownership / service context | Central to its public positioning | Not its primary focus |
+| Architectural rationale | Explicitly part of system context | Not inherently |
+| Code relationships | Part of broader system understanding | Core strength |
+| Session continuity | Core part of the product story | Not its defining role |
+| Context assembly | Central | Primarily evidence/navigation |
+| Deep dataflow/invariants | Not the primary public positioning | Structural graph is not proof of deep semantic flow |
+
+The EOKS conclusion is **composition rather than competition**: a context compiler could combine Xirp-like organizational/system evidence with Graphify-like structural evidence and authoritative source material.
+
+See [the dedicated Xirp research note](../research/prior-art/xirp.md) for the detailed mapping and proposed experiments.
 
 ## GrapeRoot
 
@@ -189,6 +248,7 @@ CodeQL               -> deep dataflow/security evidence
 Graphify             -> graph/navigation evidence
 Understand Anything  -> synthesized code/domain evidence
 TrueCourse           -> architecture/spec compliance evidence
+Xirp-like provider   -> organizational/system/session context
 GrapeRoot            -> task-context optimization
 OpenWolf             -> interaction-derived project context
 tests                -> behavioral evidence
@@ -196,7 +256,7 @@ observability        -> runtime evidence
 CLAUDE.md / ADRs     -> canonical human-reviewed knowledge
 ```
 
-The control plane should choose the minimum sufficient set of providers for the workload instead of always running the deepest analysis.
+The control plane should choose the minimum sufficient set of providers for the workload instead of always running the deepest analysis or retrieving the broadest organizational context.
 
 ## The emerging stack
 
@@ -211,14 +271,19 @@ The combined prior art suggests the following practical architecture:
                          |
                  context compilation
                          |
-      +------------------+------------------+
-      |                  |                  |
- canonical docs      structural        semantic /
- CLAUDE.md / ADRs       graph          dataflow /
-      |                  |             invariants
-      +------------------+------------------+
+      +------------------+-----------------------------+
+      |                  |                             |
+ canonical docs      structural                  organizational /
+ CLAUDE.md / ADRs       graph                    system context
+      |                  |                       ownership / services
+      |                  |                             |
+      +------------------+-----------------------------+
                          |
-                      model
+                    semantic /
+                    dataflow /
+                    invariant evidence
+                         |
+                       model
                          |
                  execution + tools
                          |

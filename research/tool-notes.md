@@ -63,11 +63,31 @@ control      = use that evidence to decide what happens next
 
 See [Agent memory and continuous-learning prior art](prior-art/agent-memory.md) and [Learning from development sessions](session-learning.md).
 
-## XIRP / Spotify
+## Xirp / Spotify
 
-XIRP was useful as infrastructure prior art: large organizations need shared systems around AI applications rather than every team inventing its own execution environment.
+Xirp is useful prior art for **shared institutional/system context for AI coding agents**, rather than simply as generic infrastructure.
 
-The EOKS question is where a shared platform should sit relative to application agents, data, tools and model providers.
+The public Xirp site describes an agentic development environment that connects coding sessions to services, ownership, dependencies, documentation and architectural decisions. It also describes a Portal-based Workspace for sharing work items, sessions and docs, and a workflow in which knowledge from coding sessions can become living documentation for future engineers or agents. Xirp is presented as a beta and as a model-independent harness that can work with Claude, Gemini and Codex.
+
+The EOKS-relevant insight is that a coding agent may need to retrieve context about the **system and organization around the code**, not just the files it is editing. This adds an organizational/system-context dimension to the existing EOKS knowledge model:
+
+```text
+service ownership       -> organizational evidence
+service dependencies    -> structural evidence
+architecture decisions  -> historical/canonical evidence
+session knowledge       -> candidate durable knowledge
+                    |
+                    v
+             context compilation
+                    |
+                 agent
+```
+
+This is complementary to Graphify. Graphify is primarily a structural code/repository representation; Xirp emphasizes broader system awareness, institutional context and session continuity. Neither should be treated as the EOKS knowledge base or control plane.
+
+The strongest architectural caution is the same one already present in EOKS's memory work: **session output is evidence, not automatically truth**. Generated knowledge needs provenance, revision/freshness, scope, confidence and validation/promotion before becoming canonical. Otherwise an incorrect session summary can be retrieved later as authoritative context.
+
+See [Xirp / Spotify](prior-art/xirp.md) for the fuller analysis and proposed experiments.
 
 ## OKF
 
@@ -230,6 +250,8 @@ A useful interpretation is that these projects form different layers of an ecosy
                                    |
                      behavioral memory / procedures
 ```
+
+Xirp fits across the **context + execution boundary**, with a particularly strong emphasis on system/organizational context and shared session continuity. It is therefore complementary to structural evidence providers and memory systems rather than a replacement for them.
 
 This is intentionally not a claim that the tools were designed as EOKS components. It is a map of where their capabilities could fit in the hypothesis.
 
