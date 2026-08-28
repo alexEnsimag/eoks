@@ -190,18 +190,62 @@ agent observations
 
 The important safeguard is that automatic extraction should not silently rewrite trusted project policy.
 
-## LLM observability tools
+## LLM observability and reliability tools
 
-The observability discussion considered whether existing tracing/monitoring systems could provide metrics about model calculations, confidence or behavior.
+The recent AI-engineering tooling discussion considered LangSmith, Langfuse, Langroid, Plano and TransformerLab. They should be mapped to different EOKS concerns rather than treated as one "monitoring layer":
 
-The distinction is:
+| Tool / family | Primary EOKS role | What it contributes |
+|---|---|---|
+| LangSmith-style tracing/evals | observability + evaluation | traces, evaluations, agent execution visibility |
+| Langfuse | open observability + evaluation substrate | traces, prompts, token/cost/latency metrics, scores, experiments |
+| Langroid | multi-agent execution | structured agent collaboration and execution traces |
+| Plano | infrastructure / routing / governance | operational controls, routing and production reliability |
+| TransformerLab | model experimentation | model evaluation, benchmarking and experimentation |
+
+The article that prompted this discussion is useful as a landscape map: it shows that modern AI engineering is converging on distinct layers for observability, evaluation, orchestration, governance and experimentation. The EOKS abstraction sits above these components and decides how their evidence participates in a workload.
+
+### Observability is not confidence
+
+Tracing systems can record prompts, responses, token usage, latency, tool calls, retrieval and evaluation scores. That is extremely useful, but it does not automatically expose a trustworthy probability that the model's answer is correct.
+
+EOKS should therefore distinguish:
 
 ```text
-observability = record what happened
-control       = use what happened to decide what happens next
+observability
+  -> what happened?
+
+reliability estimation
+  -> how much should we trust the result?
+
+control
+  -> what should happen next?
 ```
 
-EOKS is interested in the second layer while still needing the first.
+Potential reliability signals include:
+
+- token probabilities/logprobs where available;
+- token-level entropy and related information metrics;
+- semantic agreement across independent generations;
+- retrieval/evidence agreement and contradiction;
+- tests, static analysis and tool outcomes;
+- historical task success for a model/workload combination;
+- evaluator and human-review scores.
+
+These should form **reliability evidence**, not an opaque universal confidence number. A model can be confidently wrong, and an uncertainty metric can be poorly calibrated for a particular task.
+
+The intended loop is:
+
+```text
+trace
+  -> model/evidence signals
+  -> outcome/evaluation
+  -> calibration
+  -> reliability evidence
+  -> control decision
+  -> next action
+```
+
+See [LLM observability and reliability signals](llm-observability-and-reliability.md) for the detailed model and proposed experiments.
 
 ## Evidence providers
 
@@ -209,7 +253,7 @@ The tooling discussion suggests adding a conceptual category between raw sources
 
 An evidence provider answers a bounded question and returns facts or derived relationships together with provenance, scope/revision, validation/confidence and cost/latency characteristics.
 
-Examples include repository graphs, TypeScript checks, ESLint, `ts-morph`, Semgrep, CodeQL, Understand Anything, TrueCourse, modularity-style architecture analysis, tests and runtime observability.
+Examples include repository graphs, TypeScript checks, ESLint, `ts-morph`, Semgrep, CodeQL, Understand Anything, TrueCourse, modularity-style architecture analysis, tests, runtime observability and model-level uncertainty signals.
 
 This makes context selection a policy problem rather than a token-budget problem: the control plane should select the minimum sufficient evidence for a workload instead of indiscriminately running every analyzer or stuffing every result into the prompt.
 
@@ -242,16 +286,15 @@ A useful interpretation is that these projects form different layers of an ecosy
         |                          |                           |
         +--------------------------+---------------------------+
                                    |
-                              agent runtime
+                         observability / runtime
+                    traces / uncertainty / outcomes
                                    |
-                        traces / episodes / outcomes
+                         calibration + evaluation
                                    |
-                         background reflection
-                                   |
-                     behavioral memory / procedures
+                         future control decisions
 ```
 
-Xirp fits across the **context + execution boundary**, with a particularly strong emphasis on system/organizational context and shared session continuity. It is therefore complementary to structural evidence providers and memory systems rather than a replacement for them.
+Xirp fits across the **context + execution boundary**, with a particularly strong emphasis on system/organizational context and shared session continuity. Observability tools fit below evaluation and control as execution sensors. They are complementary to structural evidence providers and memory systems rather than replacements for them.
 
 This is intentionally not a claim that the tools were designed as EOKS components. It is a map of where their capabilities could fit in the hypothesis.
 

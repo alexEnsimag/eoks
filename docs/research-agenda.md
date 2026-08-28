@@ -132,3 +132,43 @@ Also test **session-to-institutional-knowledge promotion**: whether useful disco
 Important lifecycle properties to measure include provenance, source revision, scope/applicability, freshness, contradiction handling, human correction and rollback/invalidation.
 
 Finally, test **cross-harness portability**: whether the same promoted knowledge and compiled context remain useful when execution switches between different coding-agent/model harnesses. This helps separate durable EOKS knowledge/context capabilities from vendor-specific agent state.
+
+## 13. LLM observability and reliability signals
+
+Test whether AI observability can become a useful **sensor layer** for the EOKS control loop rather than merely a debugging dashboard.
+
+Start with an offline benchmark where every task has a known outcome. Record:
+
+- full execution trace and tool/retrieval steps;
+- model/version and context manifest;
+- token usage, latency and cost;
+- model self-assessment where available;
+- token probabilities/logprobs and entropy where available;
+- semantic agreement across multiple generations for a selected subset;
+- evidence agreement, contradiction and provenance;
+- deterministic checks and test outcomes;
+- evaluator/human scores;
+- final correctness.
+
+Compare four increasingly rich reliability signals:
+
+1. model self-assessment;
+2. model-computation signals such as logprobs/entropy;
+3. external evidence and outcome signals;
+4. a combined reliability evidence model.
+
+Evaluate both calibration and **decision utility**. The important question is not merely whether a signal correlates with correctness, but whether using it reduces bad actions, unnecessary retries and unnecessary expensive analysis.
+
+Test control policies such as:
+
+- high reliability → stop;
+- medium reliability → verify with a deterministic provider;
+- low reliability → retrieve more context, sample another answer, switch model or branch the workflow.
+
+Do not allow a reliability signal to control the live loop until it has demonstrated useful calibration on the target workload.
+
+### Key hypothesis
+
+> **Observability supplies the sensors; evaluation supplies outcome labels; calibration turns raw signals into workload-specific reliability evidence; the control plane uses that evidence to choose the next action.**
+
+See [LLM observability and reliability signals](../research/llm-observability-and-reliability.md).
