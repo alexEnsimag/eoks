@@ -23,8 +23,8 @@ The current architectural hypothesis is deliberately compositional: OKF can prov
         +-------------------------+-------------------------+
         |                         |                         |
   KNOWLEDGE PLANE          CONTEXT PLANE            EXECUTION PLANE
- canonical knowledge       selection · assembly      workflows · agents
- graphs · semantic         ranking · compression     reasoning strategies
+ canonical knowledge       selection · assembly      workflows · runs
+ graphs · semantic         ranking · compression     models · agents
  history · runtime         progressive disclosure    tools · artifacts
  evidence
         |                         |                         |
@@ -45,13 +45,13 @@ The repository separates **current architecture** from **exploratory research**.
 
 - [Vision](docs/vision.md)
 - [Architecture](docs/architecture.md)
+- [Resource model](docs/resource-model.md)
 - [Context engineering](docs/context.md)
 - [Context Workbench architecture](docs/context-workbench.md)
 - [Knowledge base](docs/knowledge-base.md)
 - [Knowledge as a multi-representation system](docs/knowledge-representations.md)
-- [Agent workflows and reasoning strategies](docs/agent-workflows.md)
-- [Memory](docs/memory.md)
-- [Behavioral memory and learning](docs/behavioral-memory.md)
+- [Agent workflows, orchestration and reasoning strategies](docs/agent-workflows.md)
+- [Memory and behavioral learning](docs/memory.md)
 - [Control plane](docs/control-plane.md)
 - [Evaluation](docs/evaluation.md)
 - [Software engineering](docs/software-engineering.md)
@@ -95,7 +95,7 @@ The current practical hypothesis is intentionally conservative:
 4. Treat organizational/system context—such as ownership, service boundaries and architectural rationale—as another evidence source when the task requires it; do not assume repository-local context is sufficient.
 5. Use context compilation to select only task-relevant evidence.
 6. Treat context as an inspectable, budgeted artifact; the proposed Context Workbench provides blocks, provenance, selection rationale, context diffs and a graph view without requiring manual curation for every task.
-7. Treat agent workflows and reasoning strategies as execution-layer resources.
+7. Treat workflows, orchestration and reasoning strategies as execution-layer resources.
 8. Learn continuously through candidate extraction and controlled promotion rather than silently rewriting canonical knowledge.
 9. Update representations incrementally; do not rebuild the entire knowledge base after every change.
 10. For software engineering, prefer the cheapest reliable deterministic evidence source that answers the question: types before custom analysis, lightweight rules before deep dataflow, and deeper analyzers only when the invariant requires them.
