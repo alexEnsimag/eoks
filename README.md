@@ -45,6 +45,7 @@ EOKS is not a prompt framework, vector database, memory store, agent framework o
 ## Research
 
 - [Agent code understanding and architecture tooling](research/agent-code-understanding-and-architecture.md) — how repository knowledge graphs, deterministic analysis, architecture governance and AI coding tools can map onto EOKS.
+- [Current state of adjacent agent tooling](research/agent-tooling-current-state.md) — externally verifiable product/community facts kept separate from the EOKS model.
 - [Context engineering](research/context-engineering.md)
 - [Context quality model](research/context-quality-model.md)
 - [Context workbench](research/context-workbench.md)
