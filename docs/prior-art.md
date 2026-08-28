@@ -6,6 +6,16 @@ EOKS is a synthesis, not a claim that these ideas are new. Several projects and 
 
 GrapeRoot was discussed as a context-aware CLI around Claude. It is relevant to task execution, persistent project context and agent workflows. EOKS asks what happens when those capabilities become explicit platform resources rather than remaining inside one CLI.
 
+## OpenWolf
+
+OpenWolf is relevant to a concrete coding-agent failure mode: repeated reconstruction of repository context across sessions. Its local, hook-driven approach maintains repository-oriented summaries and persistent notes around agent/file interactions.
+
+For EOKS, OpenWolf is best treated as **knowledge extraction + context optimization**, not as the complete knowledge layer. It demonstrates that project knowledge can be incrementally maintained rather than reconstructed from zero for every session.
+
+The important architectural distinction is between automatically generated **candidate knowledge** and trusted canonical knowledge. Summaries can become stale or contain incorrect inferences, so a durable knowledge layer needs provenance, validation, freshness and invalidation semantics. See [Knowledge base and persistent project knowledge](knowledge-base.md) and [OpenWolf](prior-art/openwolf.md).
+
+OpenWolf also motivates a useful evaluation dimension: a knowledge layer should be judged by reduced discovery cost and improved task outcomes, not merely token reduction. It should ideally survive model/agent changes rather than becoming coupled to one CLI.
+
 ## CodeSight
 
 CodeSight is relevant to codebase context and repository understanding. It illustrates the value of preparing structured knowledge for coding agents.
@@ -66,13 +76,14 @@ The tooling landscape suggests a useful abstraction: **evidence providers**. A p
 Examples:
 
 ```text
-repository graph  -> dependency evidence
-Semgrep           -> structural/security evidence
-CodeQL            -> deep dataflow evidence
-Understand Anything -> synthesized code/domain evidence
-TrueCourse        -> architecture/spec compliance evidence
-tests             -> behavioral evidence
-observability     -> runtime evidence
+repository graph     -> dependency evidence
+Semgrep              -> structural/security evidence
+CodeQL               -> deep dataflow evidence
+Understand Anything  -> synthesized code/domain evidence
+TrueCourse           -> architecture/spec compliance evidence
+OpenWolf             -> project summaries / interaction-derived knowledge
+tests                -> behavioral evidence
+observability        -> runtime evidence
 ```
 
 This connects prior art directly to the EOKS thesis: context quality is not token count. The control plane should assemble context from task-relevant, provenance-bearing evidence and select the minimum sufficient analysis needed for the workload.
