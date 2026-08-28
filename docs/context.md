@@ -2,48 +2,58 @@
 
 Context engineering is the discipline of constructing the information available to a model for a specific reasoning step.
 
-The key distinction is:
-
 > **Knowledge is persistent; context is compiled for a task.**
 
-Context engineering is therefore not a competing layer to knowledge engineering. It is the runtime boundary that selects and assembles the right slice of persistent knowledge and evidence.
+Context engineering is therefore the runtime boundary between durable knowledge/evidence and model input. A repository, graph, memory store or knowledge bundle can contain much more information than should enter a model context.
 
 ## Context is not storage
 
-A repository, knowledge base, graph or memory store can contain far more information than should enter a model's context. The important operation is the **selection and transformation boundary** between external knowledge and model input.
-
-A useful mental model is:
-
 ```text
-persistent engineering reality
-          |
-   knowledge representations
-          |
-   task + workflow + strategy
-          |
-   context compilation
-          |
-   minimal sufficient context
-          |
-         model
+engineering reality
+       |
+knowledge / evidence providers
+       |
+task + workflow + policy
+       |
+context compiler
+       |
+minimal sufficient context
+       |
+model
 ```
 
-The model should usually see the **compiled evidence**, not the internal graph, embedding index or storage system itself.
+The model should normally receive the compiled evidence, not the internal graph, index or storage system.
 
 ## Navigation versus knowledge
 
-A particularly useful distinction is between two goals:
+Two related but different goals are useful:
 
-1. **Navigation optimization** — determine where the relevant evidence lives and in what order it should be read.
-2. **Knowledge optimization** — preserve insights that do not otherwise exist in source material, such as rationale, tradeoffs, invariants and lessons learned.
+1. **Navigation** — determine where relevant authoritative evidence lives and how it is connected.
+2. **Knowledge** — preserve information that does not otherwise exist in authoritative sources, such as rationale, invariants, trade-offs and lessons learned.
 
-A structural graph or semantic index can often satisfy the first goal by pointing the agent to relevant files, symbols, ADRs or incidents. The agent can then read the authoritative source rather than receiving a duplicated summary.
+A code graph is often excellent navigation evidence. It does not automatically become semantic truth. Conversely, a durable invariant may need an explicit knowledge representation even when the relevant source files are easy to find.
 
-Synthetic knowledge is different: if a cross-package invariant or debugging discovery exists nowhere else, it needs a durable representation.
+## Evidence providers
+
+Graphs, semantic indexes, timelines, ADRs, static analysis, tests, runtime observations and knowledge bundles are **providers**, not context themselves. The context compiler selects and transforms their output.
+
+```text
+Task: change authentication
+        |
+        +--> structural provider -> affected symbols/files
+        +--> knowledge provider  -> relevant invariants/decisions
+        +--> history provider   -> incidents/recent changes
+        +--> verification       -> tests/static checks
+        |
+        v
+  task-specific context
+```
+
+EOKS should prefer the cheapest provider that can reliably answer the question and retain provenance with the resulting evidence.
 
 ## Canonical project knowledge
 
-A practical coding-agent environment can use hierarchical `CLAUDE.md` files as a canonical, human-reviewable representation of local project knowledge:
+Hierarchical `CLAUDE.md`-style files are one possible representation for concise, human-reviewed local guidance:
 
 ```text
 /
@@ -54,240 +64,82 @@ A practical coding-agent environment can use hierarchical `CLAUDE.md` files as a
     CLAUDE.md
 ```
 
-The purpose should be mental-model information rather than a second copy of the code:
+They are useful for mental-model information such as responsibilities, boundaries, invariants, entry points, pitfalls and links to decisions. They should not become encyclopedias or duplicate the source code.
 
-- why the package exists;
-- responsibilities and boundaries;
-- invariants and important constraints;
-- entry points and reading order;
-- common pitfalls;
-- links to cross-cutting architecture decisions.
-
-This is especially attractive because the files live beside the code, are versioned with Git and can be reviewed in normal pull requests.
-
-The hierarchy should remain scoped. Repository-wide instruction files should not become encyclopedias. More local guidance is useful when the agent is working in that part of the tree, while unrelated package knowledge should remain out of the context budget.
-
-## Knowledge representations are not context
-
-Graphs, semantic indexes, timelines, ADR collections and runtime stores are **evidence providers**. They should normally be queried by a context compiler rather than dumped into the model context.
-
-For example:
+Other representations can coexist. **OKF is one portable representation, not the EOKS knowledge layer itself.** The canonical OKF details and interoperability rules belong in the knowledge-representation research; this document only establishes the boundary:
 
 ```text
-Task: change authentication
-        |
-        +--> structural query -> affected packages/files
-        +--> semantic query   -> relevant auth concepts
-        +--> history query    -> authentication ADRs/incidents
-        +--> canonical docs   -> api/CLAUDE.md + auth/CLAUDE.md
-        |
-        v
-  task-specific context
-```
-
-This also explains why a graph can be valuable without becoming the canonical knowledge base.
-
-## Context quality
-
-A useful context-quality model should consider:
-
-- relevance to the task;
-- correctness and source reliability;
-- freshness;
-- completeness;
-- redundancy;
-- contradictions;
-- provenance;
-- ordering/structure;
-- token and latency cost;
-- interaction with the chosen model;
-- applicability of retrieved procedures to the current task.
-
-The goal is not maximum information. It is maximum useful evidence per unit of context and reasoning cost.
-
-"Context entropy" can be retained as an intuitive research question, but EOKS should not assume that one scalar entropy measure is sufficient. The more actionable approach is to expose the dimensions above and measure how context composition affects outcomes.
-
-A promising derived metric is **marginal context value**: the change in expected task quality attributable to a block relative to its token/latency cost. Initially this is a benchmark concept rather than a claim that online task-quality probabilities can be estimated precisely.
-
-## Context blocks and workbench
-
-Context should be represented conceptually as **inspectable blocks** rather than an opaque concatenated prompt. Blocks may represent task constraints, canonical knowledge, decisions, structural evidence, dependency slices, raw evidence, tests, runtime observations, history, procedures or working hypotheses.
-
-The proposed Context Workbench provides a human-facing view over these blocks. It should allow automatic selection while making the selection inspectable and optionally editable:
-
-- include/exclude/pin blocks;
-- inspect provenance and freshness;
-- ask why a block was selected or omitted;
-- inspect token cost;
-- compare context compositions;
-- impose a context budget;
-- review a context diff before execution;
-- save successful context recipes for future tasks.
-
-A graph view can complement the block view, but should represent relationships among task requirements, knowledge, code and evidence rather than simply reproduce the repository dependency graph.
-
-See [Context Workbench](context-workbench.md) for the proposed model, context layers, quality dimensions, context contracts, learning loop and UI/benchmark ideas.
-
-## Context layers
-
-A useful decomposition is:
-
-```text
-L0 task
-L1 constraints
-L2 persistent knowledge
-L3 structural context
-L4 evidence
-L5 working memory
-L6 reasoning state
-```
-
-Different workflow nodes can request different layer budgets. This is an information-architecture boundary, not a requirement that models reason in a particular way.
-
-## Static versus dynamic context
-
-Large repository-wide instruction files can create a poor tradeoff: they are always available but may be irrelevant to the current task. EOKS should prefer **progressive disclosure** and task-scoped retrieval.
-
-This does not imply that static documentation is bad. Well-scoped package-level `CLAUDE.md` files can be valuable precisely because they are local, concise and maintained as part of the codebase. The important distinction is between useful local guidance and indiscriminate global context stuffing.
-
-## Context splitting
-
-Different reasoning steps often need different context. Splitting context can reduce noise and make decisions inspectable: discovery context, design/planning context, implementation context, verification context and historical/project context can be assembled separately.
-
-A workflow node can therefore request a different context package than another node even for the same task.
-
-## Progressive disclosure
-
-The system should prefer exposing the minimum sufficient information and retrieving additional detail when evidence shows it is needed. This resembles filesystem/document navigation more than stuffing an entire corpus into a prompt.
-
-A useful pattern is:
-
-```text
-compact pointer / summary
-        |
-        +--> authoritative source
-        |
-        +--> related evidence
-```
-
-## Subagent context contracts
-
-Subagents are a particularly important consumer of compiled context. A fresh subagent should receive an explicit starting contract containing known facts, relevant nodes, task scope and unresolved questions when available. It should still be allowed to discover missing evidence.
-
-This avoids conflating **isolation** with **rediscovery**: isolated reasoning can be valuable, while repeated reconstruction of repository knowledge is often unnecessary cost.
-
-## Relationship to compaction and model routing
-
-Conversation compaction and context compilation solve different problems. Compaction attempts to preserve useful information inside a continuing conversation; context compilation reconstructs task-specific context from durable knowledge and authoritative evidence after a context boundary or fresh subagent starts.
-
-Similarly, model routing chooses a model while context compilation chooses the information supplied to that model. A router cannot fix waste caused by a strong model repeatedly rediscovering the same repository.
-
-For EOKS experiments, context optimization should therefore be measured independently before assuming that model routing is the primary cost lever.
-
-## Continuous knowledge lifecycle
-
-Claude Code plugins and hooks expose a useful concrete workflow for studying this problem. An execution workflow can produce decisions, failures, tool traces and review outcomes that become inputs to the knowledge lifecycle.
-
-```text
-session start
-    |
-retrieve canonical knowledge + relevant evidence + applicable procedure
-    |
-work / execute / verify
-    |
-session end
-    |
-extract candidate facts, episodes, rules, skills and decisions
-    |
-validate selectively against source + outcome evidence
-    |
-promote / update / invalidate
-    |
-future retrieval and workflow selection
-```
-
-The important architectural boundary is between **observation**, **candidate extraction**, **validation/promotion**, and **retrieval**. A session-finalizer hook is therefore one instance of the general EOKS knowledge lifecycle rather than a special-case memory feature.
-
-## Knowledge bundles and OKF
-
-OKF is a useful concrete representation because it is intentionally not a hosted memory service. The current OKF v0.2 specification defines a bundle as a directory tree of Markdown concept documents with YAML frontmatter. `type` is the only always-required frontmatter field; additional fields are allowed, and consumers are expected to tolerate unknown fields.
-
-A local Git-tracked directory can therefore be a valid OKF bundle without running a server:
-
-```text
-knowledge/
-  architecture/
-    authentication.md
-  decisions/
-    event-processing.md
-  invariants/
-    auth.md
-```
-
-EOKS should distinguish **OKF compatibility** from the broader concept of project knowledge. A team can use its own Markdown conventions when interoperability is not required; when it wants an OKF bundle, it should follow the OKF specification rather than merely applying the label to an arbitrary directory.
-
-The important architectural boundary remains:
-
-```text
-OKF / Markdown / ADRs / other durable representations
+OKF / CLAUDE.md / ADRs / other durable representations
                          |
                          v
-                  knowledge provider
+                 knowledge providers
                          |
                          v
                   context compiler
 ```
 
-OKF is therefore a portable representation, not an EOKS runtime or mandatory storage layer.
+## Context engines and lifecycle hooks
 
-## GrapeRoot-like context engines and hooks
-
-GrapeRoot is useful prior art for a context engine that sits around an existing coding agent. Its current public documentation describes a first-run project scan that extracts files, functions, classes and import edges into a local graph, followed by a local MCP server and agent integration. It also documents hooks that re-inject context when Claude compacts its memory and record session information.
-
-This suggests a useful event boundary for EOKS, while avoiding a dependency on GrapeRoot itself:
+GrapeRoot is useful prior art for a context engine around an existing coding agent. EOKS should not depend on its implementation. Instead, define agent-neutral lifecycle semantics:
 
 ```text
-SessionStart / context boundary
-        |
-        v
-context compiler
-        |
-        +-- knowledge providers
-        +-- structural graphs
-        +-- evidence providers
-        +-- session state
-        |
-        v
-compiled context
-        |
-        v
-agent
-        |
-PreToolUse (optional policy/evidence check)
-        |
+prepare context
+      |
+      v
+agent execution
+      |
+before execution (optional policy/evidence check)
+      |
 tool execution
-        |
-PostToolUse / outcome observation
+      |
+observe outcome
+      |
+finalize / persist
 ```
 
-The exact hook names are agent-specific. EOKS should define lifecycle semantics such as **prepare context**, **before execution**, **observe outcome** and **finalize/persist**, then provide adapters for Claude Code/GrapeRoot-like hooks, MCP, or other agent runtimes.
+Adapters can map those semantics to Claude Code hooks, MCP, or another runtime. A session-start/compaction event is naturally suited to reconstructing context; a pre-tool event can optionally perform a policy or evidence check. The exact hook names are runtime-specific.
 
-A key benchmark requirement is to test whether pre-injection actually improves task outcomes. Reduced exploration or token usage alone is not sufficient evidence of better context.
+## Context quality
 
-## Open problem
+Context quality should consider relevance, correctness, freshness, completeness, redundancy, contradiction risk, provenance, ordering, token/latency cost and interaction with the chosen model. The goal is not maximum information but maximum useful evidence per unit of reasoning cost.
 
-We need empirical benchmarks showing when a context intervention improves task success, rather than assuming that more structure or more retrieved tokens are beneficial. EOKS should measure at least:
+Context should be represented conceptually as **inspectable blocks** rather than an opaque prompt. Blocks can represent constraints, knowledge, decisions, structural evidence, tests, runtime observations, history or working hypotheses. A Context Workbench can expose why blocks were selected, their provenance and cost, and allow controlled include/exclude/pin operations.
 
-- repository-discovery tool calls;
-- time/token cost;
-- task success;
-- regression/error rate;
-- stale-knowledge incidents;
-- usefulness of persistent knowledge;
-- whether a context intervention improves the outcome for a particular model;
-- which context blocks were selected, omitted, manually changed and ultimately useful;
-- the cost/benefit of context budgets and block-level optimization;
-- model/context interaction during model upgrades;
-- regression of representative task classes before promoting a new model or context policy.
+See [Context Workbench](context-workbench.md) for the proposed block/workbench model.
 
-See [Context evaluation, benchmarking and model migration](../research/context-evaluation-and-model-migration.md) for the detailed experimental methodology.
+## Progressive and split context
+
+Prefer progressive disclosure over indiscriminate repository-wide context stuffing:
+
+```text
+compact pointer / summary
+        |
+        +--> authoritative source
+        +--> related evidence
+```
+
+Different workflow nodes can request different context packages—for example discovery, planning, implementation and verification. Fresh subagents should receive an explicit starting contract rather than repeatedly rediscovering the repository.
+
+## Knowledge lifecycle
+
+Execution can produce candidate facts, decisions, rules, skills and episodes. They should not automatically become canonical knowledge:
+
+```text
+observation
+    -> candidate extraction
+    -> provenance + validation
+    -> promote / update / invalidate
+    -> future retrieval
+```
+
+This separates observation from durable truth and prevents an incorrect session summary from silently becoming future context.
+
+## Relationship to compaction and model routing
+
+Conversation compaction preserves useful information inside a continuing conversation. Context compilation reconstructs task-specific context from durable knowledge and authoritative evidence. They are related but different operations.
+
+Model routing chooses **which model** to use; context compilation chooses **what information** to give it. Both should be evaluated independently before optimizing them jointly.
+
+## Evaluation boundary
+
+Context interventions must be evaluated on end-to-end task outcomes, not only retrieval or token metrics. The canonical methodology, benchmark design, model-migration process and prior-art evaluation tools live in [Context evaluation, benchmarking and model migration](../research/context-evaluation-and-model-migration.md) and [Evaluation](evaluation.md).
