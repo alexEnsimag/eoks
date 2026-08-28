@@ -14,11 +14,41 @@ This is a lightweight decision record. Detailed ADRs can be split out as impleme
 
 **Reason:** Stored information and task-specific model input have different lifecycles and optimization goals.
 
+## Knowledge is multi-representational
+
+**Decision:** Do not make a graph, vector store or any other single representation synonymous with knowledge.
+
+**Reason:** Structural graphs, semantic indexes, canonical documents, timelines, runtime observations and other representations answer different questions. EOKS should select representations as evidence providers rather than force everything into one canonical structure.
+
+## Evidence providers are bounded capabilities
+
+**Decision:** Treat repository graphs, static analyzers, tests, runtime observations, semantic retrieval and similar systems as evidence providers that can be selected according to task requirements.
+
+**Reason:** Different questions require different assurance. The control plane should prefer the cheapest reliable provider that can answer the question instead of indiscriminately running every analyzer.
+
+## Existing agents remain replaceable execution resources
+
+**Decision:** Prefer integrating with existing coding-agent runtimes through adapters, launchers, hooks, MCP or similar boundaries before building a replacement agent runtime.
+
+**Reason:** The EOKS research question is coordination and feedback, not whether EOKS can reproduce an agent's internal reasoning loop. GrapeRoot is useful prior art for this sidecar/integration pattern.
+
 ## Evaluation belongs in the architecture
 
 **Decision:** Treat evaluation and feedback as a runtime subsystem.
 
 **Reason:** Model routing, context construction and orchestration cannot be optimized reliably without outcome evidence.
+
+## Reliability is not model confidence
+
+**Decision:** Keep observability, model uncertainty, evidence strength, context quality and outcome quality as distinguishable signals. Calibrate any derived reliability signal against actual workload outcomes before using it for automatic control.
+
+**Reason:** Traces and self-reported confidence are useful evidence, but neither is ground truth. A control policy needs workload- and decision-specific evidence.
+
+## Minimal semantic model first
+
+**Decision:** Start with the seven working runtime primitives `Task`, `Context`, `Run`, `Decision`, `Policy`, `Evaluation` and `Outcome`. Treat models, tools, agents, knowledge stores and analyzers as resources/providers until implementation evidence justifies promoting more concepts to first-class primitives.
+
+**Reason:** A large ontology would encode assumptions before real run traces show which objects and relationships are actually necessary.
 
 ## Hybrid deterministic/probabilistic systems
 
@@ -37,3 +67,9 @@ This is a lightweight decision record. Detailed ADRs can be split out as impleme
 **Decision:** Decisions about context, models, tools and memory should be inspectable.
 
 **Reason:** A control plane that cannot explain which evidence it selected and why is difficult to debug, evaluate and trust.
+
+## Controlled knowledge promotion
+
+**Decision:** Observations and generated candidates must not silently become canonical project knowledge or policy. Promotion should retain provenance, scope/freshness and validation evidence and remain reversible where practical.
+
+**Reason:** Automatic extraction is valuable, but stale or incorrect generated knowledge can contaminate every future context that retrieves it.
