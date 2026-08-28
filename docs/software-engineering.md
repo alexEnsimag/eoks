@@ -90,6 +90,51 @@ An engineering agent should be evaluated as a workflow, not just as a model resp
 
 The same principle applies to analysis depth: a simple type check should not trigger a repository-wide dataflow analysis, and a structural graph query should not be expected to prove a path-sensitive value-flow invariant.
 
+## Autonomous engineering loop
+
+Software engineering is a useful workload for a small, evidence-driven agent topology:
+
+```text
+goal / acceptance criteria
+          |
+       conductor
+          |
+     plan / context
+          |
+       executor
+          |
+ deterministic checks
+          |
+ independent reviewer
+          |
+ behavioral validation
+       /       \
+   accept     repair/retry
+                 |
+              escalate
+```
+
+The important unit is the **workflow**, not the number of agents. The conductor may be one Claude Code session, a lightweight orchestration layer, or another runtime. The executor can be a coding-agent session. The reviewer should have a fresh enough context to challenge the implementation rather than merely restating the executor's conclusion.
+
+For initial systems, three logical roles are sufficient: **conductor, executor and reviewer**. They do not need to be three simultaneously running models. Additional agents should be introduced only when parallelism, independence or specialization demonstrably improves the workload.
+
+Validation should combine deterministic checks and observed behavior. A successful coding-agent response is not itself evidence that the task is complete.
+
+## Human-in-the-loop
+
+Autonomous engineering should move humans toward **intent, policy and exceptions**, rather than assuming that humans must inspect every generated line. Typical escalation points include:
+
+- ambiguous or conflicting requirements;
+- security-sensitive or destructive changes;
+- insufficient or contradictory validation evidence;
+- architectural decisions with significant long-term consequences;
+- production-impacting changes;
+- policy violations or unusual failures.
+
+Routine implementation, testing, repair and low-risk staging validation can be automated when the workflow has strong evidence and safe rollback. Code review remains an important human control, but it is not necessarily the only one.
+
+See [Agent orchestration](agent-orchestration.md) for the general conductor/executor/reviewer model, context boundaries and runtime topology choices.
+
 ## Key hypothesis
 
-The highest-leverage AI engineering infrastructure may be the layer that decides **what evidence to expose to which model at which point in the workflow**—including choosing the cheapest reliable analysis that is sufficient for the engineering question.
+The highest-leverage AI engineering infrastructure may be the layer that decides **what evidence to expose to which model at which point in the workflow**—including choosing the cheapest reliable analysis that is sufficient for the engineering question—and then verifies that the resulting action actually achieved the intended outcome.
