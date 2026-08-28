@@ -51,10 +51,8 @@ The repository separates **current architecture** from **exploratory research**.
 - [Context Workbench architecture](docs/context-workbench.md)
 - [Knowledge base](docs/knowledge-base.md)
 - [Knowledge as a multi-representation system](docs/knowledge-representations.md)
-- [Agent workflows and reasoning strategies](docs/agent-workflows.md)
-- [Agent orchestration](docs/agent-orchestration.md) — conductor, executor, reviewer, validation, escalation and runtime topology.
-- [Memory](docs/memory.md)
-- [Behavioral memory and learning](docs/behavioral-memory.md)
+- [Agent workflows, orchestration and reasoning strategies](docs/agent-workflows.md)
+- [Memory](docs/memory.md) — semantic, episodic, project and procedural memory plus controlled behavioral learning.
 - [Control plane](docs/control-plane.md)
 - [Evaluation](docs/evaluation.md)
 - [Software engineering](docs/software-engineering.md)
@@ -73,21 +71,21 @@ The repository separates **current architecture** from **exploratory research**.
 
 The [`research/`](research/) directory preserves exploratory reasoning, comparisons and experiments. It is intentionally less normative than `docs/`; research notes may contain competing hypotheses. See [`research/README.md`](research/README.md) for its map.
 
-- [Knowledge, context and the EOKS control plane](research/knowledge-context-control-plane.md) — synthesis of the recent OKF, GrapeRoot and Graphify discussion, including the proposed minimal runtime model and the boundary between knowledge, context, execution and control.
-- [CodeSight](research/prior-art/codesight.md) — deterministic repository context, persistent wiki/knowledge maps, MCP evidence queries and how CodeSight fits as an evidence/context provider rather than a control plane.
-- [TencentDB Agent Memory](research/prior-art/tencent-agent-memory.md) — multi-resolution memory, Skills, Wiki, CodeGraph, governance/loadouts and hybrid proactive/on-demand context delivery.
-- [Agent code understanding and architecture tooling](research/agent-code-understanding-and-architecture.md) — how repository knowledge graphs, deterministic analysis, architecture governance and AI coding tools can map onto EOKS.
+- [Knowledge, context and the EOKS control plane](research/knowledge-context-control-plane.md)
+- [CodeSight](research/prior-art/codesight.md) — deterministic repository context and targeted evidence views.
+- [TencentDB Agent Memory](research/prior-art/tencent-agent-memory.md) — multi-resolution memory, Skills, Wiki, CodeGraph, governance/loadouts and hybrid context delivery.
+- [Agent code understanding and architecture tooling](research/agent-code-understanding-and-architecture.md)
 - [Context engineering](research/context-engineering.md)
 - [Context quality model](research/context-quality-model.md)
 - [Context workbench](research/context-workbench.md)
 - [Evaluation and model switching](research/evaluation-and-model-switching.md)
-- [LLM observability and reliability signals](research/llm-observability-and-reliability.md) — how tracing, model-level uncertainty, external evidence and calibration can become sensors for the EOKS control loop.
+- [LLM observability and reliability signals](research/llm-observability-and-reliability.md)
 - [Control loop](research/control-loop.md)
 - [Learning from development sessions](research/session-learning.md)
 - [Agent memory and continuous-learning prior art](research/prior-art/agent-memory.md)
-- [Claude Code learning stack](research/claude-learning-okf-hindsight.md) — decomposition of `CLAUDE.md`, Skills, Hooks, memory engines, OKF and optional graph/retrieval systems.
-- [Hindsight and OKF](research/prior-art/hindsight-and-okf.md) — why persistent learning engines and portable knowledge formats are complementary layers.
-- [Xirp / Spotify](research/prior-art/xirp.md) — institutional/system context, shared coding-session continuity and living documentation as coding-agent prior art.
+- [Claude Code learning stack](research/claude-learning-okf-hindsight.md)
+- [Hindsight and OKF](research/prior-art/hindsight-and-okf.md)
+- [Xirp / Spotify](research/prior-art/xirp.md)
 - [Tool notes](research/tool-notes.md)
 
 ## Practical coding-agent direction
@@ -96,24 +94,24 @@ The current practical hypothesis is intentionally conservative:
 
 1. Use hierarchical `CLAUDE.md` files as human-reviewable, canonical package/project knowledge and policy where appropriate.
 2. Keep cross-cutting architectural rationale in a small number of Markdown/ADR documents.
-3. Derive structural information automatically with deterministic analysis and optional graphs; **CodeSight is useful prior art for compiling repository structure into persistent, targeted, agent-readable evidence.**
+3. Derive structural information automatically with deterministic analysis and optional graphs; CodeSight is useful prior art for compiling repository structure into persistent, targeted, agent-readable evidence.
 4. Treat organizational/system context—such as ownership, service boundaries and architectural rationale—as another evidence source when the task requires it; do not assume repository-local context is sufficient.
 5. Maintain reusable memory, Skills and knowledge resources with explicit provenance, scope, freshness, ownership/access and lifecycle rather than treating them as one undifferentiated memory store.
 6. Use an agent/task loadout to constrain which resources are eligible for a workload before context relevance is optimized.
 7. Use context compilation to select only task-relevant evidence from the eligible resource/evidence set.
 8. Treat context as an inspectable, budgeted artifact; the proposed Context Workbench provides blocks, provenance, selection rationale, context diffs and a graph view without requiring manual curation for every task.
-9. Treat agent workflows and reasoning strategies as execution-layer resources.
+9. Treat agent workflows, orchestration and reasoning strategies as execution-layer resources.
 10. Learn continuously through candidate extraction and controlled promotion rather than silently rewriting canonical knowledge.
 11. Update representations incrementally; do not rebuild the entire knowledge base after every change. Derived repository maps should carry source revision/freshness information.
 12. For software engineering, prefer the cheapest reliable deterministic evidence source that answers the question: types before custom analysis, lightweight rules before deep dataflow, and deeper analyzers only when the invariant requires it.
 13. Treat observability traces as sensors for the control loop. Combine operational metrics, model uncertainty, evidence agreement, deterministic checks and outcomes rather than trusting a single model confidence number.
 14. Calibrate reliability signals against actual task outcomes before allowing them to drive automatic stop/verify/branch/model-switch decisions.
 15. Prefer an integration/sidecar model around existing coding agents before building a new agent runtime; the GrapeRoot launcher architecture is useful prior art for this approach.
-16. Compare proactive, reactive and hybrid context delivery rather than assuming that pre-injection or tool-driven exploration is universally better. CodeSight's index/article/MCP pattern is a useful example of progressive disclosure.
+16. Compare proactive, reactive and hybrid context delivery rather than assuming that pre-injection or tool-driven exploration is universally better.
 17. Keep the EOKS semantic model small until real run traces demonstrate that additional primitives are necessary.
 18. Start autonomous software-engineering workflows with a small topology—**conductor, executor and independent reviewer as logical roles**—rather than an agent swarm. Use native subagents or isolated sessions when they provide a concrete context/isolation benefit; add a dedicated conductor layer when persistent workflow state, lifecycle policy or cross-session coordination is actually needed.
 19. Treat validation as a first-class workflow stage. Tests, static analysis, deployment checks and observed behavior should provide evidence for completion; an agent's self-reported success is not sufficient.
-20. Move humans toward objectives, policy exceptions, risky/ambiguous decisions and accountability as workflow reliability improves. Code review is an important control, but production-impacting, destructive or insufficiently validated changes may require additional gates.
+20. Move humans toward objectives, policy exceptions, risky/ambiguous decisions and accountability as workflow reliability improves.
 
 This gives EOKS a path from a simple Git repository to richer knowledge infrastructure without requiring a graph database or a new canonical format on day one.
 
