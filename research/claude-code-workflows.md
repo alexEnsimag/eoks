@@ -65,6 +65,12 @@ The useful EOKS abstraction is not "install both". It is to distinguish:
 
 An EOKS control plane could support both without coupling itself to either project's command vocabulary.
 
+A useful newer distinction is between **logical agent roles** and **runtime sessions**. A minimal coding workflow can have a conductor, executor and independent reviewer, without requiring three permanently running agents. A single session can perform sequential phases; focused subagents can handle side work; isolated sessions can provide parallelism; and a coordinated team is justified only when workers need direct communication. The topology should be selected by workload characteristics rather than by a framework's maximum number of agents.
+
+Claude Code now provides these primitives directly: custom subagents for focused delegated work, background sessions/agent view for independently managed sessions, isolated worktrees for parallel edits, and experimental agent teams for workers that need shared task coordination and direct messaging. This makes a separate conductor plugin less necessary for basic delegation, while a thin conductor can still add persistent workflow state, lifecycle policy and domain-specific coordination. See the [Claude Code subagents documentation](https://code.claude.com/docs/en/sub-agents) and [agent teams documentation](https://code.claude.com/docs/en/agent-teams).
+
+The community [`claude-conductor`](https://github.com/code-katz/claude-conductor) project is useful prior art for the latter approach: it provides a conductor skill/commands and tracks session states such as planning, coding, reviewing, blocked and done. Its value to EOKS is the idea of explicit session/workflow state and lightweight coordination, not the plugin's command surface.
+
 ## 4. Memory and CLAUDE.md management
 
 A project-level `CLAUDE.md` and a semantic memory system solve different problems.
@@ -170,7 +176,7 @@ For an individual Claude Code user, a low-overlap starting point is:
 - optional architecture/evidence tooling when the workload warrants it;
 - a small session-finalization workflow that proposes durable updates.
 
-Avoid stacking multiple workflow engines merely because they are popular. The important question is which policy each component owns and what state it produces.
+For orchestration specifically, start with **one conductor, one executor and one independent reviewer as logical roles**, not a large swarm. Use Claude Code's native subagents/sessions first; add a conductor-style plugin only if explicit lifecycle state, persistent coordination or multi-session management is actually missing. Avoid stacking multiple workflow engines merely because they are popular. The important question is which policy each component owns and what state it produces.
 
 ## EOKS mapping
 
@@ -178,6 +184,9 @@ Avoid stacking multiple workflow engines merely because they are popular. The im
 | --- | --- |
 | Superpowers-style workflow | execution policy / workflow controller |
 | Conductor-style decomposition | task orchestration / scheduling |
+| Claude Code custom subagents | focused execution/reasoning resource |
+| Claude Code agent teams | coordinated multi-session execution topology |
+| isolated worktrees | execution isolation / artifact boundary |
 | modularity-style architecture analysis | evidence provider / evaluation |
 | `CLAUDE.md` | canonical project knowledge + policy |
 | memsearch-style retrieval | memory retrieval / context assembly |

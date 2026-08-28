@@ -34,6 +34,7 @@ decision (when evidence justifies it)
 - [`memory.md`](memory.md) — memory types, lifecycle and promotion.
 - [`behavioral-memory.md`](behavioral-memory.md) — learning from development behavior.
 - [`agent-workflows.md`](agent-workflows.md) — workflows versus reasoning strategies.
+- [`agent-orchestration.md`](agent-orchestration.md) — conductor, executor, reviewer, validation, escalation and multi-agent topology.
 - [`control-plane.md`](control-plane.md) — scheduling, reconciliation, policies and model selection.
 - [`evaluation.md`](evaluation.md) — evaluation, reliability evidence and calibration.
 - [`software-engineering.md`](software-engineering.md) — software-engineering workload and agent practices.
