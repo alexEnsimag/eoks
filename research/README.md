@@ -19,6 +19,7 @@ When a research conclusion becomes stable, its canonical statement should move i
 - [`context-quality-model.md`](context-quality-model.md) — dimensions and candidate metrics for context quality.
 - [`context-workbench.md`](context-workbench.md) — exploratory workbench model.
 - [`context-evaluation.md`](context-evaluation.md) — canonical controlled methodology for evaluating context interventions, durable knowledge, structural evidence and community evaluation tooling.
+- [`community-evidence-bottlenecks.md`](community-evidence-bottlenecks.md) — quantitative academic evidence, practitioner/community signals, recurring bottlenecks, contradictory results and prioritized next experiments.
 - [`control-loop.md`](control-loop.md) — reconciliation/control-loop model, including uncertainty-aware stop/continue and branching policies.
 - [`control-plane.md`](control-plane.md) — scheduling, model selection and workload management.
 - [`ai-os-analogies.md`](ai-os-analogies.md) — AI-OS framing and cross-domain analogies.
