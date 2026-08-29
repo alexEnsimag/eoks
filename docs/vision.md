@@ -6,6 +6,21 @@ EOKS explores an operating/control layer for AI engineering: a system that manag
 
 The central observation is that increasing an LLM's context window is not equivalent to giving it better context. Reliable AI systems need to decide what information is relevant, how it is represented, when it is retrieved, what should persist, which model should process it, and how the resulting work is evaluated.
 
+## The outcome EOKS is trying to unlock
+
+The practical goal is **trustable automated software-engineering workflows with AI agents**.
+
+Today, agents can often perform useful work but still require substantial human verification because it is difficult to know whether they understood the system correctly, respected its constraints, and produced a complete and safe result. EOKS explores the infrastructure needed to reduce that uncertainty through better knowledge, context, planning, execution and independent assurance.
+
+The four primary engineering outcomes are:
+
+- **Velocity** — reach useful outcomes faster.
+- **Quality** — produce correct, coherent and resilient changes with less rework.
+- **Trust / autonomy** — safely delegate more engineering work to agents.
+- **Cost / scale** — increase useful engineering output without proportional human effort or AI/resource cost.
+
+See [Engineering outcomes and graduated autonomy](engineering-outcomes.md) for the measurement model and autonomy progression.
+
 ## From context engineering to an AI control plane
 
 The project started from context engineering and evolved toward a broader systems question:
@@ -48,6 +63,8 @@ Those may all be components of an EOKS implementation.
 5. **Evaluation is part of the runtime, not a post-hoc activity.**
 6. **Model choice should be task- and evidence-dependent.**
 7. **The system should make its information and execution decisions inspectable.**
-8. **Experiments should be reproducible and falsifiable.**
-9. **The architecture should remain model-agnostic.**
-10. **The repository is a living specification, not a dump of conversation history.**
+8. **Trust comes from evidence and assurance, not from agent self-confidence.**
+9. **Autonomy should be graduated according to risk and assurance.**
+10. **Experiments should be reproducible and falsifiable.**
+11. **The architecture should remain model-agnostic.**
+12. **The repository is a living specification, not a dump of conversation history.**
