@@ -85,6 +85,63 @@ This can amortize model cost and improve latency, reproducibility, auditability 
 
 The safe pattern is therefore **compile, validate, monitor, invalidate/recompile when required**, rather than blindly caching agent behavior.
 
+## Community evidence
+
+This direction is also emerging independently in practitioner communities and agent frameworks. These reports are not controlled evidence of general superiority, but they are useful evidence that the same engineering problem is being encountered repeatedly.
+
+### Deterministic subflows are becoming an explicit agent-framework discussion
+
+LangGraph community discussions from May and June 2026 explicitly describe a split between steps that genuinely require model reasoning and predictable tool/data-transformation steps that should become deterministic, replayable subflows. The motivations listed include avoiding unnecessary model calls, improving replay/debugging, reducing variance and cost, and creating clearer failure boundaries. A follow-up discussion asks when repeated model-routed paths should be promoted to deterministic subflows after they stabilize.
+
+See:
+- https://github.com/langchain-ai/langgraph/issues/7855
+- https://github.com/langchain-ai/langgraph/issues/8032
+
+This is unusually close to the EOKS hypothesis and supports making **stabilization → compilation/consolidation** an explicit research direction rather than only a runtime optimization.
+
+### Trustworthy runtimes are moving deterministic boundaries outward
+
+A July 2026 Qwen Code proposal argues for deterministic tool-execution boundaries in which the language model remains outside the trust boundary while the runtime deterministically constrains, authorizes, observes and evaluates model-produced actions. This reinforces an important EOKS distinction: the model can propose, while a deterministic runtime owns enforceable execution policy.
+
+See:
+- https://github.com/QwenLM/qwen-code/issues/8102
+
+### Replayability is a separate reason to reduce model-mediated execution
+
+An AutoGen discussion from May 2026 highlights how difficult deterministic replay becomes when external APIs, MCP state, filesystems and checkpoints drift. The discussion points out that observability alone is insufficient for replay: the inputs that produced an execution also need to be preserved.
+
+For EOKS this means deterministic execution is not only about cost. It can also reduce the amount of state and stochastic behavior that must be reconstructed to reproduce or audit a run.
+
+See:
+- https://github.com/microsoft/autogen/discussions/7695
+
+### Practitioners are independently converging on workflow + bounded LLM decisions
+
+Recent practitioner discussions describe architectures where deterministic code owns the workflow while the LLM is restricted to decisions inside that workflow. Other discussions use a simpler distinction: if the flowchart can be specified before execution, it is generally better treated as a workflow; if the next step depends on new observations and cannot be known ahead of time, an agent becomes more justified.
+
+These are anecdotal reports, but they align closely with the EOKS distinction between deterministic execution and probabilistic reasoning.
+
+Examples:
+- https://www.reddit.com/r/AI_Agents/comments/1w035sb/i_stopped_letting_the_llm_control_the_workflow_my/
+- https://www.reddit.com/r/AI_Agents/comments/1vy5dkh/are_ai_agents_actually_better_than_deterministic/
+
+### Deterministic gates are already being used around coding agents
+
+A recent practitioner discussion describes highly automated coding workflows that rely on deterministic tests, linting, typechecking and other gates after specification/planning. The important pattern is not that these gates replace reasoning; they prevent the agent from being the sole judge of whether its work succeeded.
+
+See:
+- https://www.reddit.com/r/LLMDevs/comments/49t0w1l6/what_ai_coding_workflow_did_you_eventually_settle/
+
+### New research makes compilation from traces especially relevant
+
+TraceCompiler (August 2026) mines repeated LLM-agent traces and compiles recurring procedures into mostly deterministic workflows. Importantly, it uses evidence about producer/consumer dependencies and refuses to compile an intent when an irreversible side effect remains under-determined. This suggests a concrete EOKS mechanism: **repetition alone should not trigger compilation; repetition plus evidence of stable dependencies and safe execution should.**
+
+See: https://arxiv.org/abs/2608.02680
+
+A separate August 2026 production study on deterministic executability gating reports that deterministic predicates can prune non-executable candidates before LLM skill selection. The study reports large reductions in skill-description context and demonstrates that deterministic state checks can prevent impossible candidates from influencing model selection at all.
+
+See: https://arxiv.org/abs/2608.01050
+
 ## Escalation back to reasoning
 
 Deterministic execution should be able to return control to a reasoning component when it encounters uncertainty that the current procedure cannot resolve:
@@ -186,6 +243,8 @@ Useful experiments include:
 3. Measure amortization when a generated procedure is reused across many executions.
 4. Inject repository/state changes and measure procedure invalidation and recovery.
 5. Compare fixed agent loops against escalation policies that invoke reasoning only after deterministic mechanisms fail.
-6. Measure the effect on correctness, trust, human review effort, latency and cost rather than optimizing any single metric.
+6. Mine repeated successful traces and test whether dependency evidence can safely identify procedures worth compiling.
+7. Measure whether deterministic executability gates improve model selection and reduce unnecessary context/model work.
+8. Measure the effect on correctness, trust, human review effort, latency and cost rather than optimizing any single metric.
 
 The key empirical question is not **“Can an LLM do this?”** It is **“Does this step actually require probabilistic reasoning?”**
