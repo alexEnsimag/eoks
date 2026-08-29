@@ -146,3 +146,34 @@ The research question is whether a useful control plane can remain inspectable a
 Instrument the vertical slice and determine which concepts are actually required in traces. Validate whether `Task`, `Context`, `Run`, `Decision`, `Policy`, `Evaluation` and `Outcome` are sufficient as EOKS primitives, and whether Asset/Provider/Representation/Loadout should remain vocabulary-level concepts rather than becoming runtime entities.
 
 Avoid expanding the ontology until a concrete workload demonstrates a missing primitive or relationship.
+
+## 18. Empirical agent context and intelligence infrastructure
+
+Treat the rapidly growing research on coding-agent context, repository retrieval and execution state as an **evidence stream and benchmark design input**, not as an architectural verdict. See [Empirical agent context and intelligence infrastructure](../research/empirical-agent-context-and-intelligence-infrastructure.md).
+
+The core experiment is a model × repository × task × intervention × context-budget matrix. At minimum compare a strong raw-tool agent against retrieval, structural/graph views, semantic tooling, durable knowledge, context management, execution-state tracking, sub-agent exploration and hybrid configurations.
+
+Important hypotheses to test include:
+
+- whether infrastructure reduces the *cost of acquiring understanding* without reducing useful semantic exploration;
+- whether graphs/indexes help frontier models less than cheaper models;
+- whether context management improves long-horizon autonomy without losing critical evidence;
+- whether explicit execution state prevents redundant work more effectively than transcript compression;
+- whether retrieval helps more on large/legacy repositories than on modern, well-structured ones;
+- whether infrastructure can narrow the cost/performance gap between expensive and cheaper models;
+- whether interventions improve final task outcomes rather than only retrieval/context metrics.
+
+Use community popularity and adoption to prioritize what to investigate, but require controlled benchmarks, independent evidence and cross-model/task validation before promoting a technique into the EOKS architecture.
+
+### Evidence hierarchy
+
+Use the following progression when deciding how strongly EOKS should rely on a technique:
+
+1. community signal / repeated practitioner reports;
+2. project adoption and maturity;
+3. independent experiences;
+4. controlled benchmark evidence;
+5. ablation evidence identifying the mechanism;
+6. cross-model × cross-repository × cross-task replication.
+
+This prevents the research corpus from becoming a collection of fashionable assumptions while still using the community to discover important questions early.
