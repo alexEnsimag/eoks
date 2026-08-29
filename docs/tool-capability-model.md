@@ -109,7 +109,7 @@ runtime evidence / tests
 
 The ladder is not universal. EOKS should derive it from the evidence requirement and tool capabilities.
 
-## Evidence Requirement
+## Evidence requirement and provider selection
 
 The missing intermediate abstraction between a task and a tool is an **Evidence Requirement**.
 
@@ -182,9 +182,86 @@ LLM          → useful for interpretation, not authoritative for the invariant
 
 The selected provider should be accompanied by a rationale that records why alternatives were rejected or considered unnecessary.
 
+## Selection pipeline
+
+Tool selection is a **control-plane decision**, not a separate architectural layer.
+
+```text
+Task
+  ↓
+Question
+  ↓
+Evidence Requirement
+  ↓
+Candidate Providers
+  ↓
+Capability filtering
+  ↓
+Reliability / cost / latency trade-off
+  ↓
+Minimum sufficient evidence
+  ↓
+Selection + rationale
+```
+
+The conductor should consider:
+
+1. capability fit for the question and required scope/depth;
+2. reliability for the particular claim, including precision, recall, determinism and known failure modes;
+3. evidence already available from the current run;
+4. cost and latency;
+5. consequence of being wrong;
+6. independence when multiple providers are used for confirmation.
+
+Do not run a provider when existing evidence is already sufficient. Escalate only when current evidence does not satisfy the requirement.
+
+For example:
+
+```text
+Question: "Can request input reach a database sink?"
+        |
+  evidence requirement
+        |
+ existing evidence?
+    |          |
+ sufficient   insufficient
+    |          |
+ continue   select provider
+               |
+          collect evidence
+               |
+            evaluate
+            /      \
+       sufficient  insufficient
+          |             |
+       continue    escalate/combine/revise
+```
+
+## Evidence ladders
+
+A policy can define an escalation path, but it should remain requirement-specific.
+
+For a simple software question, a ladder might be:
+
+```text
+language tooling
+      ↓
+lightweight static rule
+      ↓
+deep static/dataflow analysis
+      ↓
+test/runtime evidence
+      ↓
+independent review
+```
+
+For another question, the order could be completely different. The important abstraction is therefore not the ladder itself but the rule:
+
+> **Escalate when current evidence does not satisfy the requirement.**
+
 ## Comparison views
 
-The repository should eventually expose three related views from the same canonical profiles.
+The repository can expose three related views from the same canonical profiles.
 
 ### Capability matrix
 
@@ -228,53 +305,32 @@ Use both when:
   - X and Y must be established independently
 ```
 
-### Selection matrix
+Pairwise pages should be derived from canonical profiles where possible. Avoid creating a permanent document for every pair.
 
-Answers:
+### Selection rationale
 
-> Given this question, which provider should EOKS use?
+A future EOKS run should be able to explain a selection in a compact form:
 
-```text
-Provider       Fit       Reliability   Cost   Latency   Decision
-CodeQL         High      High          $$$    Slow      Select
-Semgrep        Medium    Medium        $      Fast      Fallback
-Repo graph     Medium    High*         $$     Fast      Supporting evidence
-LLM            Low*      Variable      $$     Medium    Interpretation only
+```yaml
+question: "..."
+requirement:
+  kind: dataflow
+  scope: repository
+  depth: interprocedural
+selected:
+  provider: <provider>
+  reason:
+    - satisfies required evidence kind
+    - meets required depth
+    - deterministic evidence required
+rejected:
+  - provider: <provider>
+    reason: insufficient depth
+  - provider: <provider>
+    reason: redundant with existing evidence
 ```
 
-`*` must be interpreted according to the actual requirement; these are not universal tool ratings.
-
-## Tool selection is a control-plane decision
-
-The future control plane should not simply maintain a ranked list of tools. It should select providers based on:
-
-1. the question being asked;
-2. the evidence required to answer it;
-3. available providers and their capabilities;
-4. minimum acceptable reliability;
-5. cost/latency constraints;
-6. evidence already available from the current run;
-7. the consequences of being wrong.
-
-This creates an evidence-aware control loop:
-
-```text
-Question
-   ↓
-Evidence requirement
-   ↓
-Existing evidence?
-   ├── sufficient → continue
-   └── insufficient
-          ↓
-   select provider
-          ↓
-   collect evidence
-          ↓
-   evaluate sufficiency
-          ├── sufficient → continue
-          └── insufficient → escalate / combine / revise requirement
-```
+This makes provider selection inspectable and evaluable rather than an opaque ranking decision.
 
 ## What not to do
 
@@ -287,3 +343,16 @@ Do not assume that a more powerful analyzer is always better.
 Do not treat an LLM's plausible explanation as equivalent to deterministic evidence when the question requires a mechanically verifiable invariant.
 
 The canonical source should remain **structured tool capabilities plus evidence requirements**. Comparison tables, pairwise views and selection recommendations should be derived from that model.
+
+## Future research
+
+The model should be tested empirically rather than expanded indefinitely.
+
+Important experiments include:
+
+- whether evidence requirements can be classified reliably from natural-language tasks;
+- whether capability profiles predict useful tool choices;
+- whether selecting the minimum sufficient evidence reduces cost without reducing correctness;
+- whether escalation policies improve outcomes over fixed tool stacks;
+- how to measure evidence independence and conflicting results;
+- whether selection decisions transfer across repositories, languages and agent runtimes.
