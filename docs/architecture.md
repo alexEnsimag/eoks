@@ -200,7 +200,7 @@ Task #123
   `-- Run #2 -> tests passed -> accepted
 ```
 
-See [Agent workflows and reasoning strategies](agent-workflows.md).
+See [Agent workflows and reasoning strategies](agent-workflows.md) and [Continuous knowledge maintenance](continuous-knowledge-maintenance.md).
 
 ## Existing-agent integration
 
@@ -266,6 +266,8 @@ code/doc/event change
 Cheap deterministic updates should happen frequently. LLM-heavy reasoning should be reserved for higher-signal events such as merged PRs, incidents, architecture changes or completed workflows.
 
 Hooks are event boundaries into this lifecycle. They should not imply that the entire knowledge system is recomputed after every tool call.
+
+For the role composition and promotion/invalidation model behind this lifecycle, see [Continuous knowledge maintenance](continuous-knowledge-maintenance.md).
 
 ## Context invalidation
 
