@@ -19,6 +19,7 @@ When a research conclusion becomes stable, its canonical statement should move i
 - [`context-quality-model.md`](context-quality-model.md) — dimensions and candidate metrics for context quality.
 - [`context-workbench.md`](context-workbench.md) — exploratory workbench model.
 - [`context-evaluation.md`](context-evaluation.md) — canonical controlled methodology for evaluating context interventions, durable knowledge, structural evidence and community evaluation tooling.
+- [`context-acquisition-comparison.md`](context-acquisition-comparison.md) — evidence-led comparison of raw exploration, retrieval, graphs, FastContext-style delegated exploration and GrapeRoot-style persistent structure.
 - [`evidence-at-a-glance.md`](evidence-at-a-glance.md) — concise evidence dashboard: numbers, community signals, conflicts and research priorities.
 - [`community-evidence-bottlenecks.md`](community-evidence-bottlenecks.md) — quantitative academic evidence, practitioner/community signals, recurring bottlenecks, contradictory results and prioritized next experiments.
 - [`control-loop.md`](control-loop.md) — reconciliation/control-loop model, including uncertainty-aware stop/continue and branching policies.
