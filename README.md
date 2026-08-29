@@ -10,6 +10,10 @@ The project grew out of a recurring question: **why does giving models more cont
 
 EOKS is not a prompt framework, vector database, memory store, agent framework or model router. Those are potential components. The proposed abstraction is the layer that coordinates them around a workload and continuously learns from outcomes.
 
+The practical goal is **trustable automated software-engineering workflows with AI agents**. The agent does not need to be perfect; the system needs to make failures detectable, consequential actions appropriately gated, and increasing autonomy justified by evidence.
+
+The four primary engineering outcomes are **velocity, quality, trust/autonomy, and cost/scale**. Other dimensions—risk, cognitive load, explainability, traceability, consistency, maintainability and reproducibility—are useful diagnostics supporting those outcomes. See [Engineering outcomes and graduated autonomy](docs/engineering-outcomes.md).
+
 A recent refinement is important: **knowledge is not a graph, and context engineering is not the knowledge layer**. EOKS should maintain multiple representations of engineering reality and compile task-specific context from them.
 
 A second refinement is equally important: **observability is not confidence, and confidence is not control**. Tracing and monitoring systems provide execution evidence; EOKS can combine that evidence with model-level uncertainty, deterministic checks and outcomes to estimate workload-specific reliability and decide what to do next.
@@ -46,6 +50,7 @@ The repository separates **current architecture** from **exploratory research**.
 
 - [Vision](docs/vision.md)
 - [Architecture](docs/architecture.md)
+- [Engineering outcomes and graduated autonomy](docs/engineering-outcomes.md) — measurable outcomes, assurance, autonomy levels and experiment metrics.
 - [Resource model](docs/resource-model.md) — canonical vocabulary for reusable resources, Asset, Provider, Representation, Loadout and Context.
 - [Context engineering](docs/context.md)
 - [Context Workbench architecture](docs/context-workbench.md)
@@ -116,6 +121,7 @@ The current practical hypothesis is intentionally conservative:
 19. Treat validation as a first-class workflow stage. Tests, static analysis, deployment checks and observed behavior should provide evidence for completion; an agent's self-reported success is not sufficient.
 20. Move humans toward objectives, policy exceptions, risky/ambiguous decisions and accountability as workflow reliability improves.
 21. Connect consequential architectural intent to executable conformance where practical: ADRs explain why, specifications/contracts describe what, invariants/policies state what must remain true, and deterministic or calibrated fitness functions provide evidence. Keep agentic governance advisory until it is calibrated, and promote repeated findings into deterministic rules where justified.
+22. Treat **graduated autonomy** as an outcome of assurance: increase delegation only when workload-specific evidence supports it, and keep human escalation for risk or ambiguity that current assurance cannot bound.
 
 This gives EOKS a path from a simple Git repository to richer knowledge infrastructure without requiring a graph database or a new canonical format on day one.
 
