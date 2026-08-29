@@ -75,6 +75,7 @@ The [`research/`](research/) directory preserves exploratory reasoning, comparis
 - [CodeSight](research/prior-art/codesight.md) — deterministic repository context and targeted evidence views.
 - [TencentDB Agent Memory](research/prior-art/tencent-agent-memory.md) — multi-resolution memory, Skills, Wiki, CodeGraph, governance/loadouts and hybrid context delivery.
 - [OpenWiki](research/prior-art/openwiki.md) — versioned generated repository knowledge, lightweight discovery and freshness/review lifecycle.
+- [Code graph and repository-context tooling](research/prior-art/code-graph-landscape.md) — CodeGraph, GitNexus, Graphify and their relationship to CodeSight, OKF, OpenWiki, analyzers and EOKS context compilation.
 - [Enforceable architecture, ADRs, fitness functions and SDD](research/prior-art/enforceable-architecture.md) — research on connecting architectural intent and specifications to executable conformance, policy-as-code and calibrated agentic judgment.
 - [Agent code understanding and architecture tooling](research/agent-code-understanding-and-architecture.md)
 - [Context engineering](research/context-engineering.md)
