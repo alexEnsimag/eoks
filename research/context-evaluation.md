@@ -1,18 +1,18 @@
 # Context evaluation and benchmarking
 
-This note owns the **controlled evaluation of context systems and evidence providers**. It answers a practical question that should precede a larger EOKS implementation:
+This note owns the **controlled evaluation of context systems, context acquisition strategies, execution-state mechanisms and evidence providers**. It answers the question that should precede a larger EOKS implementation:
 
-> **How do we know that a context intervention, knowledge representation or evidence provider actually improves the workload?**
+> **Does an intervention improve the end-to-end software-engineering workload, for which model/repository/task, at what cost, and with which failure modes?**
 
-The reliability and model-migration policy that consumes these results lives in [Evaluation, reliability and model switching](evaluation-and-model-switching.md).
+A popular project, community report or academic paper is a research signal—not proof of general superiority. The EOKS baseline is always the strongest practical baseline available for the workload.
 
 ## 1. Evaluation before optimization
 
-Build a benchmark before assembling a context stack. Otherwise an improvement cannot be attributed to the model, retrieval, graph, durable knowledge, prompt, workflow or evaluator.
+Build a benchmark before assembling a context stack. Otherwise an improvement cannot be attributed to the model, retrieval, graph, durable knowledge, prompt, workflow, execution state or evaluator.
 
-Start with roughly **20–30 representative real software-engineering tasks**. Cover navigation, codebase understanding, debugging, impact analysis, implementation, refactoring and verification. Real tasks are preferable to synthetic puzzles because they expose the repository-specific failures EOKS is meant to control.
+Start with roughly **20–30 representative real software-engineering tasks** for an initial local benchmark. Cover navigation, codebase understanding, debugging, impact analysis, implementation, refactoring, review and verification. Expand the set as failures are discovered. Prefer real tasks over synthetic puzzles when the goal is repository-level engineering behavior.
 
-Each task should have an evaluation contract that defines success without prescribing exact wording:
+Each task should have an evaluation contract defining success without prescribing exact wording:
 
 ```yaml
 id: auth-07
@@ -24,9 +24,63 @@ expected:
   - cite authoritative evidence
 ```
 
-Record a baseline before adding a context engine or changing the model.
+Record a baseline before changing the model or adding infrastructure.
 
-## 2. Evaluate the whole task
+## 2. The experimental matrix
+
+EOKS should treat effectiveness as conditional on several variables:
+
+```text
+model × repository × task × intervention × budget
+```
+
+At minimum vary:
+
+**Model**
+- frontier/high-capability model;
+- cheaper or smaller model;
+- model/version changes where migration is relevant.
+
+**Repository**
+- AI-native/well-structured;
+- modern/mature;
+- large or heterogeneous;
+- legacy/poorly documented.
+
+**Task**
+- retrieval/navigation;
+- understanding/explanation;
+- debugging;
+- implementation;
+- refactoring/migration;
+- review;
+- verification.
+
+**Intervention**
+- raw filesystem/tool exploration;
+- lexical/semantic retrieval;
+- RepoMap-style summaries;
+- LSP/semantic tooling;
+- structural graphs;
+- agentic search/sub-agents;
+- precomputed repository analysis;
+- context selection/compilation;
+- context lifecycle management;
+- execution state;
+- durable knowledge/memory;
+- deterministic verification;
+- combinations of the above.
+
+**Budget**
+- model tokens;
+- tool calls;
+- wall-clock time;
+- infrastructure/preprocessing cost;
+- total monetary cost.
+
+This matrix is a guard against statements such as “graphs help agents” when the actual result is “graphs help this model on this task at this budget”.
+
+## 3. Evaluate the whole task
 
 For coding-agent workloads, textual answer quality is only one layer. Record, where applicable:
 
@@ -39,26 +93,75 @@ For coding-agent workloads, textual answer quality is only one layer. Record, wh
 - tool calls and repository rediscovery;
 - input/output/context tokens;
 - latency;
-- cost.
+- total cost;
+- number of retries/branches;
+- session resets or recovery events;
+- verification failures.
 
 Keep the causal chain visible:
 
 ```text
-retrieval quality
-      |
-      v
-context quality
-      |
-      v
-agent behavior
-      |
-      v
+acquisition / retrieval
+        |
+        v
+working-context quality
+        |
+        v
+agent behavior + execution state
+        |
+        v
+verification
+        |
+        v
 task outcome
 ```
 
-A retrieval metric can improve without improving the task. A model can also compensate for incomplete retrieval by exploring more. Both are useful observations.
+A retrieval metric can improve without improving the task. An agent can compensate for incomplete retrieval by exploring more. Both are useful observations.
 
-## 3. Context metrics
+## 4. Context acquisition is itself a workload
+
+Do not classify all grep/read/tool exploration as waste. Agents can use executable tools and filesystem navigation as an external mechanism for processing information, and exploration can be part of semantic understanding.
+
+The research question is instead:
+
+> **Which exploration is productive reasoning, and which is avoidable information acquisition?**
+
+Compare raw exploration with retrieval, RepoMap, graphs, LSP, semantic indexes, agentic search and hybrid strategies. Measure both the final context/outcome and the work required to obtain it.
+
+Useful acquisition metrics include:
+
+- discovery tool calls;
+- repeated/near-duplicate queries;
+- files or symbols inspected;
+- relevant evidence found;
+- relevant evidence missed;
+- irrelevant evidence inspected;
+- time to first useful evidence;
+- context growth during exploration;
+- task outcome per acquisition token/call.
+
+A tool that reduces exploration but causes the model to miss an important dependency is not an improvement.
+
+## 5. Working context and execution state are different interventions
+
+**Working context** asks what the model should see now.
+
+**Execution state** asks what the workflow has already established, changed, attempted, verified or invalidated.
+
+Evaluate execution-state mechanisms separately from transcript summarization and context compression. A compact state record may prevent redundant commands without requiring the whole history to remain in the active prompt.
+
+A useful experiment is:
+
+```text
+A  baseline transcript/tool history
+B  + context compression
+C  + explicit execution state
+D  + context compression + execution state
+```
+
+Measure task success, redundant actions, recovery from mistakes, tokens, latency and stale-state failures.
+
+## 6. Context metrics
 
 Evaluate context independently where possible, but never replace end-to-end outcomes with retrieval scores.
 
@@ -73,23 +176,8 @@ Useful dimensions include:
 - freshness;
 - dependency completeness;
 - ordering/structure;
-- token and latency cost.
-
-Existing RAG evaluation terminology such as contextual precision, recall and relevance is useful as a starting point.
-
-### Marginal context value
-
-Measure the incremental value of a context block relative to its cost:
-
-```text
-quality(task, context + block) - quality(task, context)
--------------------------------------------------------
-       additional context token / latency cost
-```
-
-Treat this as an experimental comparison, not a universal online probability.
-
-### Context necessity
+- token and latency cost;
+- acquisition cost.
 
 After a run, classify selected blocks as:
 
@@ -98,44 +186,140 @@ After a run, classify selected blocks as:
 - **irrelevant**;
 - **misleading**.
 
-This distinguishes “retrieves more” from “retrieves better” and provides training/evaluation data for future context selection.
+This distinguishes “retrieves more” from “retrieves better”.
 
-## 4. Controlled context experiments
+## 7. Context size is not context quality
 
-Do not introduce GrapeRoot, OKF and Graphify simultaneously. A useful sequence is:
+Long-context models can process very large inputs, but academic evidence shows that relevant information can become harder to use depending on position, density and interaction with other information. Conversely, coding-agent research shows that agents can process large external corpora effectively through tools.
 
-```text
-A  baseline agent
-B  + GrapeRoot-like context engine
-C  + durable knowledge
-D  + structural evidence provider
-E  combined configuration
-```
-
-Hold model and task set constant when measuring a context intervention. Hold context and task set constant when comparing models. Use an explicit model × context matrix when interaction is the question.
-
-The exact products are less important than keeping variables separable.
-
-## 5. OKF: representation, not runtime
-
-The current OKF v0.2 specification defines a **knowledge bundle** as a directory tree of Markdown concept documents with YAML frontmatter. `type` is the only always-required frontmatter field; additional fields are allowed and consumers are expected to tolerate unknown fields. The format does not prescribe a server, database, schema registry or runtime. A bundle can live in Git, a subdirectory, an archive or another file-serving system. citeturn0search0turn0search1
-
-Therefore EOKS can experiment locally without hosting anything:
+Therefore test both:
 
 ```text
-knowledge/
-  index.md
-  architecture/
-    authentication.md
-  decisions/
-    event-processing.md
-  invariants/
-    auth.md
+same budget + different composition
 ```
 
-A conformant project should follow the specification rather than merely calling an arbitrary Markdown directory “OKF”. At the same time, EOKS should not require OKF: a project can use its own local representation when interoperability is not needed.
+and:
 
-The architectural boundary is:
+```text
+different budgets + best available composition
+```
+
+Do not treat a larger context window as proof that indiscriminate context stuffing is beneficial.
+
+## 8. Context lifecycle
+
+Compare proactive, reactive and hybrid delivery:
+
+```text
+proactive: Task -> retrieval/packing -> model
+
+reactive:  Task -> model -> query -> evidence -> model ...
+
+hybrid:    compact bootstrap -> targeted retrieval as needed
+```
+
+Also test active context management, where the agent can decide when to compress, offload, reconstruct or otherwise manage its working context.
+
+The important metric is not compression ratio. It is whether the lifecycle mechanism preserves useful information while improving correctness, autonomy and resource efficiency.
+
+## 9. Model substitution experiments
+
+Infrastructure may have different value at different capability levels. A particularly important EOKS hypothesis is:
+
+> **Can external knowledge/context/execution infrastructure reduce the capability or cost gap between models?**
+
+Use the same task/repository/intervention matrix:
+
+```text
+frontier model + baseline
+frontier model + intervention
+
+cheaper model + baseline
+cheaper model + intervention
+```
+
+Report both absolute improvement and change in the gap between models. Do not assume that an intervention that helps a cheaper model will help a frontier model equally.
+
+## 10. Repository maturity experiments
+
+A context technique that is unnecessary on a clean AI-native repository may be valuable on a large legacy system.
+
+Benchmark at least:
+
+```text
+AI-native / structured
+        |
+modern / mature
+        |
+legacy / heterogeneous / poorly documented
+```
+
+Record repository characteristics such as size, language count, generated-code share, test coverage, documentation density and architectural age where practical.
+
+For repository transformations and migrations, measure completeness and behavioral correctness separately from patch-level success. Whole-repository change remains a substantially harder workload than many conventional bug-fix benchmarks imply.
+
+## 11. Controlled intervention sequence
+
+Do not introduce multiple mechanisms simultaneously. A useful sequence is:
+
+```text
+A  strongest practical baseline agent
+B  + retrieval / semantic navigation
+C  + structural evidence / graph
+D  + durable knowledge
+E  + context lifecycle management
+F  + execution state
+G  + deterministic verification
+H  combined configuration
+```
+
+The exact order can change by workload. The important property is attribution.
+
+Also compare against **raw exploration** explicitly. Infrastructure should not receive credit merely because it looks more sophisticated.
+
+## 12. Evidence hierarchy
+
+Use different evidence types for different purposes:
+
+```text
+community signal
+      ↓
+project adoption / repeated reports
+      ↓
+academic controlled result
+      ↓
+independent reproduction
+      ↓
+cross-model / cross-repository replication
+      ↓
+EOKS workload-specific evidence
+```
+
+Popularity is a reason to investigate a project, not evidence that it works. A benchmark result is evidence for its measured setting, not a universal architecture rule.
+
+Community discussions are especially useful for discovering failure modes and recurring pain points. Academic work is useful for controlled hypotheses and measurement methods. EOKS should preserve both while keeping confidence levels explicit.
+
+## 13. Relevant research directions
+
+Recent academic work motivating this methodology includes research on:
+
+- long-context positional degradation and “lost in the middle” effects;
+- coding agents as effective long-context processors using tools and filesystem navigation;
+- repository context acquisition and retrieval benchmarks;
+- active context management for long-horizon software agents;
+- explicit execution-state/ledger mechanisms;
+- semantic retrieval versus deep agentic repository search;
+- graph-based repository representations;
+- precomputed/speculative repository context;
+- whole-repository refactoring/migration benchmarks.
+
+These results are deliberately treated as **evidence for experiments, including contradictory experiments**, rather than as EOKS architectural decisions.
+
+## 14. OKF: representation, not runtime
+
+OKF is a durable knowledge representation, not an EOKS runtime requirement. It should be evaluated against other representations such as reviewed Markdown, ADRs, repository-local instructions and structured records.
+
+The useful boundary is:
 
 ```text
 OKF / CLAUDE.md / ADRs / other durable representations
@@ -147,99 +331,54 @@ OKF / CLAUDE.md / ADRs / other durable representations
                   context compiler
 ```
 
-OKF v0.2 also makes provenance, generated/verified state and lifecycle signals available as optional frontmatter families. This is particularly relevant if agents start writing the bundle: generated knowledge should remain distinguishable from verified knowledge. citeturn0search2turn0search5
+If agents write durable knowledge, generated material must remain distinguishable from reviewed/verified material, with provenance and lifecycle state.
 
-## 6. GrapeRoot: context-engine prior art
+## 15. Evidence-provider escalation
 
-GrapeRoot is useful as an experimental context/execution sidecar around a coding agent. Its public documentation describes a first-run project scan/graph construction, local MCP integration and Claude Code hooks; its graph engine is not simply equivalent to the OKF knowledge representation.
-
-For EOKS, the important lifecycle question is:
-
-```text
-project
-  |
-  +-- repository analysis / graph cache
-  +-- context retrieval/packing
-  +-- agent integration
-  |
-  v
-agent session
-```
-
-Do not assume that pre-injection is beneficial. Measure whether it reduces repository rediscovery and whether that reduction improves task outcomes without adding irrelevant context or hiding authoritative evidence.
-
-Also distinguish lifecycle events from tool-call policy:
-
-```text
-context boundary / session start
-          -> prepare context
-
-before tool execution
-          -> optional policy/evidence check
-
-after tool execution
-          -> observe outcome
-
-session end
-          -> finalize / persist candidates
-```
-
-EOKS should define these semantics independently of GrapeRoot or Claude Code so another runtime can implement them.
-
-## 7. Graphify and evidence providers
-
-Graphify-like graphs should be treated as **structural evidence/navigation providers**. They can answer questions about symbols, callers, imports, dependencies and graph neighborhoods. They do not automatically establish semantic invariants or path-sensitive dataflow properties.
-
-This fits a broader evidence-provider escalation strategy:
+Structural graphs are evidence/navigation providers, not automatic semantic truth. Compare the cheapest provider capable of answering a question with deeper analysis:
 
 ```text
 type/API design
     -> lightweight lint/static rule
-    -> targeted AST/compiler analysis
+    -> AST/compiler analysis
     -> dataflow analysis
     -> deep interprocedural analysis
 ```
 
-The control plane should select the cheapest provider that can reliably answer the question and attach provenance, scope, freshness and validation information to the result.
+Measure setup cost, runtime, coverage, false positives/negatives, evidence usefulness and final task outcome. Do not assume the deepest analyzer is best.
 
-## 8. Community evaluation tooling
+## 16. Reuse evaluation infrastructure
 
-EOKS should reuse evaluation infrastructure rather than build another generic eval runner.
+EOKS should reuse established evaluation and tracing infrastructure rather than building another generic runner. Prompt/evaluation frameworks, trace stores and coding-agent benchmarks are useful components, but they remain components rather than the EOKS control plane.
 
-- **Promptfoo** — useful for repeatable comparisons of models, prompts and configurations and for attaching assertions/evaluators.
-- **Langfuse** — useful when offline datasets/experiments need to connect with production traces and scores.
-- **Aider benchmarks** — useful prior art for evaluating coding agents through end-to-end repository outcomes and tests.
-- **OpenHands benchmarks** — useful prior art for software-engineering agent evaluation across models and execution environments.
-- **OpenAI Evals-style frameworks** — useful examples of reusable/private workload-specific evaluation harnesses.
-
-These tools occupy infrastructure roles—experiment runner, trace store, evaluator or benchmark reference. They are not the EOKS control plane.
-
-A useful separation is:
+A clean separation is:
 
 ```text
 benchmark      -> defines representative tasks
 experiment     -> runs configurations
 trace          -> records what happened
 evaluator      -> scores outcomes
-EOKS           -> uses the evidence for policy/control
+EOKS           -> uses evidence for policy/control
 ```
 
-## 9. Initial benchmark workflow
+## 17. Initial benchmark workflow
 
 1. Create 20–30 representative real tasks.
 2. Define task-specific success contracts.
-3. Run the baseline and capture traces/outcomes.
-4. Run the context engine alone.
+3. Capture a strong baseline trace and outcome.
+4. Run one intervention at a time.
 5. Inspect improved, unchanged and regressed tasks.
-6. Add a small manually curated durable-knowledge bundle and rerun.
-7. Add structural evidence and rerun.
-8. Compare context diagnostics with end-to-end outcomes.
-9. Repeat the strongest configurations with a candidate model.
-10. Version the dataset and evaluator; add regressions and new production edge cases back into the set.
+6. Measure acquisition, context, execution-state and outcome metrics separately.
+7. Repeat the strongest results across another model.
+8. Repeat on a materially different repository class.
+9. Test combined configurations only after individual effects are understood.
+10. Version the dataset/evaluator and add important production failures as regression cases.
 
-The objective is falsifiability: discover **which intervention helps which workload class, at what cost, and with which failure modes**.
+The objective is falsifiability:
 
-## 10. Evaluation/control boundary
+> **Discover which intervention helps which workload class, at what cost, with which model, and with which failure modes.**
+
+## 18. Evaluation/control boundary
 
 The resulting loop is:
 
@@ -247,10 +386,10 @@ The resulting loop is:
 workload
    |
    v
-context / evidence policy
+context / acquisition / evidence policy
    |
    v
-agent run
+agent run + execution state
    |
    v
 outcome + trace
@@ -262,9 +401,10 @@ evaluation
 policy evidence
    |
    +--> context-selection update
-   +--> evidence-provider selection
+   +--> acquisition/provider selection
+   +--> execution-state update
    +--> knowledge promotion/invalidation
-   +--> model-migration evidence
+   +--> model-routing/migration evidence
 ```
 
 The benchmark is therefore not an external scorecard. It is an evidence source for the EOKS control loop.
