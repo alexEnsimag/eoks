@@ -84,6 +84,47 @@ explicit invariant
 
 See [Software analysis, dataflow and invariants](software-analysis.md) for the detailed model and tool positioning.
 
+## Enforceable architecture
+
+Architectural intent becomes much more durable when the decision is connected to an executable conformance mechanism. An ADR records **why** a consequential choice was made; a specification or contract describes **what must be true**; an invariant or policy states a condition that must hold; and a fitness function provides executable evidence about conformance.
+
+```text
+ADR / decision
+   why / trade-offs / assumptions
+          |
+          v
+spec / contract / acceptance criteria
+   what must be true
+          |
+          v
+invariant / policy
+   explicit constraint
+          |
+          v
+fitness function / validator
+   executable check
+          |
+          v
+structured evidence
+          |
+          v
+workflow decision
+   accept / repair / reject / escalate
+```
+
+Do not treat these artifacts as interchangeable. Documentation is not enforcement, and an ADR is not automatically a specification. A decision may also be intentionally unenforceable; in that case the control should be explicit (for example, review or a re-evaluation date) rather than relying on the document being remembered.
+
+Fitness functions should remain independent of a particular implementation tool. A dependency invariant might be enforced by an architecture test, a type system, a linter or a graph analyzer; a deployment constraint might be enforced by policy-as-code; an API constraint might be enforced by contract tests. EOKS coordinates the evidence rather than making one tool canonical.
+
+For agentic development, keep the authority hierarchy explicit:
+
+- deterministic checks are hard gates when the property is mechanically decidable;
+- agentic judges are advisory when interpretation is required;
+- low-confidence, conflicting or high-blast-radius judgments escalate;
+- repeated, well-understood agentic findings can become deterministic rules.
+
+See [Enforceable architecture, ADRs, fitness functions and SDD](../research/prior-art/enforceable-architecture.md) for the broader prior-art survey and open questions.
+
 ## Agents
 
 An engineering agent should be evaluated as a workflow, not just as a model response. A good workflow can use a smaller model for routine exploration, deterministic tools for facts, and a stronger model for difficult synthesis.

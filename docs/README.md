@@ -35,7 +35,7 @@ decision (when evidence justifies it)
 - [`agent-workflows.md`](agent-workflows.md) — workflows, orchestration and reusable reasoning strategies.
 - [`control-plane.md`](control-plane.md) — scheduling, reconciliation, policies and model selection.
 - [`evaluation.md`](evaluation.md) — evaluation, reliability evidence and calibration.
-- [`software-engineering.md`](software-engineering.md) — software-engineering workloads and agent practices.
+- [`software-engineering.md`](software-engineering.md) — software-engineering workloads and agent practices, including enforceable architecture.
 - [`software-analysis.md`](software-analysis.md) — invariants, dataflow and analyzer escalation.
 
 ## Project governance and research
@@ -59,4 +59,5 @@ In particular:
 - **Memory and learning** belong in `memory.md`; session-learning research may remain under `research/`.
 - **Workflow, orchestration and reasoning strategies** belong in `agent-workflows.md`.
 - **Evidence, reliability and model migration evaluation** belong in `evaluation.md`.
+- **Enforceable architecture** is currently a research-backed extension of the software-engineering model; keep the detailed prior-art survey under `research/prior-art/enforceable-architecture.md` until implementation evidence justifies a dedicated canonical subsystem.
 - **Individual tools/projects** belong primarily in the consolidated prior-art document or research notes, not in the core architecture unless they establish a reusable capability boundary.
