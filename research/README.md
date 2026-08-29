@@ -43,6 +43,7 @@ When a research conclusion becomes stable, its canonical statement should move i
 - [`context-evaluation.md`](context-evaluation.md) — controlled context/evidence benchmark methodology and community evaluation tooling.
 - [`llm-observability-and-reliability.md`](llm-observability-and-reliability.md) — observability, uncertainty, external evidence and calibration.
 - [`observations-and-questions.md`](observations-and-questions.md) — unresolved questions.
+- [`prior-art/faraday-replica.md`](prior-art/faraday-replica.md) — Faraday/Replica: learned scientific judgment over coding agents, constrained experimentation, rubric-based evaluation and trajectory-level credit.
 
 ### Software engineering and tools
 
