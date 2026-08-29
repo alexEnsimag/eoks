@@ -74,6 +74,7 @@ The [`research/`](research/) directory preserves exploratory reasoning, comparis
 - [Knowledge, context and the EOKS control plane](research/knowledge-context-control-plane.md)
 - [CodeSight](research/prior-art/codesight.md) — deterministic repository context and targeted evidence views.
 - [TencentDB Agent Memory](research/prior-art/tencent-agent-memory.md) — multi-resolution memory, Skills, Wiki, CodeGraph, governance/loadouts and hybrid context delivery.
+- [OpenWiki](research/prior-art/openwiki.md) — git-native, reviewable generated codebase knowledge and operational freshness lifecycle.
 - [Agent code understanding and architecture tooling](research/agent-code-understanding-and-architecture.md)
 - [Context engineering](research/context-engineering.md)
 - [Context quality model](research/context-quality-model.md)
