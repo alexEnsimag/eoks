@@ -29,6 +29,63 @@ requested -> planned -> executing -> verifying -> reviewing -> completed
 
 The exact states are implementation details. The important property is that progress is evidence-driven and durable, not inferred from an agent's final message.
 
+## Model-based execution and replanning
+
+Classical planning research provides a useful architectural refinement for EOKS: an agent can operate over an explicit **workload/world model** while using an LLM as one reasoning component. The model can contain current state, relevant history, beliefs/uncertainty, temporal constraints and policies. Context is then a task-specific projection of that state and the underlying evidence; it is not the canonical state itself.
+
+```text
+resources / evidence
+        |
+        v
+   workload state
+  /      |       \
+state  history  beliefs
+  \      |       /
+       policies
+          |
+   context compilation
+          |
+       reasoning
+          |
+   proposed action/plan
+          |
+       execution
+          |
+      observation
+          +------> update state / verify / re-plan
+```
+
+This is useful even when no formal MDP/POMDP planner is present. The important separation is between **state**, **context**, **reasoning**, and **execution**. See [Ronen Brafman prior art](../research/prior-art/ronen-brafman-agent-architecture.md).
+
+A plan should be treated as an executable hypothesis rather than a guarantee. New observations, failures or changed state can invalidate later steps and should be able to trigger verification, retry, branching, escalation or re-planning.
+
+## Capability/action models
+
+Where useful, execution resources can expose semantics richer than a raw tool schema: inputs, preconditions, effects, duration, side effects, uncertainty, permissions and validation requirements. This creates a useful boundary:
+
+```text
+implementation -> capability/action model -> plan -> executor
+```
+
+EOKS should adopt this capability-model concept incrementally rather than require every tool to become a formal planning operator. Formal semantics are most valuable when they improve scheduling, safety, composability or verification.
+
+## Long-running and concurrent activities
+
+Real workloads contain actions that take time, have uncertain outcomes or can overlap. A repository scan, CI run, deployment, external API operation or review can be active while other work proceeds.
+
+The runtime should therefore be able to represent durable activity state and observations:
+
+```text
+plan
+  -> start activity
+  -> observe progress/outcome
+  -> update state
+  -> verify
+  -> continue / retry / branch / re-plan / escalate
+```
+
+Concurrency should remain dependency-aware. The goal is not maximal parallelism but correct execution with explicit state and synchronization.
+
 ## Smallest useful topology
 
 A practical software-engineering workload does not require an agent swarm:
@@ -79,6 +136,22 @@ The goal is not to eliminate humans but to move them to points where judgment an
 
 Code review is one important human gate, not the only one.
 
+## Multi-agent knowledge boundaries
+
+Multi-agent systems may have shared knowledge while retaining different observations and beliefs. EOKS should preserve scope and provenance rather than assuming that all agents have identical context.
+
+```text
+shared knowledge/state
+        +
+agent-local observations/beliefs
+        +
+communication history
+        +
+coordination state
+```
+
+Communication can itself be a workflow action. A locally observed fact should not silently become shared canonical knowledge merely because one agent placed it in a message or summary.
+
 ## Reasoning strategies
 
 Reasoning strategies are reusable ways of approaching a reasoning step. A strategy can be selected by many workflow nodes, and different strategies can implement the same workflow step.
@@ -88,6 +161,8 @@ Examples include divergent exploration before convergence, adversarial review, h
 ## Workflow quality and assurance
 
 A mature workflow should expose checkpoints and evidence requirements rather than trusting agent confidence. Required assurance should be defined by policy and workload risk. Evaluation results can determine whether the workflow advances, retries, branches or escalates.
+
+Trustworthy-agent research also suggests evaluating more than task success: policy compliance, predictability, recovery behavior, auditability and human oversight effort can matter for consequential workloads.
 
 ## Continuous learning
 
