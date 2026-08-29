@@ -54,7 +54,7 @@ When a research conclusion becomes stable, its canonical statement should move i
 
 ### Prior art
 
-The [`prior-art/`](prior-art/) directory contains deeper notes on individual projects. The consolidated landscape is [`docs/prior-art.md`](../docs/prior-art.md).
+The [`prior-art/`](prior-art/) directory contains deeper notes on individual projects, including [`OpenWiki`](prior-art/openwiki.md) as prior art for git-native, reviewable generated codebase knowledge and its operational freshness lifecycle. The consolidated landscape is [`docs/prior-art.md`](../docs/prior-art.md).
 
 ## Useful rule
 
