@@ -19,6 +19,7 @@ When a research conclusion becomes stable, its canonical statement should move i
 - [`context-quality-model.md`](context-quality-model.md) — dimensions and candidate metrics for context quality.
 - [`context-workbench.md`](context-workbench.md) — exploratory workbench model.
 - [`context-evaluation.md`](context-evaluation.md) — canonical controlled methodology for evaluating context interventions, durable knowledge, structural evidence and community evaluation tooling.
+- [`evidence-at-a-glance.md`](evidence-at-a-glance.md) — concise evidence dashboard: numbers, community signals, conflicts and research priorities.
 - [`community-evidence-bottlenecks.md`](community-evidence-bottlenecks.md) — quantitative academic evidence, practitioner/community signals, recurring bottlenecks, contradictory results and prioritized next experiments.
 - [`control-loop.md`](control-loop.md) — reconciliation/control-loop model, including uncertainty-aware stop/continue and branching policies.
 - [`control-plane.md`](control-plane.md) — scheduling, model selection and workload management.
@@ -41,7 +42,6 @@ When a research conclusion becomes stable, its canonical statement should move i
 
 - [`evaluation-and-model-switching.md`](evaluation-and-model-switching.md) — reliability, confidence, model/task affinity and safe model migration.
 - [`llm-uncertainty-and-control.md`](llm-uncertainty-and-control.md) — probabilistic model signals, entropy, semantic entropy, calibration, semantic agreement and using uncertainty as a graph/control signal.
-- [`context-evaluation.md`](context-evaluation.md) — controlled context/evidence benchmark methodology and community evaluation tooling.
 - [`llm-observability-and-reliability.md`](llm-observability-and-reliability.md) — observability, uncertainty, external evidence and calibration.
 - [`observations-and-questions.md`](observations-and-questions.md) — unresolved questions.
 - [`prior-art/faraday-replica.md`](prior-art/faraday-replica.md) — Faraday/Replica: learned scientific judgment over coding agents, constrained experimentation, rubric-based evaluation and trajectory-level credit.
