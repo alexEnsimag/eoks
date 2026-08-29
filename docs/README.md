@@ -37,6 +37,9 @@ decision (when evidence justifies it)
 - [`evaluation.md`](evaluation.md) — evaluation, reliability evidence and calibration.
 - [`software-engineering.md`](software-engineering.md) — software-engineering workloads and agent practices, including enforceable architecture.
 - [`software-analysis.md`](software-analysis.md) — invariants, dataflow and analyzer escalation.
+- [`tool-capability-model.md`](tool-capability-model.md) — canonical capability/selection model for evidence providers.
+- [`tool-selection.md`](tool-selection.md) — evidence requirements and task-specific provider selection.
+- [`tool-landscape.md`](tool-landscape.md) — current visual map, tool families, experiment shortlist and known evidence gaps.
 
 ## Project governance and research
 
@@ -59,5 +62,6 @@ In particular:
 - **Memory and learning** belong in `memory.md`; session-learning research may remain under `research/`.
 - **Workflow, orchestration and reasoning strategies** belong in `agent-workflows.md`.
 - **Evidence, reliability and model migration evaluation** belong in `evaluation.md`.
+- **Tool capability and selection semantics** belong in `tool-capability-model.md` and `tool-selection.md`; the visual landscape is a current snapshot derived from them, not a competing source of truth.
 - **Enforceable architecture** is currently a research-backed extension of the software-engineering model; keep the detailed prior-art survey under `research/prior-art/enforceable-architecture.md` until implementation evidence justifies a dedicated canonical subsystem.
-- **Individual tools/projects** belong primarily in the consolidated prior-art document or research notes, not in the core architecture unless they establish a reusable capability boundary.
+- **Individual tools/projects** belong primarily in the landscape/prior-art documents or research notes, not in the core architecture unless they establish a reusable capability boundary.
