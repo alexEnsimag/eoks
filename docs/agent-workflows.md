@@ -6,6 +6,8 @@ EOKS distinguishes **knowledge**, **workflow**, and **reasoning strategy**:
 - Workflow answers: **What should happen next?**
 - Reasoning strategy answers: **How should I approach this step?**
 
+A fourth useful distinction is **role**: **what responsibility is being performed?** Roles include conductor, retriever, transformer, planner, executor, reviewer and validator. A role is not necessarily a separate agent. See [Agent roles](agent-roles.md) for the canonical role taxonomy.
+
 Orchestration belongs at the **execution/control boundary**. It coordinates reliable execution, verification and escalation without becoming a second knowledge or context system.
 
 ## Workflow and orchestration
@@ -13,11 +15,11 @@ Orchestration belongs at the **execution/control boundary**. It coordinates reli
 A workflow is an explicit sequence or graph of actions, decisions and validation steps. Each node requests the context it needs rather than carrying the whole project knowledge base.
 
 ```text
-workflow node -> context selection -> relevant evidence
+workflow node -> role + context selection -> relevant evidence
              -> reasoning strategy -> model + tools -> artifact/evidence
 ```
 
-The orchestrator/conductor owns workflow state and policy. Useful state includes workload and acceptance criteria, current step, selected context/loadout, artifacts/revisions, verification evidence, failures/retries, review findings, approval/escalation state and outcome.
+The orchestrator/conductor owns workflow state and policy. Useful state includes workload and acceptance criteria, current step, selected context/loadout, assigned role, implementing agent/resource, artifacts/revisions, verification evidence, failures/retries, review findings, approval/escalation state and outcome.
 
 A useful lifecycle is:
 
@@ -28,6 +30,24 @@ requested -> planned -> executing -> verifying -> reviewing -> completed
 ```
 
 The exact states are implementation details. The important property is that progress is evidence-driven and durable, not inferred from an agent's final message.
+
+## Roles are responsibilities, not topology
+
+A workflow assigns responsibilities to roles and selects runtime resources to implement them. One agent can perform several roles, while separate agents or sessions can implement different roles when isolation, independence, parallelism or specialization provides a concrete benefit.
+
+```text
+workflow
+   |
+   +--> role contract
+   |       |
+   |       +--> context/loadout
+   |       +--> allowed resources
+   |       +--> required evidence
+   |
+   `--> agent/resource implementation
+```
+
+The conductor should choose the smallest topology that satisfies the workload. Do not create a separate agent merely because a role has a name.
 
 ## Model-based execution and replanning
 
@@ -56,6 +76,8 @@ state  history  beliefs
 ```
 
 This is useful even when no formal MDP/POMDP planner is present. The important separation is between **state**, **context**, **reasoning**, and **execution**. See [Ronen Brafman prior art](../research/prior-art/ronen-brafman-agent-architecture.md).
+
+The planner and conductor should remain conceptually distinct: a **planner proposes an executable hypothesis**, while the **conductor decides whether and how to execute it and reconciles execution against new observations**.
 
 A plan should be treated as an executable hypothesis rather than a guarantee. New observations, failures or changed state can invalidate later steps and should be able to trigger verification, retry, branching, escalation or re-planning.
 
@@ -96,11 +118,12 @@ human goal
     v
 conductor
     |
+    +--> planner (optional)
     +--> executor
     +--> independent reviewer
     |
     v
-verification / evaluation
+validator / evaluation
     |
     +--> retry / repair / escalate / complete
 ```
@@ -122,7 +145,15 @@ plan -> implement -> deterministic checks -> independent review
      -> behavioral validation -> accept / repair / escalate
 ```
 
+The role distinction matters here:
+
+- **Executor** produces the change or other side effect.
+- **Reviewer** independently challenges the result.
+- **Validator** obtains objective or structured evidence about whether required conditions hold.
+
 Reviewers should have access to execution evidence while retaining enough independence to find executor mistakes. Deterministic evidence—tests, type checks, static analysis, deployment checks and observed behavior—should generally outrank self-reported confidence.
+
+Repair is normally an executor specialization or workflow mode rather than a required permanent agent. Escalation is a control/workflow transition rather than a core agent role.
 
 ## Context boundaries
 
@@ -157,6 +188,8 @@ Communication can itself be a workflow action. A locally observed fact should no
 Reasoning strategies are reusable ways of approaching a reasoning step. A strategy can be selected by many workflow nodes, and different strategies can implement the same workflow step.
 
 Examples include divergent exploration before convergence, adversarial review, hypothesis generation/falsification, threat modeling, architecture review, performance investigation and test-first verification. Experiments around so-called "ADHD" skills/stacking are useful prior art for the general reusable-strategy idea; the label is not an EOKS abstraction.
+
+Roles and reasoning strategies should not be conflated. For example, adversarial review is a reasoning strategy that can implement the reviewer role; hypothesis testing can be used by a planner, reviewer or investigator.
 
 ## Workflow quality and assurance
 
@@ -200,10 +233,10 @@ The conductor is not the canonical home for project knowledge, repository struct
 ```text
 Task
   |
-  +-- Plan
-  +-- Execute (coding agent)
-  +-- Review (fresh context)
-  +-- Verify
+  +-- Plan       (planner role, optional)
+  +-- Execute    (executor role)
+  +-- Review     (reviewer role, fresh context)
+  +-- Verify     (validator role)
   +-- Outcome
 ```
 

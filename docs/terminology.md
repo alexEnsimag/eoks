@@ -21,6 +21,7 @@ The vocabulary is intentionally provisional. The definitions below are architect
 | Memory | Information deliberately persisted for future use, including episodic and procedural memory. |
 | Skill | A reusable, governed procedure promoted from evidence and successful execution rather than merely repeated text. |
 | Workflow | An explicit sequence/graph of actions, decisions and validation steps for achieving a task outcome. |
+| Agent role | A responsibility performed within a workflow, such as conductor, retriever, planner, transformer, executor, reviewer or validator. A role is not necessarily a separate agent, model or service. |
 | Reasoning strategy | A reusable way of approaching a reasoning step, e.g. divergent exploration, adversarial review or hypothesis testing. |
 | Model | A reasoning/generation capability with measurable characteristics. |
 | Tool | A capability external to the model, often deterministic. |
@@ -28,7 +29,7 @@ The vocabulary is intentionally provisional. The definitions below are architect
 | Asset | A generic lifecycle/governance abstraction for a reusable resource. Asset is not a semantic knowledge category; memory, Skills, documents, decisions and derived evidence can all be assets. |
 | Representation | A form optimized for a particular query or operation, such as a graph, index, document, timeline or runtime model. A representation is not automatically canonical knowledge. |
 | Loadout | The workload-scoped set of assets an agent/task is allowed and expected to use. Loadout eligibility is distinct from final context selection. |
-| Agent | An execution loop combining reasoning, context and actions. |
+| Agent | A runtime execution loop capable of performing one or more roles. |
 | Run | One attempt to execute a task or subtask under a particular context, policy and resource configuration. |
 | Decision | A control-plane choice about what happens next, such as retrieve, verify, retry, branch, stop or escalate. |
 | Policy | A constraint or requirement governing system behavior and decisions. |
@@ -41,7 +42,23 @@ The vocabulary is intentionally provisional. The definitions below are architect
 | Context plane | The layer constructing task-specific model input. |
 | Execution plane | The layer performing workflows, runs, reasoning strategies, tool and agent actions. |
 
-For the detailed relationship between Resource, Asset, Provider, Representation, Loadout and Context, see [Resource model](resource-model.md). That document is the canonical home for these boundaries; this table is the compact glossary.
+For the detailed relationship between Resource, Asset, Provider, Representation, Loadout and Context, see [Resource model](resource-model.md). For the role taxonomy and its boundary with agents, resources and workflows, see [Agent roles](agent-roles.md). The terminology table remains the compact glossary; those documents are the canonical homes for the detailed boundaries.
+
+## Agent roles
+
+Roles describe **responsibilities**, not runtime topology. The core EOKS roles are:
+
+- **Conductor** — coordinates workflow state, policy, handoffs and reconciliation.
+- **Retriever** — obtains relevant information or evidence.
+- **Transformer** — converts information into a useful derived representation or evidence form.
+- **Planner** — proposes an executable plan from state, evidence and policy.
+- **Executor** — performs actions and produces artifacts or side effects.
+- **Reviewer** — independently challenges an artifact, decision or result.
+- **Validator** — obtains objective or structured evidence about whether conditions hold.
+
+Repair is normally an executor specialization/workflow mode, while escalation is a control/workflow transition rather than a permanent agent role. A single agent may perform several roles; separate agents or sessions are justified only when isolation, independence, parallelism or specialization provides a concrete benefit.
+
+See [Agent roles](agent-roles.md) for role contracts, composition and the distinction between roles, resources, reasoning strategies and EOKS planes.
 
 ## Representation principle
 
