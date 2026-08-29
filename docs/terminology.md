@@ -42,7 +42,7 @@ The vocabulary is intentionally provisional. The definitions below are architect
 | Context plane | The layer constructing task-specific model input. |
 | Execution plane | The layer performing workflows, runs, reasoning strategies, tool and agent actions. |
 
-For the detailed relationship between Resource, Asset, Provider, Representation, Loadout and Context, see [Resource model](resource-model.md). For the role taxonomy and its boundary with agents, resources and workflows, see [Agent roles](agent-roles.md). The terminology table remains the compact glossary; those documents are the canonical homes for the detailed boundaries.
+For the detailed relationship between Resource, Asset, Provider, Representation, Loadout and Context, see [Resource model](resource-model.md). For the role taxonomy and its boundary with agents, resources and workflows, see [Agent roles](agent-roles.md). For continuous knowledge maintenance and its role composition, see [Continuous knowledge maintenance](continuous-knowledge-maintenance.md). The terminology table remains the compact glossary; those documents are the canonical homes for the detailed boundaries.
 
 ## Agent roles
 
@@ -59,6 +59,25 @@ Roles describe **responsibilities**, not runtime topology. The core EOKS roles a
 Repair is normally an executor specialization/workflow mode, while escalation is a control/workflow transition rather than a permanent agent role. A single agent may perform several roles; separate agents or sessions are justified only when isolation, independence, parallelism or specialization provides a concrete benefit.
 
 See [Agent roles](agent-roles.md) for role contracts, composition and the distinction between roles, resources, reasoning strategies and EOKS planes.
+
+## Continuous knowledge maintenance
+
+Continuous knowledge maintenance is a **workflow/lifecycle**, not a new core agent role. It composes existing roles to keep durable knowledge and derived representations synchronized with authoritative changes.
+
+A typical maintenance flow is:
+
+```text
+change / observation
+        -> impact detection
+        -> retrieve evidence
+        -> transform
+        -> validate
+        -> update / invalidate / promote / investigate
+```
+
+Impact detection is a supporting capability that may be deterministic; it should not automatically become another agent role. Promotion of candidate synthetic knowledge requires stronger evidence and governance than merely observing repeated agent behavior.
+
+See [Continuous knowledge maintenance](continuous-knowledge-maintenance.md).
 
 ## Representation principle
 
