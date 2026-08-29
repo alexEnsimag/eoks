@@ -2,147 +2,263 @@
 
 The agenda should prioritize experiments that can falsify the EOKS control-plane hypothesis, not additional architectural vocabulary.
 
+A central rule is:
+
+> **Treat every infrastructure capability as an intervention whose value depends on the model, workload, repository, budget and baseline.**
+
+The goal is not to prove that graphs, retrieval, memory, context management or multi-agent workflows are good. The goal is to discover **what improves engineering outcomes, when, by how much, at what cost, and with which failure modes**.
+
 ## 1. End-to-end vertical slice and attribution
 
 Build one local workload where EOKS can control the complete loop:
 
 ```text
-Task -> context/evidence selection -> agent execution -> verification
-     -> Outcome -> Evaluation -> next Decision
+Task -> acquisition/context/evidence selection -> agent execution
+     -> verification -> Outcome -> Evaluation -> next Decision
 ```
 
-Record the exact configuration, context manifest, provider calls, tool calls, model, decisions, costs and outcome. Establish this trace format before building sophisticated schedulers. The key question is whether an intervention can be attributed to an outcome improvement rather than merely correlated with it.
+Record model/version, configuration, context manifest, acquisition/provider calls, tool calls, execution state, decisions, costs and outcome. Establish this trace before building sophisticated schedulers.
 
-## 2. Context quality
+The key question is whether an intervention can be attributed to an outcome improvement rather than merely correlated with it.
 
-Build a benchmark where the same task is given different context constructions. Measure correctness, completeness, error rate, latency and token cost. Test whether structured context, retrieval, graphs and context splitting produce measurable gains.
+## 2. Evidence hierarchy and research intake
 
-Treat context quality as multidimensional rather than assuming a single "context entropy" score. At minimum measure relevance, coverage, redundancy, correctness/reliability, uncertainty, freshness, dependency completeness, provenance, contradiction risk, ordering/structure and token/latency cost.
+Use community projects, practitioner reports, academic papers and benchmarks as **signals of what to investigate**. Do not equate popularity with effectiveness.
 
-A useful experimental quantity is **marginal context value**: the change in task quality associated with adding a block relative to its token/latency cost. Initially this is a benchmark metric, not an assumed online probability model.
+Use an explicit confidence ladder:
 
-## 3. Context observability and workbench
+```text
+community signal
+  -> adoption / repeated reports
+  -> academic controlled result
+  -> independent reproduction
+  -> cross-model/repository replication
+  -> EOKS workload-specific evidence
+```
 
-Prototype a UI that shows context as inspectable blocks/clusters: source, relevance, provenance, freshness, confidence and token cost. Allow humans to understand what the model saw and what it did not see.
+Record contradictory results rather than selecting only supporting evidence.
 
-Extend the prototype with include/exclude/pin operations, selection explanations, context budgets, automatic-vs-optimized context diffs, a graph view, block provenance/freshness, saved context recipes and outcome feedback from human edits.
+## 3. Context quality and context acquisition
 
-Automatic selection remains the baseline; human interaction is most valuable for inspection, correction and learning.
+Evaluate the distinction between:
 
-## 4. Context contracts for subagents
+- **context quality** — whether the working set is useful;
+- **context acquisition** — how much work is required to obtain it.
 
-Test whether a fresh subagent receiving a compact task/context contract reduces repository rediscovery without reducing task success. Compare:
+Compare raw grep/read/tool exploration with lexical/semantic retrieval, RepoMap-style indexes, LSP/semantic tooling, graphs, agentic search, precomputation and hybrids.
 
-1. unconstrained fresh exploration;
-2. task + minimal context instructions;
-3. typed context blocks + relevant dependency/evidence slice;
-4. typed context blocks + explicit exclusion/scope hints.
+Measure correctness/completeness, evidence coverage, discovery calls, repeated exploration, irrelevant exploration, context growth, tokens, latency and cost.
 
-Measure discovery tool calls, tokens, latency, correctness and omissions.
+The key hypothesis is not “infrastructure should replace exploration”, but:
 
-## 5. Context compilation and budgets
+> **Can infrastructure remove avoidable information-acquisition work without removing useful semantic investigation?**
 
-Prototype a local context compiler that accepts a task and produces a reproducible context manifest. Test ranking, deduplication, conflict detection, progressive disclosure and hard token budgets.
+## 4. Context lifecycle and context quality
 
-A compiled context should make it possible to answer what the model saw, what it did not see, why each item was included, which evidence provider supplied it, what revision/freshness state applied and how many tokens/latency each block consumed.
+Test proactive, reactive and hybrid context delivery plus active context-management mechanisms such as compression, offloading and reconstruction.
 
-## 6. Memory and procedural learning
+Measure:
 
-Compare transcript memory, curated Markdown/files, structured records and graph memory. Measure retrieval usefulness, stale-memory failures and maintenance cost.
+- task outcome;
+- relevant evidence retained;
+- redundancy/contradiction;
+- stale information;
+- context growth;
+- tokens/latency/cost;
+- recovery after context reset.
 
-Test whether structured session traces can produce useful procedural patterns. Compare simple transcript RAG with outcome-linked Learning Records and controlled promotion to Skills/policies. Measure false promotion, stale/contradictory procedures, generalization across task classes and regression after model changes.
+Explicitly test whether more context helps, hurts or simply changes the agent's exploration behavior.
 
-Specifically test whether context compilation can reconstruct useful continuity after a session is cleared or a fresh subagent starts, without relying on conversation compaction as the primary persistence mechanism.
+## 5. Context workbench and observability
 
-## 7. Model routing and migration
+Prototype a UI that makes the model's working context inspectable: source, relevance, provenance, freshness, authority and cost. Support include/exclude/pin operations and context diffs.
 
-Construct a workload with heterogeneous task types. Compare always-strongest-model against capability/cost-aware routing. Include model upgrades and regression testing.
+The purpose is measurement and diagnosis first. Human editing should be evaluated as an intervention rather than assumed to improve the agent.
 
-Run routing experiments after controlling context composition where possible. Otherwise it is difficult to distinguish model capability from differences in the information supplied to each model.
+## 6. Context contracts for subagents
 
-## 8. Deterministic evidence
-
-For software engineering, compare LLM-only reasoning against hybrid workflows using structural graphs, tests, type checking, static analysis and dataflow/taint analysis.
-
-An important sub-question is **analysis escalation**: does selecting the minimum sufficient deterministic analyzer improve overall cost/latency without reducing correctness? Compare type/compiler checks, lightweight lint/static rules, targeted TypeScript compiler-API/`ts-morph` analysis, Semgrep-style dataflow and deeper CodeQL-style analysis.
-
-Measure setup cost, runtime, coverage, false positives/negatives and usefulness to the agent. Do not assume the deepest analyzer is the best answer.
-
-## 9. Invariants and barriers
-
-Test whether agents can reliably identify architectural invariants from concrete bug investigations and express them independently of a particular analysis tool.
-
-Use source → barrier → sink properties where structural graph traversal alone is insufficient. For each candidate invariant, compare prevention through types/API design with lightweight rules, targeted analysis, Semgrep dataflow and deeper queries where genuinely required.
-
-Measure whether an invariant discovered from one failure prevents regressions, how much maintenance it costs, and whether it remains valid as the architecture evolves.
-
-> **Invariants are a more durable abstraction than individual analyzer rules.**
-
-## 10. Evidence-provider selection
-
-Prototype a policy that chooses among graph queries, type checking, tests, static analyzers, runtime evidence and LLM reasoning based on the task. Measure whether the control plane can answer engineering questions with a cheaper sufficient provider instead of always invoking the deepest available analysis.
-
-Record provider selection, evidence returned, analysis cost, revision, confidence and final task outcome so the policy itself can be evaluated.
-
-## 11. Control-plane prototype
-
-Implement the smallest scheduler that accepts a task, chooses context sources/tools/model, executes, evaluates and records the decision. Do not begin with a distributed platform; prove the control loop locally first.
-
-The first control loop should expose context selection and evidence-provider selection as policy decisions, not merely internal prompt-building or tool-calling implementation details.
-
-## 12. Orchestration and workflow topology
-
-Test whether explicit orchestration improves outcomes over a single capable agent session. Start with the smallest topology: executor → independent reviewer → verification, with a conductor recording state and deciding whether to retry, branch or escalate.
-
-Compare sequential execution, independent review, parallel specialized workers and no orchestration. Measure task success, defect escape rate, tokens, latency, coordination overhead and the quality of evidence produced by each topology.
-
-The key question is not whether more agents are better; it is whether **explicit control and independent validation** provide enough value to justify orchestration complexity.
-
-## 13. Continuous assurance and adaptive control
-
-Explore whether evaluation results can automatically alter future routing/context policies. The interesting system is not one that merely measures failures, but one that becomes better at choosing how to work.
-
-For context specifically, study whether repeated human include/exclude actions predict useful future selection while guarding against overfitting a preference observed on one task, repository revision or model.
-
-Test stop/continue, retrieve-more, verify, branch, model-switch and human-escalation policies using calibrated evidence. Measure decision utility rather than only prediction accuracy.
-
-## 14. Institutional and system context
-
-Xirp highlights a dimension that is easy to miss when context research is framed only around repository contents: agents may need **organizational/system context** such as service ownership, upstream/downstream boundaries, architectural rationale and knowledge accumulated by previous engineers or agents.
-
-Test repository-only context against repository + structural dependencies, ownership/service metadata, architectural decisions/history and a task-scoped combination selected by a context compiler. Measure task success, incorrect-but-plausible decisions, discovery work, context cost and stale-context failures.
-
-Also test session-to-institutional-knowledge promotion and cross-harness portability: whether promoted knowledge remains useful when execution switches between different coding-agent/model harnesses.
-
-## 15. LLM observability and reliability signals
-
-Test whether AI observability can become a useful **sensor layer** for the EOKS control loop rather than merely a debugging dashboard.
-
-Start with an offline benchmark where every task has a known outcome. Record execution traces, model/version, context manifest, token usage, latency/cost, model self-assessment where available, logprobs/entropy where available, semantic agreement for selected tasks, evidence agreement/contradiction/provenance, deterministic checks, evaluator/human scores and final correctness.
+Test whether a fresh subagent receiving a compact task/context contract reduces repository rediscovery without reducing task success.
 
 Compare:
 
-1. model self-assessment;
-2. model-computation signals such as logprobs/entropy;
-3. external evidence and outcome signals;
-4. a combined reliability evidence model.
+1. unconstrained fresh exploration;
+2. task + minimal context instructions;
+3. typed context blocks + dependency/evidence slice;
+4. typed blocks + explicit scope/exclusion hints.
 
-Evaluate calibration and **decision utility**. The important question is not merely whether a signal correlates with correctness, but whether using it reduces bad actions, unnecessary retries and unnecessary expensive analysis.
+Measure discovery calls, tokens, latency, correctness, omissions and context pollution in the parent agent.
 
-### Key hypothesis
+## 7. Execution state and long-horizon continuity
 
-> **Observability supplies the sensors; evaluation supplies outcome labels; calibration turns raw signals into workload-specific reliability evidence; the control plane uses that evidence to choose the next action.**
+Treat execution state as distinct from context and memory.
 
-See [LLM observability and reliability signals](../research/llm-observability-and-reliability.md).
+Test whether an explicit state/ledger of observations, changes, attempts, verifications and invalidations can reduce redundant actions and improve recovery without creating stale assumptions.
 
-## 16. Governance, safety and lifecycle
+Compare:
 
-EOKS currently discusses provenance, scope and promotion, but these need an explicit end-to-end experiment. Test access control, secret/PII filtering, retention, deletion, rollback, stale-source invalidation and conflicting-knowledge handling across memory, context and evidence providers.
+```text
+baseline history
++ transcript/context compression
++ explicit execution state
++ both
+```
 
-The research question is whether a useful control plane can remain inspectable and reversible as it accumulates durable state. This should include adversarial cases where a generated summary is plausible but wrong, a source becomes inaccessible, or two authoritative sources disagree.
+Measure task success, repeated actions, recovery, tokens, latency and stale-state failures.
 
-## 17. The minimum useful semantic model
+## 8. Durable memory and procedural learning
 
-Instrument the vertical slice and determine which concepts are actually required in traces. Validate whether `Task`, `Context`, `Run`, `Decision`, `Policy`, `Evaluation` and `Outcome` are sufficient as EOKS primitives, and whether Asset/Provider/Representation/Loadout should remain vocabulary-level concepts rather than becoming runtime entities.
+Compare transcript memory, curated Markdown/files, structured records, graph memory and outcome-linked learning records.
+
+Measure retrieval usefulness, stale-memory failures, contradiction, false promotion, maintenance cost, generalization and regression after model changes.
+
+Specifically test whether a fresh session can reconstruct useful continuity without treating conversation compaction as the primary persistence mechanism.
+
+## 9. Model × infrastructure experiments
+
+Construct paired experiments:
+
+```text
+frontier model + baseline
+frontier model + intervention
+
+cheaper model + baseline
+cheaper model + intervention
+```
+
+Measure whether infrastructure produces absolute gains, reduces cost, or narrows the capability gap between models.
+
+Do not assume an intervention valuable to one model transfers to another.
+
+## 10. Repository maturity and institutional context
+
+Test repository classes separately:
+
+```text
+AI-native / well structured
+        |
+modern / mature
+        |
+large / heterogeneous
+        |
+legacy / poorly documented
+```
+
+Include organizational/system context where available: ownership, service boundaries, architectural rationale, incidents and historical decisions.
+
+Measure repository discovery work, incorrect-but-plausible decisions, stale-context failures, context cost and task outcomes.
+
+## 11. Knowledge representations
+
+Compare representations such as OKF, reviewed Markdown, ADRs, project-local instructions and structured records.
+
+Test whether a representation preserves useful knowledge more reliably than raw source exploration and whether it reduces acquisition cost without introducing stale or incorrect claims.
+
+Keep the representation/runtime boundary explicit: a format such as OKF is not itself a knowledge server or control plane.
+
+## 12. Deterministic evidence and analysis escalation
+
+For software engineering, compare LLM-only reasoning against hybrid workflows using structural graphs, tests, type checking, static analysis and dataflow/taint analysis.
+
+Test **minimum sufficient analysis**:
+
+```text
+type/API design
+ -> lightweight rule
+ -> AST/compiler analysis
+ -> dataflow
+ -> deep interprocedural analysis
+```
+
+Measure setup cost, runtime, coverage, false positives/negatives and usefulness to the agent. Do not assume the deepest analyzer is best.
+
+## 13. Invariants and barriers
+
+Test whether agents can identify durable architectural invariants from concrete failures and express them independently of a particular analyzer.
+
+Use source → barrier → sink properties where structural traversal is insufficient. Compare prevention through types/API design with lightweight rules, targeted analysis and deeper analysis.
+
+Measure whether an invariant prevents regressions, maintenance cost and validity as architecture evolves.
+
+> **Invariants are a more durable abstraction than individual analyzer rules.**
+
+## 14. Evidence-provider selection
+
+Prototype a policy choosing among graph queries, retrieval, type checking, tests, static analyzers, runtime evidence and LLM reasoning.
+
+The policy should seek the **cheapest provider sufficient for the engineering question**, not automatically the deepest available analyzer.
+
+Record provider selection, evidence, revision/freshness, cost and final outcome so provider choice itself can be evaluated.
+
+## 15. Orchestration and workflow topology
+
+Test whether explicit orchestration improves outcomes over a single capable agent session.
+
+Start with the smallest useful topology: executor → independent reviewer → verification, with a conductor recording state and deciding whether to retry, branch or escalate.
+
+Compare sequential execution, independent review, parallel specialized workers and no orchestration. Measure success, defect escape, tokens, latency, coordination overhead and evidence quality.
+
+The question is not whether more agents are better; it is whether explicit control and independent validation justify their cost.
+
+**Planning should not be treated as a presumed bottleneck.** If a strong model already plans adequately, external planning infrastructure should have to demonstrate a measurable benefit.
+
+## 16. Control plane and adaptive policies
+
+Implement the smallest scheduler that accepts a task, chooses context/acquisition/evidence/model policies, executes, evaluates and records the decision.
+
+Expose context selection, provider selection, execution-state updates and model routing as policy decisions rather than hiding them inside prompt/tool implementations.
+
+Then test whether evaluation results can improve future policies: retrieve-more, stop, verify, branch, switch model, escalate to deeper analysis or request human input.
+
+Measure decision utility, not only prediction accuracy.
+
+## 17. Continuous assurance, reliability and governance
+
+Test whether observability can become a sensor layer for EOKS rather than merely a debugging dashboard. Compare model self-assessment, model-computation signals where available, external evidence and deterministic outcomes.
+
+Evaluate calibration and whether reliability signals reduce bad actions, unnecessary retries and unnecessary expensive analysis.
+
+Separately test access control, secret/PII filtering, retention, deletion, rollback, stale-source invalidation and conflicting-knowledge handling across memory, context and evidence providers.
+
+## 18. Minimum useful semantic model
+
+Instrument the vertical slice and determine which concepts are actually required in traces. Validate whether `Task`, `Context`, `Run`, `Decision`, `Policy`, `Evaluation` and `Outcome` are sufficient EOKS primitives, and whether Asset/Provider/Representation/Loadout should remain vocabulary-level concepts rather than runtime entities.
 
 Avoid expanding the ontology until a concrete workload demonstrates a missing primitive or relationship.
+
+## 19. Benchmark methodology
+
+For context and agent infrastructure experiments, use the canonical methodology in [Context evaluation and benchmarking](../research/context-evaluation.md).
+
+At minimum report:
+
+**Outcome** — correctness, completeness, regressions, evidence quality.
+
+**Efficiency** — model tokens, tool calls, latency, total cost.
+
+**Context health** — relevance, coverage, redundancy, contradiction, freshness, context growth.
+
+**Acquisition** — discovery work, repeated searches, missed relevant evidence.
+
+**Autonomy** — retries, recovery, session resets and successful completion without intervention.
+
+Always compare against the strongest practical baseline and report the experimental conditions.
+
+## 20. What EOKS should not assume
+
+The research agenda deliberately does **not** assume that:
+
+- graphs are better than grep/read exploration;
+- retrieval is better than agentic search;
+- more context is better;
+- context compression preserves everything important;
+- durable memory is better than re-discovery;
+- sub-agents are better than one capable agent;
+- stronger infrastructure makes a cheaper model equivalent to a frontier model;
+- planning is a bottleneck for every capable model;
+- a popular project is effective outside its demonstrated workload.
+
+These are hypotheses to test.
+
+The central EOKS objective is:
+
+> **Discover which capabilities improve trustworthy software-agent outcomes, under which conditions, and whether their benefit justifies their complexity and cost.**
