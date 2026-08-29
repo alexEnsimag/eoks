@@ -16,6 +16,7 @@ When a research conclusion becomes stable, its canonical statement should move i
 
 - [`knowledge-context-control-plane.md`](knowledge-context-control-plane.md) — synthesis of knowledge, context, execution and control, including the boundaries between OKF, GrapeRoot-like context engines and structural graphs.
 - [`context-engineering.md`](context-engineering.md) — context as a managed resource.
+- [`empirical-agent-context-and-intelligence-infrastructure.md`](empirical-agent-context-and-intelligence-infrastructure.md) — academic/community evidence and a model × repository × task × intervention research framework for context acquisition, working state and validation.
 - [`context-quality-model.md`](context-quality-model.md) — dimensions and candidate metrics for context quality.
 - [`context-workbench.md`](context-workbench.md) — exploratory workbench model.
 - [`context-evaluation.md`](context-evaluation.md) — canonical controlled methodology for evaluating context interventions, durable knowledge, structural evidence and community evaluation tooling.
