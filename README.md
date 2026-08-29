@@ -75,6 +75,7 @@ The [`research/`](research/) directory preserves exploratory reasoning, comparis
 - [CodeSight](research/prior-art/codesight.md) — deterministic repository context and targeted evidence views.
 - [TencentDB Agent Memory](research/prior-art/tencent-agent-memory.md) — multi-resolution memory, Skills, Wiki, CodeGraph, governance/loadouts and hybrid context delivery.
 - [OpenWiki](research/prior-art/openwiki.md) — versioned generated repository knowledge, lightweight discovery and freshness/review lifecycle.
+- [Enforceable architecture, ADRs, fitness functions and SDD](research/prior-art/enforceable-architecture.md) — research on connecting architectural intent and specifications to executable conformance, policy-as-code and calibrated agentic judgment.
 - [Agent code understanding and architecture tooling](research/agent-code-understanding-and-architecture.md)
 - [Context engineering](research/context-engineering.md)
 - [Context quality model](research/context-quality-model.md)
@@ -113,6 +114,7 @@ The current practical hypothesis is intentionally conservative:
 18. Start autonomous software-engineering workflows with a small topology—**conductor, executor and independent reviewer as logical roles**—rather than an agent swarm. Use native subagents or isolated sessions when they provide a concrete context/isolation benefit; add a dedicated conductor layer when persistent workflow state, lifecycle policy or cross-session coordination is actually needed.
 19. Treat validation as a first-class workflow stage. Tests, static analysis, deployment checks and observed behavior should provide evidence for completion; an agent's self-reported success is not sufficient.
 20. Move humans toward objectives, policy exceptions, risky/ambiguous decisions and accountability as workflow reliability improves.
+21. Connect consequential architectural intent to executable conformance where practical: ADRs explain why, specifications/contracts describe what, invariants/policies state what must remain true, and deterministic or calibrated fitness functions provide evidence. Keep agentic governance advisory until it is calibrated, and promote repeated findings into deterministic rules where justified.
 
 This gives EOKS a path from a simple Git repository to richer knowledge infrastructure without requiring a graph database or a new canonical format on day one.
 
