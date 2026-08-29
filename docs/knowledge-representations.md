@@ -48,7 +48,45 @@ Typical contents:
 - dependency and impact relationships;
 - routes, schemas, events and other framework-level contracts.
 
-A graph is a natural representation here. Deterministic parsers should do as much of this work as possible. CodeSight is useful prior art for turning this structural layer into persistent, agent-readable summaries and targeted queries; Graphify-like systems emphasize the graph itself as the primary representation.
+A graph is a natural representation here. Deterministic parsers should do as much of this work as possible.
+
+### The structural graph family
+
+Several recent coding-agent tools occupy this same family. They should be grouped together in EOKS rather than treated as unrelated concepts:
+
+| Tool | Primary contribution | What distinguishes it |
+|---|---|---|
+| **Graphify** | Local structural graph and navigation | Tree-sitter-based graph, cross-artifact scope, explicit edge provenance such as extracted/inferred/ambiguous |
+| **CodeGraph** | Cross-language structural graph and query | Symbol/dependency/call relationships with MCP/CLI/editor integration |
+| **GitNexus** | Structural graph plus compiled analysis | Resolution, process/flow tracing, impact analysis, clustering, confidence and hybrid search |
+| **Understand Anything** | Structural graph plus semantic interpretation | Architectural/domain views, semantic search, explanations and impact-oriented views |
+
+These tools overlap substantially in the graph substrate, but not necessarily in the layer above it. A useful normalization is:
+
+```text
+                 structural representation
+                          |
+        +-----------------+------------------+
+        |                 |                  |
+    Graphify          CodeGraph          GitNexus
+        |                 |                  |
+        +-----------------+------------------+
+                          |
+                  graph analysis/query
+                  paths · impact · flows
+                          |
+                          v
+                   evidence provider
+                          |
+                          v
+                 context compilation
+```
+
+The arrows describe capability relationships, not software dependencies. A tool may implement several layers itself.
+
+**EOKS should not standardize on any one graph implementation.** A graph is a representation selected when the workload needs graph-shaped evidence. The EOKS abstraction is the provider/evidence contract and the policy that decides whether graph evidence is sufficient, unnecessary or should be supplemented by another representation.
+
+This also clarifies the role of **CodeSight**: it is closer to repository-context compilation and targeted evidence views, and can consume structural information from graph-like providers. It should therefore not be presented as simply another competing graph implementation.
 
 ### Semantic representation
 
