@@ -8,6 +8,8 @@ A central rule is:
 
 The goal is not to prove that graphs, retrieval, memory, context management or multi-agent workflows are good. The goal is to discover **what improves engineering outcomes, when, by how much, at what cost, and with which failure modes**.
 
+The evidence intake that currently informs prioritization is [Community and academic evidence on agent bottlenecks](../research/community-evidence-bottlenecks.md). It records effect sizes, experimental settings, community failure reports, contradictory evidence and next tests. It is deliberately non-normative.
+
 ## 1. End-to-end vertical slice and attribution
 
 Build one local workload where EOKS can control the complete loop:
@@ -36,7 +38,7 @@ community signal
   -> EOKS workload-specific evidence
 ```
 
-Record contradictory results rather than selecting only supporting evidence.
+Record contradictory results rather than selecting only supporting evidence. For quantitative claims, preserve the workload, model, sample size, metric, effect size and uncertainty/limitations rather than copying a headline percentage.
 
 ## 3. Context quality and context acquisition
 
@@ -227,7 +229,7 @@ Avoid expanding the ontology until a concrete workload demonstrates a missing pr
 
 ## 19. Benchmark methodology
 
-For context and agent infrastructure experiments, use the canonical methodology in [Context evaluation and benchmarking](../research/context-evaluation.md).
+For context and agent infrastructure experiments, use the canonical methodology in [Context evaluation and benchmarking](../research/context-evaluation.md) and maintain the [community/academic evidence ledger](../research/community-evidence-bottlenecks.md).
 
 At minimum report:
 
@@ -241,9 +243,39 @@ At minimum report:
 
 **Autonomy** — retries, recovery, session resets and successful completion without intervention.
 
+**Cost distribution** — median/P90/P95 where practical, variance, success-conditioned cost and tail/retry cost rather than only averages.
+
 Always compare against the strongest practical baseline and report the experimental conditions.
 
-## 20. What EOKS should not assume
+## 20. Evidence-driven bottleneck map
+
+Current evidence suggests that EOKS should not treat “context” as one bottleneck. Track at least:
+
+```text
+1. Task specification
+       |
+2. Repository/context acquisition
+       |
+3. Working-context quality / attention allocation
+       |
+4. Reasoning / diagnosis
+       |
+5. Tool selection and execution
+       |
+6. Long-horizon execution state / recovery
+       |
+7. Integration / completeness
+       |
+8. Verification / evidence
+       |
+9. Cost / latency / predictability
+```
+
+Cross-cutting variables include model capability, repository maturity, task ambiguity, agent topology, context budget and infrastructure complexity.
+
+The bottleneck map is a **research hypothesis**. EOKS should update it as controlled experiments reveal which stage actually limits a workload.
+
+## 21. What EOKS should not assume
 
 The research agenda deliberately does **not** assume that:
 
@@ -255,7 +287,9 @@ The research agenda deliberately does **not** assume that:
 - sub-agents are better than one capable agent;
 - stronger infrastructure makes a cheaper model equivalent to a frontier model;
 - planning is a bottleneck for every capable model;
-- a popular project is effective outside its demonstrated workload.
+- a popular project is effective outside its demonstrated workload;
+- a reported token reduction is a productivity improvement unless task quality is preserved;
+- benchmark Pass@1 alone measures deployment usefulness.
 
 These are hypotheses to test.
 
