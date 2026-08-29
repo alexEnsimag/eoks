@@ -2,50 +2,31 @@
 
 `docs/` is the **current architectural and design layer** of EOKS. These documents describe the working model that the project currently proposes. They are more coherent and prescriptive than the research corpus, but the architecture remains provisional unless a document is explicitly recorded as a decision.
 
-## How the repository is organized
-
-- **`README.md`** — project entry point and practical direction.
-- **`docs/`** — current architecture, terminology, decisions, research agenda and open questions.
-- **`research/`** — exploratory reasoning, prior art and experiments. Research may contain competing hypotheses and should not silently be treated as architecture.
-
-A useful evidence hierarchy is:
-
-```text
-research / external prior art
-        |
-        v
-architectural hypothesis
-        |
-        v
-experiment / prototype
-        |
-        v
-decision (when evidence justifies it)
-```
-
 ## Current architecture
 
-- [`architecture.md`](architecture.md) — overall planes, runtime primitives and control loop.
-- [`resource-model.md`](resource-model.md) — canonical vocabulary for resources, assets, providers, representations, loadouts and context.
-- [`context.md`](context.md) — context engineering and context compilation.
+- [`architecture.md`](architecture.md) — canonical architecture, control loop, boundaries and seven provisional runtime primitives.
+- [`resource-model.md`](resource-model.md) — resources, assets, providers, representations and loadouts.
+- [`context.md`](context.md) — context engineering and compilation.
 - [`context-workbench.md`](context-workbench.md) — inspectable context blocks, budgets and human control.
-- [`knowledge-base.md`](knowledge-base.md) — durable project knowledge and its lifecycle.
+- [`knowledge-base.md`](knowledge-base.md) — durable project knowledge and lifecycle.
 - [`knowledge-representations.md`](knowledge-representations.md) — multiple representations of engineering reality.
-- [`memory.md`](memory.md) — semantic, episodic and procedural memory plus behavioral learning.
-- [`agent-workflows.md`](agent-workflows.md) — workflows, orchestration and reusable reasoning strategies.
-- [`control-plane.md`](control-plane.md) — scheduling, reconciliation, policies and model selection.
+- [`memory.md`](memory.md) — memory and behavioral learning.
+- [`agent-roles.md`](agent-roles.md) — workflow responsibilities.
+- [`agent-workflows.md`](agent-workflows.md) — workflows and reasoning strategies.
 - [`evaluation.md`](evaluation.md) — evaluation, reliability evidence and calibration.
-- [`software-engineering.md`](software-engineering.md) — software-engineering workloads and agent practices, including enforceable architecture.
+- [`tool-capability-model.md`](tool-capability-model.md) — provider capabilities, evidence requirements and selection semantics.
+- [`continuous-knowledge-maintenance.md`](continuous-knowledge-maintenance.md) — incremental maintenance, promotion and invalidation.
+- [`deterministic-execution.md`](deterministic-execution.md) — deterministic execution as one modality.
+- [`software-engineering.md`](software-engineering.md) — software-engineering workloads and agent practices.
 - [`software-analysis.md`](software-analysis.md) — invariants, dataflow and analyzer escalation.
-- [`tool-capability-model.md`](tool-capability-model.md) — canonical capability/selection model for evidence providers.
-- [`tool-selection.md`](tool-selection.md) — evidence requirements and task-specific provider selection.
-- [`tool-landscape.md`](tool-landscape.md) — current visual map, tool families, experiment shortlist and known evidence gaps.
 
-## Project governance and research
+The architecture page is deliberately short. Detailed behavior belongs in the document that owns the concept rather than being duplicated across architecture and specialist pages.
 
-- [`decisions.md`](decisions.md) — current architectural decisions; unresolved ideas belong in research/open questions instead.
+## Governance and research
+
+- [`decisions.md`](decisions.md) — current architectural decisions.
 - [`research-agenda.md`](research-agenda.md) — experiments intended to validate or falsify the architecture.
-- [`open-questions.md`](open-questions.md) — unresolved questions that should not be mistaken for design commitments.
+- [`open-questions.md`](open-questions.md) — unresolved questions.
 - [`prior-art.md`](prior-art.md) — consolidated prior-art landscape.
 - [`terminology.md`](terminology.md) — shared working vocabulary.
 - [`vision.md`](vision.md) — long-term direction.
@@ -57,11 +38,14 @@ Avoid maintaining the same architectural claim independently in several document
 
 In particular:
 
-- **Resource/Asset/Provider/Representation/Loadout/Context definitions** belong in `resource-model.md` and the compact glossary in `terminology.md`.
-- **Context selection and compilation** belong in `context.md`; the Workbench document focuses on the inspectable interaction/prototype rather than redefining context engineering.
-- **Memory and learning** belong in `memory.md`; session-learning research may remain under `research/`.
-- **Workflow, orchestration and reasoning strategies** belong in `agent-workflows.md`.
-- **Evidence, reliability and model migration evaluation** belong in `evaluation.md`.
-- **Tool capability and selection semantics** belong in `tool-capability-model.md` and `tool-selection.md`; the visual landscape is a current snapshot derived from them, not a competing source of truth.
-- **Enforceable architecture** is currently a research-backed extension of the software-engineering model; keep the detailed prior-art survey under `research/prior-art/enforceable-architecture.md` until implementation evidence justifies a dedicated canonical subsystem.
+- **Architecture, control loop, planes and runtime primitives** belong in `architecture.md`.
+- **Resource/Asset/Provider/Representation/Loadout definitions** belong in `resource-model.md`; the glossary in `terminology.md` stays compact.
+- **Context selection and compilation** belong in `context.md`; the Workbench focuses on inspectable interaction/prototyping rather than redefining context engineering.
+- **Knowledge and memory lifecycle** belong in `knowledge-base.md` and `memory.md`.
+- **Workflow, roles and reasoning strategies** belong in `agent-roles.md` and `agent-workflows.md`. Scheduler, router and orchestrator are implementation terms under the conductor/control responsibility, not competing architecture documents.
+- **Evaluation, reliability and calibration** belong in `evaluation.md`.
+- **Provider capabilities, evidence requirements and selection semantics** belong together in `tool-capability-model.md`; there is no separate normative tool-selection model.
+- **Incremental maintenance, promotion and invalidation** belong in `continuous-knowledge-maintenance.md`; deterministic execution is a modality/deep dive, not a separate control architecture.
 - **Individual tools/projects** belong primarily in the landscape/prior-art documents or research notes, not in the core architecture unless they establish a reusable capability boundary.
+
+When a new concept appears, first ask whether it is already a role, resource, provider, representation, context artifact, workflow construct, policy or one of the seven runtime primitives. Prefer moving/merging material into an existing owner over adding another document.
