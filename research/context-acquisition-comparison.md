@@ -30,7 +30,33 @@ The key EOKS question is not whether exploration is wasteful. Some exploration m
 
 > Can an intervention remove avoidable discovery work while preserving or improving the evidence the solver needs?
 
-## 2. FastContext
+## 2. A more useful taxonomy: where repository understanding lives
+
+FastContext and GrapeRoot are easy to confuse because both aim to reduce the amount of repository exploration performed by the main solver. They actually represent different mechanisms.
+
+```text
+1. RECONSTRUCT
+   Agent -> grep/read/search -> constructs understanding in its trajectory
+
+2. DELEGATE
+   Agent -> explorer -> compact evidence -> solver
+
+3. PRECOMPUTE
+   Repository -> persistent knowledge model -> relevant context -> solver
+
+4. HYBRID
+   Repository knowledge -> candidate regions -> explorer -> evidence -> solver
+```
+
+This gives EOKS a more useful axis than simply calling all of these "context tools":
+
+> **FastContext asks: who should do the exploration?**
+>
+> **GrapeRoot asks: what should the agent already know about the repository?**
+
+The fourth category is deliberately a hypothesis: a structural index could narrow the search space while a dedicated explorer performs semantic investigation, potentially preserving capabilities that would be lost by forcing all understanding through a static graph.
+
+## 3. FastContext
 
 FastContext is a dedicated repository-exploration subagent. The solver delegates a natural-language context query; the explorer uses read-only `Read`, `Glob` and `Grep`, including parallel tool calls, and returns compact file/line citations rather than its full exploration trajectory.
 
@@ -55,7 +81,7 @@ FastContext is primarily a test of:
 
 It does **not** establish that graphs or retrieval are unnecessary. Its explorer itself uses low-level repository search.
 
-## 3. GrapeRoot
+## 4. GrapeRoot
 
 GrapeRoot represents a different hypothesis: precompute and maintain a structural representation of the repository, then use that representation to guide context selection. Its public material describes a code map, context packing and session/action state, including cross-service dependency awareness.
 
@@ -73,7 +99,13 @@ Source: https://graperoot.dev/benchmarks/agentic-v1
 
 **Evidence classification: vendor/project-authored benchmark.** The result is highly relevant and should be reproduced independently before being treated as a general effect size.
 
-## 4. Why these are not direct competitors
+### What GrapeRoot actually tests
+
+GrapeRoot is **not a model trained to understand context**. It is a context/knowledge system around an ordinary coding model. Its key hypothesis is that a persistent representation of repository structure and session state can make context selection cheaper and more reliable.
+
+For EOKS terminology, it is best described as **persistent structural/context infrastructure** or a **dynamic context/knowledge model**, not a "dynamic model" in the machine-learning sense.
+
+## 5. Why these are not direct competitors
 
 They attack different costs:
 
@@ -109,7 +141,7 @@ main solver
 
 That hybrid is an EOKS hypothesis, not a recommendation.
 
-## 5. What has actually been compared?
+## 6. What has actually been compared?
 
 As of the 2026-08 review, there is **no credible common benchmark found that directly compares FastContext and GrapeRoot** under the same repository, tasks, model, budget and judge.
 
@@ -124,9 +156,9 @@ Sources:
 - https://arxiv.org/abs/2607.24882
 - https://arxiv.org/abs/2608.01507
 
-## 6. Important counter-evidence
+## 7. Important counter-evidence
 
-The repository-QA result above is particularly useful because it challenges a currently popular pattern: delegating repository search to another agent may protect the main context but introduce a **planner → explorer handoff failure mode**. The study attributes **41.8% of deep-agentic-search failures** to that handoff in its taxonomy.
+The repository-QA result above is particularly useful because it challenges a currently popular pattern: delegating repository search to another agent may protect the main context but introduce a **planner -> explorer handoff failure mode**. The study attributes **41.8% of deep-agentic-search failures** to that handoff in its taxonomy.
 
 Conversely, long-context processing research indicates that ordinary filesystem/tool use can be an effective way for coding agents to process large external corpora.
 
@@ -138,7 +170,7 @@ Therefore EOKS should evaluate at least:
 4. dedicated exploration;
 5. hybrids.
 
-## 7. Proposed common benchmark
+## 8. Proposed common benchmark
 
 The missing experiment should use the **same**:
 
@@ -177,7 +209,7 @@ And at least four workload types:
 - cross-component change;
 - architecture/refactoring task.
 
-## 8. Metrics
+## 9. Metrics
 
 Do not measure only final task success. Record:
 
@@ -212,7 +244,7 @@ Do not measure only final task success. Record:
 
 The primary optimization target should be **total cost to a correct, verified result**, not solver-token reduction alone.
 
-## 9. Research questions
+## 10. Research questions
 
 1. Does separating exploration from solving help frontier models as much as smaller models?
 2. Does persistent structure become more valuable as repository size and heterogeneity increase?
@@ -223,7 +255,7 @@ The primary optimization target should be **total cost to a correct, verified re
 7. When does the infrastructure cost exceed the saved agent cost?
 8. Does any intervention reduce the capability gap between a cheaper and frontier model?
 
-## 10. Evidence status
+## 11. Evidence status
 
 | Claim | Current evidence | Confidence | EOKS action |
 |---|---|---|---|
@@ -235,7 +267,7 @@ The primary optimization target should be **total cost to a correct, verified re
 | FastContext universally beats retrieval/graphs | no direct common benchmark | **low** | direct comparison |
 | Graph + explorer is better than either alone | hypothesis only | **very low** | high-value experiment |
 
-## 11. EOKS conclusion
+## 12. EOKS conclusion
 
 The important discovery is not that one tool wins. It is that **repository context acquisition has become a measurable systems problem with multiple competing mechanisms and no established universal winner**.
 
