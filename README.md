@@ -77,6 +77,7 @@ The repository separates **current architecture** from **exploratory research**.
 The [`research/`](research/) directory preserves exploratory reasoning, comparisons and experiments. It is intentionally less normative than `docs/`; research notes may contain competing hypotheses. See [`research/README.md`](research/) for its map.
 
 - [Knowledge, context and the EOKS control plane](research/knowledge-context-control-plane.md)
+- [Empirical agent context and intelligence infrastructure](research/empirical-agent-context-and-intelligence-infrastructure.md) — academic/community evidence and the model × repository × task × intervention benchmark framework.
 - [CodeSight](research/prior-art/codesight.md) — deterministic repository context and targeted evidence views.
 - [TencentDB Agent Memory](research/prior-art/tencent-agent-memory.md) — multi-resolution memory, Skills, Wiki, CodeGraph, governance/loadouts and hybrid context delivery.
 - [OpenWiki](research/prior-art/openwiki.md) — versioned generated repository knowledge, lightweight discovery and freshness/review lifecycle.
@@ -124,6 +125,8 @@ The current practical hypothesis is intentionally conservative:
 22. Treat **graduated autonomy** as an outcome of assurance: increase delegation only when workload-specific evidence supports it, and keep human escalation for risk or ambiguity that current assurance cannot bound.
 
 This gives EOKS a path from a simple Git repository to richer knowledge infrastructure without requiring a graph database or a new canonical format on day one.
+
+This direction is intentionally empirical: the repository should not assume that graphs, retrieval, context management, durable knowledge or sub-agent exploration are universally beneficial. The [empirical agent context and intelligence infrastructure](research/empirical-agent-context-and-intelligence-infrastructure.md) research note defines the evidence hierarchy and benchmark matrix used to test those interventions across models, repositories and tasks.
 
 ## Status
 
