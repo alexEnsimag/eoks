@@ -34,6 +34,43 @@ Engineering knowledge should be treated similarly:
 
 None of these representations is "the knowledge". They are views/IRs optimized for different queries.
 
+## Two different roles for graphs
+
+The word **graph** is overloaded in AI-agent architecture. EOKS should distinguish at least two materially different graph roles:
+
+1. **System-understanding graphs** describe the thing being reasoned about: code symbols, dependencies, calls, data/process relationships, architecture, runtime relationships, etc.
+2. **Context/coordination graphs** describe the relationship between a workload and the resources/evidence available to reason about it: what is relevant, eligible, selected, dependent, or useful for a particular context.
+
+The first is primarily a **representation of the world/system**. The second is primarily a **representation of the reasoning environment**.
+
+GrapeRoot's dual-graph approach is useful prior art for the second category. It should therefore not be grouped with Graphify, CodeGraph and GitNexus merely because all of them use graph structures.
+
+A useful conceptual model is:
+
+```text
+             SYSTEM / WORLD GRAPH
+       code · architecture · runtime
+                    |
+                    | evidence
+                    v
+             knowledge resources
+                    |
+                    v
+          CONTEXT / COORDINATION GRAPH
+       workload · resources · evidence
+       relevance · selection · dependencies
+                    |
+                    v
+             context compilation
+                    |
+                    v
+                   agent
+```
+
+The two graphs may be related, but they answer different questions. A system graph asks *what is connected to what?* A context graph asks *what should be connected to this workload's reasoning process?*
+
+**EOKS should not require either graph to be the canonical representation.** The useful abstraction is the ability to represent, query and govern relationships when a workload benefits from them.
+
 ## Useful representations
 
 ### Structural representation
