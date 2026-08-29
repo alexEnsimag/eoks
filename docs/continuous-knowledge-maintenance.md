@@ -68,6 +68,59 @@ May be introduced when a change has semantic consequences that cannot be adequat
 
 May perform the actual write/update operations. For many deterministic representations, this can instead be a non-agentic tool or provider.
 
+## Deterministic tools are maintained artifacts, not another agent role
+
+EOKS should distinguish between **roles** and **execution resources**. A deterministic tool is normally a resource/capability that the conductor can select for a step; it does not need to become a new agent role merely because it is important.
+
+The conductor should be able to select an available deterministic tool when the step is sufficiently specified and the tool's capability, preconditions and assurance are adequate. The executor (or an ordinary workflow worker) can then invoke it without inserting an unnecessary LLM call.
+
+```text
+step requirement
+      |
+      v
+   conductor
+      |
+      +--> deterministic tool available + sufficient specification
+      |              |
+      |              v
+      |          executor/worker
+      |
+      `--> ambiguity / missing capability
+                     |
+                     v
+                 reasoning
+```
+
+This should be evaluated per step. EOKS should not turn every useful script into a permanent tool, and should not preserve a deterministic implementation when maintaining it costs more than the probabilistic alternative or when the task is inherently better handled by reasoning.
+
+### Continuous maintenance of deterministic tools
+
+Continuous maintenance may also operate on the tools themselves:
+
+```text
+repeated workflow traces / failures / corrections
+              |
+              v
+       detect stable procedure
+              |
+              v
+       candidate deterministic tool
+              |
+       +------+------+
+       |             |
+   validate       insufficient
+       |             |
+       v             v
+ register/update   keep reasoning path
+       |
+       v
+ monitor / invalidate when assumptions change
+```
+
+The goal is **simple, stable, high-value automation**, not replacing every successful LLM behavior with bespoke code. A tool should be promoted when its behavior is sufficiently understood, its inputs/outputs and dependencies can be specified, and the expected reuse justifies its maintenance cost.
+
+This gives continuous maintenance a second useful responsibility: not only keeping knowledge and representations current, but identifying opportunities to **consolidate repeated, well-understood procedures into simpler deterministic capabilities**.
+
 ## Change and impact detection
 
 Impact detection is an important supporting capability, but does not need to be an agent role.
