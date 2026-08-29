@@ -2,7 +2,7 @@
 
 This note is a **capability map**, not a second source of detailed architecture or methodology. Individual projects are prior art; EOKS does not assume that any of them are dependencies.
 
-For canonical terminology and resource boundaries, see [Resource model](../docs/resource-model.md). For detailed context treatment, see [Context engineering](../docs/context.md). For knowledge representations, see [Knowledge representations](../docs/knowledge-representations.md). For evaluation, see [Context evaluation](context-evaluation.md) and [Evaluation, reliability and model switching](evaluation-and-model-switching.md).
+For the canonical capability/selection model, see [Tool capability model](../docs/tool-capability-model.md) and [Tool selection](../docs/tool-selection.md). For canonical terminology and resource boundaries, see [Resource model](../docs/resource-model.md). For detailed context treatment, see [Context engineering](../docs/context.md). For knowledge representations, see [Knowledge representations](../docs/knowledge-representations.md). For evaluation, see [Context evaluation](context-evaluation.md) and [Evaluation, reliability and model switching](evaluation-and-model-switching.md).
 
 ## Capability map
 
@@ -33,6 +33,20 @@ For canonical terminology and resource boundaries, see [Resource model](../docs/
 | **OpenHands benchmarks** | software-engineering/agent benchmark infrastructure | benchmark prior art |
 | **OpenAI Evals-style frameworks** | reusable private/workload-specific eval harnesses | evaluation harness |
 | **CodeRabbit / Sourcegraph Cody / Aider / Claude Code** | coding-agent execution and/or review | execution/evaluation prior art |
+
+## How to compare these tools
+
+The table above is intentionally a compact map, not the selection mechanism. For actual comparison, use the structured model in [Tool capability model](../docs/tool-capability-model.md).
+
+The important comparison dimensions are evidence kind, scope, depth, precision/recall, determinism, freshness, latency, cost, setup, explainability and provenance. Profiles should also record strengths, weaknesses, best-fit questions, poor-fit questions, and relationships such as complement, overlap, alternative and escalation.
+
+This supports three useful views:
+
+1. **Capability matrix** — what different providers can establish.
+2. **Pairwise comparison** — why one provider is preferable to another for a particular class of question.
+3. **Selection matrix** — which provider satisfies a concrete evidence requirement with the lowest acceptable cost/latency.
+
+The goal is to avoid a misleading global ranking. A tool can be excellent overall and still be the wrong provider for a specific question.
 
 ## Important boundaries
 
