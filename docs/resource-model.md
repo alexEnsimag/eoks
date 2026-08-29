@@ -54,7 +54,7 @@ Procedure
   └── workflow / playbook
 
 Evidence / representation
-  ├── CodeGraph
+  ├── structural graph / repository map
   ├── semantic / symbol index
   ├── test result
   ├── static-analysis result
@@ -63,6 +63,8 @@ Evidence / representation
 ```
 
 These categories have different authority, provenance and update semantics even when they share the generic Asset lifecycle.
+
+A **structural graph is a representation, not an EOKS primitive**. Graph-based tools such as Graphify, CodeGraph and GitNexus are alternative providers for this representation/evidence family. They may also perform higher-level analysis or context delivery, but those capabilities should remain conceptually separate from the underlying representation.
 
 ### Provider
 
@@ -75,6 +77,26 @@ A provider is therefore an implementation mechanism; an asset is a governed reso
 A **representation** is a form optimized for a particular query or operation: graph, index, document, timeline, runtime model, and so on.
 
 A representation is not automatically canonical knowledge. Derived representations should normally point back to authoritative sources.
+
+For software engineering, a structural graph is one particularly useful representation because it makes relationships such as imports, calls, inheritance, dependencies, flows and impact explicit. It is **not required by EOKS**, and should be selected only when the workload benefits from graph-shaped evidence.
+
+The distinction is:
+
+```text
+source / canonical knowledge
+            |
+            v
+     representation
+   (graph, index, wiki...)
+            |
+            v
+       evidence
+            |
+            v
+   context compilation
+```
+
+See [Engineering knowledge as a multi-representation system](knowledge-representations.md) for the canonical discussion of representation families and their trade-offs.
 
 ### Loadout
 
@@ -146,7 +168,7 @@ The final feedback loop is the distinctive EOKS concern: resources are not only 
 - **TencentDB Agent Memory** is particularly useful prior art for governed reusable assets, multi-resolution memory, Skills, Wiki, CodeGraph and agent loadouts.
 - **GrapeRoot** is particularly useful prior art for proactive context compilation and integration around an existing coding agent.
 - **OKF** is a candidate portable knowledge representation, not the EOKS resource model itself.
-- **Graphify-like tools** provide structural representations/evidence, not a universal knowledge ontology.
+- **Graphify, CodeGraph and GitNexus** are representative structural-graph/evidence providers. They overlap at the graph substrate while differing in graph construction, resolution, precomputed analysis, provenance and agent-facing delivery.
 
 These systems can coexist:
 
@@ -156,6 +178,9 @@ Tencent-like assets
       loadout
         ↓
 GrapeRoot-like context engine
+        ↑
+ structural evidence providers
+ Graphify / CodeGraph / GitNexus
         ↓
      context
         ↓
