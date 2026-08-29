@@ -69,11 +69,12 @@ The repository separates **current architecture** from **exploratory research**.
 
 ## Research
 
-The [`research/`](research/) directory preserves exploratory reasoning, comparisons and experiments. It is intentionally less normative than `docs/`; research notes may contain competing hypotheses. See [`research/README.md`](research/README.md) for its map.
+The [`research/`](research/) directory preserves exploratory reasoning, comparisons and experiments. It is intentionally less normative than `docs/`; research notes may contain competing hypotheses. See [`research/README.md`](research/) for its map.
 
 - [Knowledge, context and the EOKS control plane](research/knowledge-context-control-plane.md)
 - [CodeSight](research/prior-art/codesight.md) — deterministic repository context and targeted evidence views.
 - [TencentDB Agent Memory](research/prior-art/tencent-agent-memory.md) — multi-resolution memory, Skills, Wiki, CodeGraph, governance/loadouts and hybrid context delivery.
+- [OpenWiki](research/prior-art/openwiki.md) — versioned generated repository knowledge, lightweight discovery and freshness/review lifecycle.
 - [Agent code understanding and architecture tooling](research/agent-code-understanding-and-architecture.md)
 - [Context engineering](research/context-engineering.md)
 - [Context quality model](research/context-quality-model.md)
