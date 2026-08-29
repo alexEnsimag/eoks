@@ -34,6 +34,43 @@ Engineering knowledge should be treated similarly:
 
 None of these representations is "the knowledge". They are views/IRs optimized for different queries.
 
+## Two different roles for graphs
+
+The word **graph** is overloaded in AI-agent architecture. EOKS should distinguish at least two materially different graph roles:
+
+1. **System-understanding graphs** describe the thing being reasoned about: code symbols, dependencies, calls, data/process relationships, architecture, runtime relationships, etc.
+2. **Context/coordination graphs** describe the relationship between a workload and the resources/evidence available to reason about it: what is relevant, eligible, selected, dependent, or useful for a particular context.
+
+The first is primarily a **representation of the world/system**. The second is primarily a **representation of the reasoning environment**.
+
+GrapeRoot's dual-graph approach is useful prior art for the second category. It should therefore not be grouped with Graphify, CodeGraph and GitNexus merely because all of them use graph structures.
+
+A useful conceptual model is:
+
+```text
+             SYSTEM / WORLD GRAPH
+       code · architecture · runtime
+                    |
+                    | evidence
+                    v
+             knowledge resources
+                    |
+                    v
+          CONTEXT / COORDINATION GRAPH
+       workload · resources · evidence
+       relevance · selection · dependencies
+                    |
+                    v
+             context compilation
+                    |
+                    v
+                   agent
+```
+
+The two graphs may be related, but they answer different questions. A system graph asks *what is connected to what?* A context graph asks *what should be connected to this workload's reasoning process?*
+
+**EOKS should not require either graph to be the canonical representation.** The useful abstraction is the ability to represent, query and govern relationships when a workload benefits from them.
+
 ## Useful representations
 
 ### Structural representation
@@ -48,7 +85,45 @@ Typical contents:
 - dependency and impact relationships;
 - routes, schemas, events and other framework-level contracts.
 
-A graph is a natural representation here. Deterministic parsers should do as much of this work as possible. CodeSight is useful prior art for turning this structural layer into persistent, agent-readable summaries and targeted queries; Graphify-like systems emphasize the graph itself as the primary representation.
+A graph is a natural representation here. Deterministic parsers should do as much of this work as possible.
+
+### The structural graph family
+
+Several recent coding-agent tools occupy this same family. They should be grouped together in EOKS rather than treated as unrelated concepts:
+
+| Tool | Primary contribution | What distinguishes it |
+|---|---|---|
+| **Graphify** | Local structural graph and navigation | Tree-sitter-based graph, cross-artifact scope, explicit edge provenance such as extracted/inferred/ambiguous |
+| **CodeGraph** | Cross-language structural graph and query | Symbol/dependency/call relationships with MCP/CLI/editor integration |
+| **GitNexus** | Structural graph plus compiled analysis | Resolution, process/flow tracing, impact analysis, clustering, confidence and hybrid search |
+| **Understand Anything** | Structural graph plus semantic interpretation | Architectural/domain views, semantic search, explanations and impact-oriented views |
+
+These tools overlap substantially in the graph substrate, but not necessarily in the layer above it. A useful normalization is:
+
+```text
+                 structural representation
+                          |
+        +-----------------+------------------+
+        |                 |                  |
+    Graphify          CodeGraph          GitNexus
+        |                 |                  |
+        +-----------------+------------------+
+                          |
+                  graph analysis/query
+                  paths · impact · flows
+                          |
+                          v
+                   evidence provider
+                          |
+                          v
+                 context compilation
+```
+
+The arrows describe capability relationships, not software dependencies. A tool may implement several layers itself.
+
+**EOKS should not standardize on any one graph implementation.** A graph is a representation selected when the workload needs graph-shaped evidence. The EOKS abstraction is the provider/evidence contract and the policy that decides whether graph evidence is sufficient, unnecessary or should be supplemented by another representation.
+
+This also clarifies the role of **CodeSight**: it is closer to repository-context compilation and targeted evidence views, and can consume structural information from graph-like providers. It should therefore not be presented as simply another competing graph implementation.
 
 ### Semantic representation
 
