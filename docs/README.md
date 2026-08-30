@@ -5,6 +5,7 @@
 ## Current architecture
 
 - [`architecture.md`](architecture.md) — canonical architecture, control loop, boundaries and seven provisional runtime primitives.
+- [`control-loop-consolidation.md`](control-loop-consolidation.md) — consolidated mapping of existing concepts onto the reconciliation model; Cards remain an open hypothesis.
 - [`resource-model.md`](resource-model.md) — resources, assets, providers, representations and loadouts.
 - [`context.md`](context.md) — context engineering and compilation.
 - [`context-workbench.md`](context-workbench.md) — inspectable context blocks, budgets and human control.
@@ -39,6 +40,7 @@ Avoid maintaining the same architectural claim independently in several document
 In particular:
 
 - **Architecture, control loop, planes and runtime primitives** belong in `architecture.md`.
+- **Control-loop consolidation and cross-concept mapping** belong in `control-loop-consolidation.md`; it should not create competing definitions.
 - **Resource/Asset/Provider/Representation/Loadout definitions** belong in `resource-model.md`; the glossary in `terminology.md` stays compact.
 - **Context selection and compilation** belong in `context.md`; the Workbench focuses on inspectable interaction/prototyping rather than redefining context engineering.
 - **Knowledge and memory lifecycle** belong in `knowledge-base.md` and `memory.md`.
