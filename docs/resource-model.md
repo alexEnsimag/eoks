@@ -1,6 +1,6 @@
 # Resource model
 
-EOKS needs a small vocabulary for resources that persist beyond a single reasoning step. The goal is to distinguish **what a resource means** from **how it is governed or delivered**.
+EOKS needs a small vocabulary for resources that persist beyond a single reasoning step. The goal is to distinguish **what a resource means** from **how it is governed or delivered**, while keeping authoritative state separate from derived or disposable state.
 
 ## Core distinction
 
@@ -17,6 +17,8 @@ EOKS needs a small vocabulary for resources that persist beyond a single reasoni
                               |
                             Agent
 ```
+
+Resources can participate in control loops in different ways: they may **observe** state, **derive** representations/evidence, **reason** about a state gap, or **actuate** changes. Their implementation can be replaced without making the runtime resource itself the authoritative workload state.
 
 ### Asset
 
@@ -70,31 +72,33 @@ A **structural graph is a representation, not an EOKS primitive**. Graph-based t
 
 A **provider** is a mechanism that retrieves or derives evidence from a representation or source. Examples include a graph query, code search, static analyzer, test runner or memory retrieval service.
 
-A provider is therefore an implementation mechanism; an asset is a governed resource. A provider can produce evidence without creating a durable asset.
+A provider is therefore an implementation mechanism; an asset is a governed resource. A provider can produce evidence without creating a durable asset. Providers can act as sensors or derivation mechanisms inside a control loop.
 
 ### Representation
 
 A **representation** is a form optimized for a particular query or operation: graph, index, document, timeline, runtime model, and so on.
 
-A representation is not automatically canonical knowledge. Derived representations should normally point back to authoritative sources.
+A representation is not automatically canonical knowledge. Derived representations should normally point back to authoritative sources and carry enough provenance/dependency information to detect staleness.
 
 For software engineering, a structural graph is one particularly useful representation because it makes relationships such as imports, calls, inheritance, dependencies, flows and impact explicit. It is **not required by EOKS**, and should be selected only when the workload benefits from graph-shaped evidence.
 
 The distinction is:
 
 ```text
-source / canonical knowledge
+authoritative source / canonical knowledge
             |
             v
-     representation
-   (graph, index, wiki...)
+       representation
+     (graph, index, wiki...)
             |
             v
-       evidence
+         evidence
             |
             v
-   context compilation
+     context compilation
 ```
+
+Derived representations should be treated as **reconstructable state where practical**. If a representation is lost or invalidated, the architecture should permit rebuilding it from authoritative sources rather than treating the representation itself as the only copy of truth.
 
 See [Engineering knowledge as a multi-representation system](knowledge-representations.md) for the canonical discussion of representation families and their trade-offs.
 
@@ -120,9 +124,35 @@ This boundary is useful for security, stale-state control, agent specialization,
 
 ### Context
 
-**Context** is the task-specific projection presented to a model for a reasoning step. It is compiled from eligible resources and evidence; it is not the storage layer.
+**Context** is the task-specific projection presented to a model for a reasoning step. It is compiled from eligible resources and evidence; it is not the storage layer and is not authoritative workload state.
 
-### Context engineering vs context compilation
+## Canonical state and control-loop relationship
+
+EOKS should distinguish the state that the system is trying to preserve or reach from the resources used to operate on it:
+
+```text
+                  desired state + policy
+                           |
+                           v
+authoritative state -> conductor/reconciler
+                           |
+             +-------------+-------------+
+             |             |             |
+          observe       reason        actuate
+             |             |             |
+        providers       models      tools/agents
+             |             |             |
+             +-------------+-------------+
+                           |
+                           v
+                   actual state / evidence
+                           |
+                           +----> reconcile
+```
+
+The workload's authoritative state should not be hidden inside an agent session, compiled context, cache or derived representation. Those resources can be replaced, rebuilt or invalidated without losing the state needed to resume and audit the workload.
+
+## Context engineering vs context compilation
 
 **Context engineering** is the broader discipline/research area concerned with constructing useful model context.
 
@@ -156,12 +186,14 @@ Sources / systems
               |
       evaluation / outcome
               |
-           learning
+       observed state/evidence
+              |
+           reconcile
               |
      new or updated assets
 ```
 
-The final feedback loop is the distinctive EOKS concern: resources are not only retrieved; their usefulness is evaluated and that evidence can influence future asset, loadout, context and execution decisions.
+The feedback loop is the distinctive EOKS concern: resources are not only retrieved; their usefulness and resulting state are evaluated, and that evidence can influence future asset, loadout, context and execution decisions.
 
 ## Prior-art mapping
 
