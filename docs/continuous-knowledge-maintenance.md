@@ -1,26 +1,26 @@
 # Continuous knowledge maintenance
 
-EOKS treats continuous knowledge update as a **workflow/lifecycle**, not as a new permanent agent role.
+EOKS treats continuous knowledge update as a **reconciliation lifecycle**, not as a new permanent agent role.
 
 The purpose is to keep durable knowledge and derived representations synchronized with authoritative changes while avoiding unnecessary full recomputation.
 
 ## Core principle
 
-> **Knowledge maintenance is a workflow that composes roles; it is not itself a core agent role.**
+> **Knowledge maintenance is reconciliation of derived state against authoritative state. It composes roles; it is not itself a core agent role.**
 
 A typical lifecycle is:
 
 ```text
-change / observation
+authoritative change / observation
         |
         v
-  detect impact
+  observe dependencies / detect impact
         |
         v
     retrieve evidence
         |
         v
-     transform
+     transform / derive
         |
         v
       validate
@@ -32,9 +32,14 @@ change / observation
    v         v
 update /   repair / investigate
 invalidate
+   |
+   v
+verify resulting state
+   |
+   +-------------> reconcile again when dependencies change
 ```
 
-The conductor coordinates this workflow, but should not become the knowledge store or perform every operation itself.
+The conductor coordinates this loop, but should not become the knowledge store or perform every operation itself. The authoritative source remains the reference state; graphs, indexes, summaries and caches are derived representations that can be updated, invalidated or rebuilt.
 
 ## Roles involved
 
@@ -58,7 +63,7 @@ Validation may be deterministic or agent-assisted. The required assurance depend
 
 ### Conductor
 
-Coordinates when to run maintenance, which evidence and resources to use, what dependencies are affected, and whether the workflow should update, invalidate, retry, investigate or escalate.
+Coordinates when to run maintenance, which evidence and resources to use, what dependencies are affected, and whether reconciliation should update, invalidate, retry, investigate or escalate.
 
 ### Reviewer
 
@@ -169,6 +174,7 @@ commit
   -> update structural representation
   -> validate consistency
   -> invalidate affected context caches
+  -> verify representation state
 ```
 
 ### Architecture change
@@ -180,6 +186,7 @@ merged architectural change
   -> propose updated invariant/rationale
   -> independent review + validation
   -> promote or reject
+  -> verify resulting canonical state
 ```
 
 ### Completed agent workflow
@@ -194,7 +201,7 @@ workflow outcome
 
 ## Relationship to EOKS planes
 
-Continuous maintenance crosses the existing planes rather than introducing a new one:
+Continuous maintenance crosses the existing planes rather than introducing a new one. It is a nested reconciliation loop:
 
 ```text
              CONTROL PLANE
@@ -208,6 +215,9 @@ Continuous maintenance crosses the existing planes rather than introducing a new
        ^           ^           |
        |           |           |
        +----- Evaluation ------+
+                   |
+                   v
+              reconcile
 ```
 
 The knowledge plane owns durable knowledge and derived representations. The context plane owns task-specific compilation and cache invalidation. The execution plane performs workflow actions. Evaluation supplies evidence for promotion and control decisions.
