@@ -3,30 +3,102 @@
 EOKS distinguishes **knowledge**, **workflow**, and **reasoning strategy**:
 
 - Knowledge answers: **What do I know?**
-- Workflow answers: **What should happen next?**
+- Workflow answers: **What actions and transitions are allowed?**
 - Reasoning strategy answers: **How should I approach this step?**
 
 A fourth useful distinction is **role**: **what responsibility is being performed?** Roles include conductor, retriever, transformer, planner, executor, reviewer and validator. A role is not necessarily a separate agent. See [Agent roles](agent-roles.md) for the canonical role taxonomy.
 
-Orchestration belongs at the **execution/control boundary**. It coordinates reliable execution, verification and escalation without becoming a second knowledge or context system.
+Orchestration belongs at the **execution/control boundary**. Its semantic purpose is reconciliation: repeatedly comparing desired and observed workload state, selecting an appropriate next action, and using evidence to decide whether the workload has converged. It coordinates reliable execution, verification and escalation without becoming a second knowledge or context system.
+
+## Control loops, workflows and plans
+
+A **control loop** is the semantic behavior of autonomous execution:
+
+```text
+desired state + policy
+        |
+        v
+  observe actual state
+        |
+        v
+     reconcile
+        |
+     decide/action
+        |
+        v
+     execute/verify
+        |
+        v
+   new observations
+        |
+        +-----------> reconcile
+```
+
+A **workflow** is the explicit structure that constrains which actions, responsibilities and transitions are available to that loop. A **plan** is a proposed path through those possibilities. The plan is an executable hypothesis and should be discarded or recomputed when observations, dependencies or policy invalidate its assumptions.
+
+This separation prevents the system from treating an old plan as authoritative state:
+
+```text
+intent / policy
+      |
+      v
+desired state
+      |
+      v
+conductor / reconciler
+      |
+      +--> planner -> proposed plan
+      |
+      +--> executor / tools -> actions
+      |
+      +--> retriever / providers -> evidence
+      |
+      +--> reviewer / validator -> evaluation
+      |
+      v
+actual state / outcome
+      |
+      +-----------> reconcile
+```
+
+The conductor therefore does not need to predict the whole future. Its high-leverage responsibility is to choose the next justified action from current state and evidence.
 
 ## Workflow and orchestration
 
 A workflow is an explicit sequence or graph of actions, decisions and validation steps. Each node requests the context it needs rather than carrying the whole project knowledge base.
 
 ```text
-workflow node -> role + context selection -> relevant evidence
-             -> reasoning strategy -> model + tools -> artifact/evidence
+workflow constraint
+       |
+       v
+role + context/loadout -> relevant evidence
+       |
+reasoning strategy -> model + tools -> artifact/evidence
+       |
+       v
+observation -> evaluation -> reconciliation
 ```
 
-The orchestrator/conductor owns workflow state and policy. Useful state includes workload and acceptance criteria, current step, selected context/loadout, assigned role, implementing agent/resource, artifacts/revisions, verification evidence, failures/retries, review findings, approval/escalation state and outcome.
+The conductor owns the durable coordination state and policy application. Useful state includes desired outcome and acceptance criteria, current observed state, current step, selected context/loadout, assigned role, implementing agent/resource, artifacts/revisions, verification evidence, failures/retries, review findings, approval/escalation state and outcome.
 
-A useful lifecycle is:
+A useful execution lifecycle is therefore better understood as repeated reconciliation than as a one-way state machine:
 
 ```text
-requested -> planned -> executing -> verifying -> reviewing -> completed
-                                  |                    |
-                                  +--> retry/repair    +--> escalate
+requested
+   |
+   v
+observe -> plan/propose -> execute -> verify/review
+   ^                                  |
+   |                                  v
+   +--------- reconcile <---- outcome/evidence
+                       |
+             +---------+---------+
+             |         |         |
+           retry     re-plan   escalate
+             |         |         |
+             +---------+---------+
+                       |
+                    complete
 ```
 
 The exact states are implementation details. The important property is that progress is evidence-driven and durable, not inferred from an agent's final message.
@@ -75,7 +147,7 @@ state  history  beliefs
           +------> update state / verify / re-plan
 ```
 
-This is useful even when no formal MDP/POMDP planner is present. The important separation is between **state**, **context**, **reasoning**, and **execution**. See [Ronen Brafman prior art](../research/prior-art/ronen-brafman-agent-architecture.md).
+This is useful even when no formal MDP/POMDP planner is present. The important separation is between **desired state, actual state, context, reasoning, and execution**. See [Ronen Brafman prior art](../research/prior-art/ronen-brafman-agent-architecture.md).
 
 The planner and conductor should remain conceptually distinct: a **planner proposes an executable hypothesis**, while the **conductor decides whether and how to execute it and reconciles execution against new observations**.
 
@@ -98,10 +170,10 @@ Real workloads contain actions that take time, have uncertain outcomes or can ov
 The runtime should therefore be able to represent durable activity state and observations:
 
 ```text
-plan
+reconciler
   -> start activity
   -> observe progress/outcome
-  -> update state
+  -> update actual state
   -> verify
   -> continue / retry / branch / re-plan / escalate
 ```
@@ -116,7 +188,7 @@ A practical software-engineering workload does not require an agent swarm:
 human goal
     |
     v
-conductor
+conductor / reconciler
     |
     +--> planner (optional)
     +--> executor
@@ -141,8 +213,10 @@ Parallelism is useful for isolated research questions, competing debugging hypot
 An autonomous coding loop should not end when the executor says it is complete:
 
 ```text
-plan -> implement -> deterministic checks -> independent review
-     -> behavioral validation -> accept / repair / escalate
+reconcile -> implement -> deterministic checks -> independent review
+          -> behavioral validation -> reconcile
+                                      |
+                              accept / repair / escalate
 ```
 
 The role distinction matters here:
@@ -193,13 +267,15 @@ Roles and reasoning strategies should not be conflated. For example, adversarial
 
 ## Workflow quality and assurance
 
-A mature workflow should expose checkpoints and evidence requirements rather than trusting agent confidence. Required assurance should be defined by policy and workload risk. Evaluation results can determine whether the workflow advances, retries, branches or escalates.
+A mature workflow should expose checkpoints and evidence requirements rather than trusting agent confidence. Required assurance should be defined by policy and workload risk. Evaluation results are observations for the control loop and can determine whether the workflow advances, retries, branches or escalates.
 
 Trustworthy-agent research also suggests evaluating more than task success: policy compliance, predictability, recovery behavior, auditability and human oversight effort can matter for consequential workloads.
 
 ## Continuous learning
 
 Completed runs produce decisions, tool traces, failures, corrections, test outcomes, review feedback and artifacts. These can produce candidate procedures or knowledge, but repeated behavior alone is insufficient for promotion. Outcome-linked evidence, scope and counterexamples matter.
+
+From a control-loop perspective, learning is another reconciliation process: candidate knowledge, Skills or policies are derived from observed outcomes and should be validated and governed before becoming durable state.
 
 See [Memory](memory.md) for the canonical learning/memory lifecycle.
 
@@ -208,8 +284,9 @@ See [Memory](memory.md) for the canonical learning/memory lifecycle.
 Agentic workflows suggest a higher-level programming abstraction: humans increasingly specify goals, constraints and process while the system expands them into tool calls and code changes.
 
 ```text
-human intent / policy -> workflow specification -> agent execution
-                     -> programming languages / tools -> software artifacts
+human intent / policy -> desired state -> workflow constraints
+                     -> agent execution -> programming languages / tools
+                     -> software artifacts -> observed state
 ```
 
 This does not imply that deterministic programming languages disappear. Natural language is better viewed as a control/specification layer.
@@ -220,7 +297,7 @@ Coding-agent products are execution substrates, not EOKS architecture. Their sub
 
 Conductor-style coding-agent plugins are useful implementation experiments for persistent task/session state, explicit workflow phases, session discovery and lightweight coordination. They should not automatically become EOKS dependencies.
 
-> **Adopt orchestration primitives, not orchestration ceremony.**
+> **Adopt reconciliation primitives, not orchestration ceremony.**
 
 The conductor should make state, policy, evidence and handoffs explicit. It should not create agents, summaries or coordination messages merely because a framework supports them.
 
@@ -231,15 +308,20 @@ The conductor is not the canonical home for project knowledge, repository struct
 ## Minimal implementation hypothesis
 
 ```text
-Task
+Task / desired outcome
+  |
+  v
+Reconcile current state
   |
   +-- Plan       (planner role, optional)
   +-- Execute    (executor role)
   +-- Review     (reviewer role, fresh context)
   +-- Verify     (validator role)
-  +-- Outcome
+  +-- Outcome / actual state
+  |
+  +---------------------> reconcile again if not converged
 ```
 
-Persist only state needed to resume and audit the run. Add parallel workers, richer routing, durable workflow engines or autonomous escalation only when observed workloads demonstrate that the simpler model is insufficient.
+Persist the state and evidence needed to resume and audit the loop. Plans, contexts, caches and agent sessions should be replaceable where practical. Add parallel workers, richer routing, durable workflow engines or autonomous escalation only when observed workloads demonstrate that the simpler model is insufficient.
 
 The high-leverage layer is deciding what should happen next, which resources and evidence are appropriate, and what evidence is sufficient to advance the workload—not creating the largest possible agent graph.
