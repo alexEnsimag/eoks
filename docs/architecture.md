@@ -1,338 +1,200 @@
 # EOKS architecture
 
-EOKS is best understood as a set of cooperating planes rather than a single agent. The architecture has become clearer through comparison with OKF, Graphify and GrapeRoot: **knowledge representation, context compilation and agent execution are distinct responsibilities, coordinated by a control plane**.
+EOKS is a **workload control loop**, not a monolithic agent runtime. Its purpose is to coordinate knowledge, context, reasoning and execution so automated work can become more reliable and more autonomous when evidence justifies it.
 
 ```text
-                         EOKS CONTROL PLANE
-              scheduling · policies · resource selection
-                  decisions · assurance · feedback
-                                  |
-        +-------------------------+-------------------------+
-        |                         |                         |
-  KNOWLEDGE PLANE          CONTEXT PLANE            EXECUTION PLANE
- durable knowledge         selection · assembly      workflows · runs
- representations           ranking · compression     models · agents
- evidence/history          provenance · budgets      tools · artifacts
-        |                         |                         |
-        +-------------------------+-------------------------+
-                                  |
-                         EVALUATION / OUTCOMES
-                evidence · quality · reliability · outcomes
-                                  |
-                           OBSERVABILITY
-          traces · cost · latency · provenance · uncertainty
+                         WORKLOAD
+                            |
+                          POLICY
+                            |
+                         CONDUCTOR
+                            |
+          +-----------------+-----------------+
+          |                 |                 |
+      KNOWLEDGE          CONTEXT          EXECUTION
+    representations     compilation       workflows/runs
+    + evidence          + budgets         models/tools/agents
+          |                 |                 |
+          +-----------------+-----------------+
+                            |
+                           RUN
+                            |
+                    OBSERVE / VERIFY
+                            |
+                         OUTCOME
+                            |
+                        EVALUATION
+                            |
+                   FEEDBACK / MAINTENANCE
+                            |
+                     next decision
 ```
 
-## Control plane
+## Architectural boundaries
 
-The control plane decides **what should happen next**. It can schedule tasks, select models, evidence providers and tools, impose policies, and react to evaluation signals.
+### Control
 
-The Kubernetes analogy is useful here: a desired task state can be reconciled against observed execution. AI workloads differ because reasoning quality is probabilistic, context is mutable, and resource requirements are semantic rather than only CPU/memory based.
+The **control plane** decides what should happen next. Its primary responsibility is the **conductor**, which reconciles workload requirements and policy against current workflow state, available capabilities and evaluation evidence.
 
-The current recommendation is **not** to build a monolithic agent framework. EOKS should be able to operate around existing agents and tools, including coding-agent CLIs, through adapters, hooks, MCP and other integration boundaries.
+The conductor may request or skip planning, select resources and execution modality, request or reuse evidence, trigger context compilation, schedule workflow steps, execute/verify/retry/branch/re-plan/stop/escalate, and initiate maintenance or promotion.
 
-### Minimal control model
+"Scheduler", "router" and "orchestrator" describe implementation functions of this responsibility; they are not separate EOKS architectural layers. The conductor owns workflow state and decisions, **not durable knowledge**.
 
-Rather than prematurely defining a large ontology, start with seven runtime primitives:
+### Knowledge
 
-| Primitive | Working meaning |
+The knowledge boundary contains durable project/system information and the representations used to preserve or derive it. EOKS does not require one canonical representation. Examples include human-maintained Markdown/ADR knowledge, portable structured knowledge, structural graphs, semantic indexes, timelines, runtime observations, episodic memory and procedural knowledge.
+
+> **Knowledge is not a graph. A graph is one representation of knowledge or evidence.**
+
+Knowledge maintenance is incremental and provenance-aware. Derived representations can be updated or invalidated from source changes rather than rebuilding everything after every event.
+
+See [Knowledge base](knowledge-base.md) and [Knowledge representations](knowledge-representations.md).
+
+### Context
+
+Context is the **task-specific compilation of evidence and knowledge for a reasoning step**. It is not a storage layer and is not equivalent to durable knowledge or execution state.
+
+Context compilation can retrieve, rank, transform, deduplicate, reconcile, order and budget information while preserving provenance and freshness. The resulting context should be inspectable and reproducible.
+
+The Context Workbench is an observability/control surface for this boundary, not a second context architecture.
+
+See [Context engineering](context.md) and [Context Workbench](context-workbench.md).
+
+### Execution
+
+Execution contains workflows and runs plus the resources that perform their steps. A **Run** is one attempt to execute a task or subtask under a particular state, policy, resource configuration and context.
+
+Roles describe responsibilities within a workflow; they do not require a particular agent topology. Planning, execution, review and validation can be separate sessions or phases of one agent, depending on workload requirements.
+
+See [Agent roles](agent-roles.md), [Agent workflows](agent-workflows.md) and [Deterministic execution](deterministic-execution.md).
+
+### Evaluation and outcomes
+
+Execution produces observations and an **Outcome**. Evaluation measures the outcome and relevant intermediate evidence, then feeds that evidence back into control.
+
+```text
+Run -> Outcome -> Evaluation -> Evidence -> Control decision
+```
+
+Evaluation is therefore a feedback mechanism, not another orchestration layer. Reliability signals should be calibrated against actual task outcomes before they drive automatic control decisions.
+
+See [Evaluation](evaluation.md).
+
+## Core distinctions
+
+| Concept | Meaning |
 |---|---|
-| Task | Bounded work with an objective, constraints and required assurance |
+| **Role** | Responsibility that must be performed in a workflow |
+| **Resource** | Capability or reusable thing available to perform work or provide information |
+| **Provider** | Mechanism that retrieves or derives information/evidence |
+| **Representation** | Form in which knowledge/evidence is stored or expressed |
+| **Context** | Task-specific information compiled for a reasoning step |
+| **Execution state** | What the workflow has observed, attempted, changed, verified or invalidated |
+| **Evidence** | Information supporting an assertion or decision |
+| **Reasoning strategy** | How a reasoning step approaches its problem |
+| **Workflow** | Temporal/dependency structure connecting responsibilities and actions |
+| **Policy** | Constraints and requirements governing control decisions |
+
+A resource may implement several roles. A role may be implemented by deterministic code, a tool, an agent, a model, a service or a human. A representation may be queried by multiple providers. These distinctions do not require new runtime primitives by themselves.
+
+## Seven provisional runtime primitives
+
+EOKS currently keeps seven runtime primitives:
+
+| Primitive | Meaning |
+|---|---|
+| Task | Bounded work with objective, constraints and required assurance |
 | Context | Information intentionally supplied to a reasoning step |
 | Run | One attempt to execute a task or subtask |
 | Decision | A control-plane choice about what happens next |
-| Policy | Constraints/requirements governing decisions |
+| Policy | Constraints and requirements governing decisions |
 | Evaluation | Measurement of intermediate or final quality/assurance |
 | Outcome | What actually happened, including artifacts and delayed results |
 
-Knowledge stores, models, tools, agents and analyzers are initially better treated as **resources/providers** than as a large EOKS ontology.
+Models, tools, agents, memories, graphs and analyzers remain resources/providers rather than ontology objects merely because a framework gives them names.
 
-A useful relationship model is:
+`Decision` remains an empirical question: implementation traces should determine whether it needs independent lifecycle/identity or can eventually be represented as run/event state.
 
-```text
-Task
-  |- requires -> Policy
-  |- produces -> Context
-  |- has -> Run
-  `- ends-in -> Outcome
+## Resource and evidence selection
 
-Context
-  |- derived-from -> Evidence/Knowledge
-  |- relevant-to -> Task
-  `- selected-by -> Decision
-
-Run
-  |- uses -> Context
-  |- invokes -> Model/Tool/Agent
-  |- produces -> Decision/Artifact
-  `- evaluated-by -> Evaluation
-
-Evaluation
-  |- measures -> Context / Decision / Run / Outcome
-  `- feeds -> Policy / future Context selection
-```
-
-This model is intentionally provisional. A real event trace should determine which entities and relationships need to become stable API concepts.
-
-## Knowledge plane
-
-The knowledge plane maintains durable project information and the representations used to navigate it. It should not assume that a single graph is the canonical form.
-
-Possible representations include:
-
-- hierarchical `CLAUDE.md` / Markdown as human-reviewable canonical project knowledge;
-- ADRs and cross-cutting architecture documents;
-- OKF bundles and other portable structured knowledge;
-- deterministic structural graphs and symbol indexes;
-- semantic indexes and concept clusters;
-- historical timelines and decision records;
-- runtime observations;
-- episodic and procedural memory;
-- provenance and lifecycle metadata.
-
-The key distinction is **canonical knowledge versus derived evidence providers**. Humans can maintain a concise mental model while machines maintain graphs/indexes/caches that make authoritative evidence easier to locate.
-
-> **Knowledge is not a graph. A graph is one representation of knowledge.**
-
-### OKF boundary
-
-OKF is best positioned as a knowledge representation/interchange layer rather than the EOKS runtime. It can provide durable, structured, provenance-aware knowledge for EOKS to consume. EOKS should not duplicate an OKF schema merely to make its runtime objects look similar, nor require every knowledge source to be converted to OKF before it can be used.
-
-The control-plane question is instead: **which knowledge/evidence representation should be consulted for this task, at what assurance level, and how should its provenance and freshness affect the decision?**
-
-See [Engineering knowledge as a multi-representation system](knowledge-representations.md), [Knowledge base and persistent project knowledge](knowledge-base.md), and the [knowledge/context/control-plane synthesis](../research/knowledge-context-control-plane.md).
-
-## Context plane
-
-The context plane constructs the information supplied to a reasoning step. It should support retrieval, ranking, compression, deduplication, conflict detection, provenance, progressive disclosure and explicit context budgets.
-
-The context plane is not a storage system. It is a **compiler from task + workflow + available evidence into task-specific model context**.
-
-A graph, semantic index or memory store should normally be queried by this plane rather than dumped into the model context.
-
-A useful mental model is a **context budget**, not a context window: every item has relevance, freshness, reliability, cost and interaction effects.
-
-### Context as an artifact
-
-Context should be inspectable and reproducible. Conceptually, a context block can carry:
+The conductor should select the **minimum sufficient capability**, not the most powerful available one.
 
 ```text
-content
-source/provenance
-revision
-freshness
-relevance
-supporting evidence
-relationships
-cost
+workload question
+      |
+evidence requirement
+      |
+existing evidence sufficient?
+   |             |
+  yes            no
+   |             |
+continue      candidate providers
+                  |
+          capability / policy filter
+                  |
+        reliability + cost + latency
+                  |
+           minimum sufficient
+                  |
+              collect
+                  |
+              evaluate
+                  |
+          sufficient? -> escalate
 ```
 
-YAML is useful for examples and debugging, but it is not the proposed EOKS canonical representation. The underlying abstraction is a typed object/graph that can have multiple serializations.
+This makes provider selection a control-plane decision without creating a separate routing architecture. The canonical capability model and evidence-selection semantics live in [Tool capability model](tool-capability-model.md).
 
-The context compiler should be able to explain:
+## Execution modality and procedure consolidation
 
-1. what was included;
-2. what was omitted;
-3. why an item was selected;
-4. what evidence supports it;
-5. which source revision it came from;
-6. how much it cost; and
-7. whether the resulting task succeeded.
+A workflow step should use the smallest execution modality that satisfies its requirements. Possible modalities include deterministic computation/tools, retrieval, specialized models, general LLM reasoning, multi-agent reasoning and human judgment. This is a **per-step control decision**, not a hierarchy of agent types.
 
-### Context Workbench
+When probabilistic reasoning resolves uncertainty and produces a sufficiently specified procedure, continuous maintenance may promote that procedure into a deterministic capability. Promotion requires validation and explicit dependency/assumption tracking; invalidation returns the workload to reasoning rather than silently executing stale behavior.
 
-The Context Workbench is the proposed interactive observability/control surface for this plane. Context should be represented conceptually as inspectable blocks or clusters rather than an opaque concatenated prompt. A block can represent knowledge, a decision, a dependency slice, raw evidence, a test result, a Git event, a procedure or working memory.
-
-The workbench should let the system automatically assemble context while allowing humans to inspect and, when useful, edit it:
-
-- include, exclude or pin blocks;
-- inspect provenance, freshness, confidence and token cost;
-- explain why a block was selected or omitted;
-- enforce a token/latency budget;
-- compare automatic and optimized context compositions;
-- view relationships among task, knowledge, code and evidence as a graph;
-- save successful context recipes;
-- feed manual edits and task outcomes back into future selection policies.
-
-This is **context observability and control**, not a requirement that humans manually curate every prompt. The default should remain automatic compilation, with intervention available when the system is uncertain or the user wants to inspect the decision.
-
-See [Context Workbench](context-workbench.md).
-
-## Context quality
-
-Context quality should be treated as multidimensional rather than reduced immediately to one scalar. Useful dimensions include relevance, coverage, redundancy, reliability, uncertainty, freshness, dependency completeness, provenance, contradiction risk, ordering/structure and token/latency cost.
-
-A promising experimental metric is **marginal context value**: the change in task quality associated with adding a block relative to its resource cost. This is a benchmark framing, not a claim that online task-quality probabilities can be estimated exactly.
-
-The objective is not maximum information. It is maximum useful evidence per unit of context and reasoning cost.
-
-## Context layers
-
-Context can be decomposed into layers so different workflow nodes can request different information budgets:
-
-```text
-L0 task
-L1 constraints
-L2 persistent knowledge
-L3 structural context
-L4 evidence
-L5 working memory
-L6 reasoning state
-```
-
-This is an information-architecture boundary, not a prescription for how the model must reason. If a layer distinction does not improve quality, cost or observability, it should not be imposed merely for structure.
-
-## Execution plane
-
-The execution plane runs workflows, reasoning strategies, agents and tools; obtains artifacts; modifies repositories; executes tests; and records outcomes.
-
-Workflows answer **what should happen next**. Reasoning strategies answer **how a reasoning step should approach its problem**. These are distinct from knowledge, which answers **what the system knows**.
-
-A **Run** is a useful EOKS-level unit for this plane: one attempt to execute a task or subtask under a particular context, policy and resource configuration. Runs can be nested when workflows create subtasks.
-
-This lets EOKS compare attempts without owning the internal implementation of every agent framework:
-
-```text
-Task #123
-  |
-  +-- Run #1 -> verification failed
-  |
-  `-- Run #2 -> tests passed -> accepted
-```
-
-See [Agent workflows and reasoning strategies](agent-workflows.md) and [Continuous knowledge maintenance](continuous-knowledge-maintenance.md).
+See [Deterministic execution](deterministic-execution.md) and [Continuous knowledge maintenance](continuous-knowledge-maintenance.md).
 
 ## Existing-agent integration
 
-EOKS should not require replacing the coding agent. A practical architecture is:
+EOKS should normally coordinate existing coding agents and tools rather than require a replacement runtime:
 
 ```text
                     EOKS
-                /          \
-       prepare/context     observe/evaluate
-             |                   |
-             v                   |
-        existing agent ----------+
+                 /       \
+       prepare/context   observe/evaluate
+             |                |
+             v                |
+        existing agent ------+
 ```
 
-GrapeRoot is useful prior art for this model: its launcher prepares a local graph/MCP environment, integrates with the agent and pre-injects context, while the existing coding agent remains the reasoning/execution environment. Its public launcher/tooling is open, while the core graph engine is proprietary, so EOKS should treat the architecture as observed prior art rather than assume access to its ranking internals.
+Adapters, hooks, MCP and similar boundaries can connect the control loop to an existing execution environment. The EOKS abstraction is the control loop around the workload, not ownership of the underlying agent implementation.
 
-## Evaluation and feedback
+## Design test
 
-Evaluation closes the loop. Results should feed back into model selection, context construction, memory/knowledge updates and task scheduling.
+Before adding a new architectural concept, ask:
 
-Confidence should be evidence-oriented rather than only model-reported. In particular:
+1. Is it genuinely a new runtime primitive, or can the seven existing primitives represent it?
+2. Is it a role, resource, provider, representation, context artifact, workflow construct or policy?
+3. Is it simply an implementation of the conductor's control responsibility?
+4. Does it need independent lifecycle and provenance?
+5. What experiment or run evidence demonstrates that the distinction improves quality, trust, velocity, cost, adaptability or observability?
 
-```text
-model confidence
-    != evidence strength
-    != context quality
-    != outcome quality
-```
+**Prefer consolidation until implementation or evaluation evidence demonstrates that a new abstraction is necessary.**
 
-Useful signals include:
+## Canonical document ownership
 
-- deterministic extraction versus LLM inference;
-- test and static-analysis results;
-- review outcomes;
-- runtime observations;
-- freshness and provenance of the underlying source;
-- context coverage and relevance;
-- historical success/failure for similar decisions.
+The architecture page defines boundaries; detailed behavior belongs in the following documents:
 
-Keep these dimensions visible instead of prematurely reducing them to one universal score. Policies can then specify which assurance signals are required for a particular task.
+- [Resource model](resource-model.md) — resource, asset, provider, representation and loadout semantics.
+- [Context engineering](context.md) — context acquisition and compilation.
+- [Knowledge base](knowledge-base.md) — durable knowledge lifecycle.
+- [Knowledge representations](knowledge-representations.md) — representation families.
+- [Memory](memory.md) — memory and behavioral learning.
+- [Agent roles](agent-roles.md) — workflow responsibilities.
+- [Agent workflows](agent-workflows.md) — workflow structure and reasoning strategies.
+- [Evaluation](evaluation.md) — evaluation, reliability evidence and calibration.
+- [Tool capability model](tool-capability-model.md) — provider capabilities, evidence requirements and selection.
+- [Continuous knowledge maintenance](continuous-knowledge-maintenance.md) — incremental maintenance and procedure consolidation.
+- [Deterministic execution](deterministic-execution.md) — deterministic execution as a modality.
+- [Software analysis](software-analysis.md) — deterministic software evidence and analyzer escalation.
 
-A high-assurance policy might require authoritative evidence, verification and a minimum context-coverage level, with human escalation when verification fails. Numeric thresholds should be calibrated against actual outcomes before they drive automatic stop/retry/branch/model-switch decisions.
-
-## Continuous knowledge updates
-
-Knowledge maintenance should be incremental, like a modern build system rather than a full rebuild after every change.
-
-```text
-code/doc/event change
-        |
-   impact detection
-        |
-  +-----+-----+-----+
-  |           |     |
- graph     semantic  knowledge
- update     update  candidate
-  |           |       |
-  +-----+-----+-------+
-        |
- context-cache invalidation
-```
-
-Cheap deterministic updates should happen frequently. LLM-heavy reasoning should be reserved for higher-signal events such as merged PRs, incidents, architecture changes or completed workflows.
-
-Hooks are event boundaries into this lifecycle. They should not imply that the entire knowledge system is recomputed after every tool call.
-
-For the role composition and promotion/invalidation model behind this lifecycle, see [Continuous knowledge maintenance](continuous-knowledge-maintenance.md).
-
-## Context invalidation
-
-Context caches and derived context blocks must be revision-aware. A useful dependency is:
-
-```text
-source revision
-      |
-knowledge/evidence representation
-      |
-context block
-      |
-compiled context
-```
-
-When an authoritative source changes, affected derived representations and cached context should be invalidated or marked stale according to their dependency scope. This is another reason provenance and freshness belong in the context plane rather than being added only as UI metadata.
-
-## Subagents
-
-Subagents provide isolation but can also create repeated repository-discovery cost. EOKS should distinguish **isolated reasoning** from **isolated knowledge**.
-
-Where available, a subagent should receive a context contract containing the task, known facts, relevant nodes, scope and unresolved questions. The subagent remains free to retrieve missing evidence, but does not have to reconstruct the entire repository from zero.
-
-This should be benchmarked rather than assumed to improve outcomes.
-
-## Compaction and session boundaries
-
-Conversation compaction is one mechanism for continuing a long session; it is not equivalent to persistent knowledge or task-specific context compilation. EOKS should make it possible to clear or replace a conversation while reconstructing the minimum sufficient context from durable knowledge and authoritative evidence.
-
-## Model routing
-
-Model routing is orthogonal to context engineering. Routing chooses a model; context compilation chooses the information supplied to that model.
-
-A useful control flow is:
-
-```text
-task
- |
-context compilation
- |
-optimized context
- |
-capability / complexity policy
- |
-model selection
- |
-model
-```
-
-This allows context optimization to be evaluated independently before introducing routing as a cost optimization. A router cannot eliminate waste caused by a strong model repeatedly rediscovering the same repository.
-
-## Observability
-
-Observability should expose not only latency and token counts, but **why the system made information and execution decisions**:
-
-- retrieved and omitted context;
-- context blocks and their relationships;
-- evidence providers queried;
-- model/reasoning strategy selected;
-- tools invoked;
-- evidence considered;
-- evaluation outcome;
-- confidence and provenance signals;
-- knowledge updates and invalidations;
-- manual context edits;
-- context policy/version used.
-
-The goal is to make observability a **sensor layer for the control loop**, not merely a dashboard.
+Research and prior-art documents remain exploratory and should not create competing normative definitions.
