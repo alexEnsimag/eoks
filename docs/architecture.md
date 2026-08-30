@@ -2,12 +2,20 @@
 
 EOKS is a **workload control loop**, not a monolithic agent runtime. Its purpose is to coordinate knowledge, context, reasoning and execution so automated work can become more reliable and more autonomous when evidence justifies it.
 
+The central abstraction is **reconciliation**: establish the desired outcome and policy, observe current state and evidence, choose an appropriate action, execute it, evaluate the result, and reconcile again until acceptance criteria are satisfied or escalation is required. Plans are action proposals derived from state; they are disposable when observations invalidate their assumptions.
+
 ```text
-                         WORKLOAD
+                         INTENT
                             |
-                          POLICY
+                    desired outcome/state
                             |
-                         CONDUCTOR
+                       POLICY
+                            |
+                            v
+                 +---------------------+
+                 |      CONDUCTOR      |
+                 | reconciler/controller|
+                 +----------+----------+
                             |
           +-----------------+-----------------+
           |                 |                 |
@@ -25,28 +33,32 @@ EOKS is a **workload control loop**, not a monolithic agent runtime. Its purpose
                             |
                         EVALUATION
                             |
-                   FEEDBACK / MAINTENANCE
+                   ACTUAL WORKLOAD STATE
                             |
-                     next decision
+                       RECONCILIATION
+                            |
+                  next decision / action
 ```
 
 ## Architectural boundaries
 
 ### Control
 
-The **control plane** decides what should happen next. Its primary responsibility is the **conductor**, which reconciles workload requirements and policy against current workflow state, available capabilities and evaluation evidence.
+The **control plane** is the reconciliation mechanism for a workload. Its primary responsibility is the **conductor**, which compares workload requirements and policy with current state, available capabilities and evaluation evidence, then chooses what should happen next.
 
-The conductor may request or skip planning, select resources and execution modality, request or reuse evidence, trigger context compilation, schedule workflow steps, execute/verify/retry/branch/re-plan/stop/escalate, and initiate maintenance or promotion.
+The conductor may derive or revise a plan, select resources and execution modality, request or reuse evidence, trigger context compilation, schedule workflow steps, execute/verify/retry/branch/re-plan/stop/escalate, and initiate maintenance or promotion.
 
-"Scheduler", "router" and "orchestrator" describe implementation functions of this responsibility; they are not separate EOKS architectural layers. The conductor owns workflow state and decisions, **not durable knowledge**.
+"Scheduler", "router" and "orchestrator" are implementation functions of this responsibility, not separate EOKS architectural layers. The conductor owns workflow state and decisions, **not durable knowledge**.
+
+A plan is an **action proposal**, not authoritative workload state. When observations invalidate assumptions, the conductor should discard or revise the plan and reconcile again from current state.
 
 ### Knowledge
 
-The knowledge boundary contains durable project/system information and the representations used to preserve or derive it. EOKS does not require one canonical representation. Examples include human-maintained Markdown/ADR knowledge, portable structured knowledge, structural graphs, semantic indexes, timelines, runtime observations, episodic memory and procedural knowledge.
+The knowledge boundary contains durable project/system information and representations used to preserve or derive it. EOKS does not require one canonical representation. Graphs, indexes, timelines, observations, episodic memory and procedural knowledge are representations/resources, not automatically new ontology objects.
 
 > **Knowledge is not a graph. A graph is one representation of knowledge or evidence.**
 
-Knowledge maintenance is incremental and provenance-aware. Derived representations can be updated or invalidated from source changes rather than rebuilding everything after every event.
+Knowledge maintenance is itself a reconciliation loop: authoritative sources are observed, derived representations are checked for freshness/validity, and stale or invalid representations are updated, invalidated or rebuilt.
 
 See [Knowledge base](knowledge-base.md) and [Knowledge representations](knowledge-representations.md).
 
@@ -56,29 +68,50 @@ Context is the **task-specific compilation of evidence and knowledge for a reaso
 
 Context compilation can retrieve, rank, transform, deduplicate, reconcile, order and budget information while preserving provenance and freshness. The resulting context should be inspectable and reproducible.
 
-The Context Workbench is an observability/control surface for this boundary, not a second context architecture.
-
 See [Context engineering](context.md) and [Context Workbench](context-workbench.md).
 
 ### Execution
 
 Execution contains workflows and runs plus the resources that perform their steps. A **Run** is one attempt to execute a task or subtask under a particular state, policy, resource configuration and context.
 
-Roles describe responsibilities within a workflow; they do not require a particular agent topology. Planning, execution, review and validation can be separate sessions or phases of one agent, depending on workload requirements.
+Roles describe responsibilities within a workflow; they do not require a particular agent topology. Planning, execution, review and validation can be separate sessions or phases of one agent.
+
+Execution is an actuator of the control loop. A failed or incomplete run is an observation that can cause reconciliation, not necessarily a terminal workflow failure.
 
 See [Agent roles](agent-roles.md), [Agent workflows](agent-workflows.md) and [Deterministic execution](deterministic-execution.md).
 
 ### Evaluation and outcomes
 
-Execution produces observations and an **Outcome**. Evaluation measures the outcome and relevant intermediate evidence, then feeds that evidence back into control.
+Execution produces observations and an **Outcome**. Evaluation measures the outcome and relevant intermediate evidence, then feeds that evidence back into reconciliation.
 
 ```text
-Run -> Outcome -> Evaluation -> Evidence -> Control decision
+Run -> Outcome -> Evaluation -> Evidence -> Actual state -> Reconcile
 ```
 
-Evaluation is therefore a feedback mechanism, not another orchestration layer. Reliability signals should be calibrated against actual task outcomes before they drive automatic control decisions.
+Evaluation is a feedback mechanism, not another orchestration layer. Reliability signals should be calibrated against actual task outcomes before they drive automatic control decisions.
 
 See [Evaluation](evaluation.md).
+
+## Control-loop semantics
+
+The minimal loop is:
+
+```text
+1. establish desired outcome/state from intent and policy
+2. observe current workload state and available evidence/capabilities
+3. identify the relevant gap or uncertainty
+4. choose the minimum sufficient action
+5. execute the action
+6. observe and evaluate the result
+7. update actual state/evidence
+8. reconcile again, or stop when acceptance criteria are satisfied
+```
+
+The loop does **not** imply that every step needs an LLM. Deterministic tools, retrieval, specialized models, general reasoning, multi-agent workflows and humans can all be resources used by a controller. The controller chooses the modality required by current evidence and risk.
+
+A useful property is **reconstructability**: important workload state, evidence, decisions and artifacts should be durable enough that a new controller or execution attempt can resume without hidden agent memory.
+
+Control loops can be nested. A workload loop may depend on knowledge-maintenance loops, while learning/policy improvement can be a slower loop over accumulated outcomes.
 
 ## Core distinctions
 
@@ -95,7 +128,7 @@ See [Evaluation](evaluation.md).
 | **Workflow** | Temporal/dependency structure connecting responsibilities and actions |
 | **Policy** | Constraints and requirements governing control decisions |
 
-A resource may implement several roles. A role may be implemented by deterministic code, a tool, an agent, a model, a service or a human. A representation may be queried by multiple providers. These distinctions do not require new runtime primitives by themselves.
+A resource may implement several roles. A role may be implemented by deterministic code, a tool, an agent, a model, a service or a human. These distinctions do not require new runtime primitives by themselves.
 
 ## Seven provisional runtime primitives
 
@@ -111,19 +144,15 @@ EOKS currently keeps seven runtime primitives:
 | Evaluation | Measurement of intermediate or final quality/assurance |
 | Outcome | What actually happened, including artifacts and delayed results |
 
-Models, tools, agents, memories, graphs and analyzers remain resources/providers rather than ontology objects merely because a framework gives them names.
-
-`Decision` remains an empirical question: implementation traces should determine whether it needs independent lifecycle/identity or can eventually be represented as run/event state.
+Models, tools, agents, memories, graphs and analyzers remain resources/providers rather than ontology objects merely because a framework gives them names. `Decision` remains empirical: implementation traces should determine whether it needs independent lifecycle/identity or can eventually be represented as run/event state.
 
 ## Resource and evidence selection
 
-The conductor should select the **minimum sufficient capability**, not the most powerful available one.
+The conductor should select the **minimum sufficient capability**, not the most powerful available.
 
 ```text
-workload question
-      |
-evidence requirement
-      |
+workload question -> evidence requirement
+       |
 existing evidence sufficient?
    |             |
   yes            no
@@ -136,14 +165,15 @@ continue      candidate providers
                   |
            minimum sufficient
                   |
-              collect
-                  |
-              evaluate
-                  |
-          sufficient? -> escalate
+              collect -> evaluate
+                         |
+                    sufficient?
+                     /       \
+                   yes        no
+                   stop      escalate
 ```
 
-This makes provider selection a control-plane decision without creating a separate routing architecture. The canonical capability model and evidence-selection semantics live in [Tool capability model](tool-capability-model.md).
+This makes provider selection a control-plane decision without creating a separate routing architecture. The canonical capability model lives in [Tool capability model](tool-capability-model.md).
 
 ## Execution modality and procedure consolidation
 
@@ -155,18 +185,7 @@ See [Deterministic execution](deterministic-execution.md) and [Continuous knowle
 
 ## Existing-agent integration
 
-EOKS should normally coordinate existing coding agents and tools rather than require a replacement runtime:
-
-```text
-                    EOKS
-                 /       \
-       prepare/context   observe/evaluate
-             |                |
-             v                |
-        existing agent ------+
-```
-
-Adapters, hooks, MCP and similar boundaries can connect the control loop to an existing execution environment. The EOKS abstraction is the control loop around the workload, not ownership of the underlying agent implementation.
+EOKS should normally coordinate existing coding agents and tools rather than require a replacement runtime. Adapters, hooks, MCP and similar boundaries can connect the control loop to an existing execution environment. The EOKS abstraction is the control loop around the workload, not ownership of the underlying agent implementation.
 
 ## Design test
 
@@ -175,10 +194,18 @@ Before adding a new architectural concept, ask:
 1. Is it genuinely a new runtime primitive, or can the seven existing primitives represent it?
 2. Is it a role, resource, provider, representation, context artifact, workflow construct or policy?
 3. Is it simply an implementation of the conductor's control responsibility?
-4. Does it need independent lifecycle and provenance?
-5. What experiment or run evidence demonstrates that the distinction improves quality, trust, velocity, cost, adaptability or observability?
+4. What state does it observe, and what state can it change?
+5. What makes its output verifiable, invalidatable or rebuildable?
+6. Does it need independent lifecycle and provenance?
+7. What experiment or run evidence demonstrates that the distinction improves quality, trust, velocity, cost, adaptability or observability?
 
 **Prefer consolidation until implementation or evaluation evidence demonstrates that a new abstraction is necessary.**
+
+## Cards as an open hypothesis
+
+A **Card** may be useful as an inspectable representation of workload state, intent, evidence and verification criteria, analogous in spirit to a resource's desired specification plus observed status. It is **not currently an EOKS runtime primitive**.
+
+Before introducing Cards into the ontology, test whether existing Task, Policy, Run, Decision, Evaluation and Outcome state already provides the necessary semantics. If Cards prove useful, initially treat them as a representation/protocol/UI over that state rather than a competing source of truth.
 
 ## Canonical document ownership
 
