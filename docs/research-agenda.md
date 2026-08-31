@@ -229,7 +229,7 @@ Avoid expanding the ontology until a concrete workload demonstrates a missing pr
 
 ## 19. Benchmark methodology
 
-For context and agent infrastructure experiments, use the canonical methodology in [Context evaluation and benchmarking](../research/context-evaluation.md) and maintain the [community/academic evidence ledger](../research/community-bottlenecks.md).
+For context and agent infrastructure experiments, use the canonical methodology in [Context evaluation and benchmarking](../research/context-evaluation.md) and maintain the [community/academic evidence ledger](../research/community-evidence-bottlenecks.md).
 
 At minimum report:
 
