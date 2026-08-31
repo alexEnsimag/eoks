@@ -2,9 +2,9 @@
 
 Context engineering is the discipline of constructing the information available to a model for a specific reasoning step.
 
-> **Knowledge is persistent; context is compiled for a task.**
+> **Knowledge is persistent; the working set is workload-specific; context is compiled for a task.**
 
-The concrete EOKS operation is **context compilation**: selecting, transforming, ordering, compressing and budgeting information for a particular reasoning step. See [Resource model](resource-model.md) for the vocabulary boundary between resources, assets, providers, loadouts and context.
+The concrete EOKS operation is **context compilation**: selecting, transforming, ordering, compressing and budgeting information for a particular reasoning step. See [Resource model](resource-model.md) for the vocabulary boundary between resources, assets, providers, loadouts, working sets and context.
 
 ## Context is not storage
 
@@ -15,6 +15,10 @@ knowledge / evidence / execution-state providers
        |
 task + workflow + policy
        |
+loadout / eligible resources
+       |
+workload working set
+       |
 context acquisition + selection
        |
 context compiler
@@ -24,21 +28,91 @@ model
 
 The model should normally receive the evidence it needs, not the internal graph, index or storage system itself.
 
-## Context, acquisition and execution state
+## Working set, context and execution state
 
 Three concepts must remain distinct:
 
-**Context** — information presented to the model for the current reasoning step.
+**Working set** — the workload's currently useful subset of eligible resources/evidence.
 
-**Context acquisition** — the work required to discover or derive that information: search, grep/read exploration, retrieval, graph queries, LSP, analyzers, repository indexes or sub-agents.
+**Context** — information presented to the model for the current reasoning step, materialized from the working set.
 
 **Execution state** — durable workflow state describing what has already been observed, established, changed, attempted, verified or invalidated.
 
+**Context acquisition** is the work required to discover or derive information for the working set: search, grep/read exploration, retrieval, graph queries, LSP, analyzers, repository indexes or sub-agents.
+
 ```text
-acquire information -> working context -> reason/act -> update execution state
+eligible resources
+       |
+  working set
+       |
+context acquisition/compilation
+       |
+working context -> reason/act -> update execution state
+       |                              |
+       +------------------------------+
 ```
 
+The working set is semantic. A working-set item can be represented as exact source, a structural slice, a verified fact, a summary or a pointer to authoritative evidence. The model context is the current materialization chosen for the reasoning step.
+
+### Context miss
+
+A **context miss** occurs when required evidence is absent from the current working set and must be acquired.
+
+A miss is not necessarily a failure. It is a useful control signal:
+
+```text
+context miss
+    |
+what was requested?
+    |
++---+----------------+
+|                    |
+one-off             recurring
+|                    |
+fetch               consider
+                    prefetch / pin / promote /
+                    change representation
+```
+
+Repeated misses, excessive acquisition/eviction, repeated re-expansion or low progress despite high context churn may indicate **context thrashing**: the workload spends disproportionate effort reconstructing information instead of making progress.
+
+Thrashing is an observable workload condition, not a new runtime primitive.
+
+## Context as a managed cache
+
+Computer architecture provides a useful lens: model context is a fast, capacity-constrained materialization of the workload's working set. The analogy should generate hypotheses, not dictate implementation.
+
+Candidate techniques include:
+
+- temporal, structural, semantic and workflow locality;
+- demand retrieval;
+- prefetching;
+- cache admission;
+- pinning critical evidence;
+- LRU/LFU/relevance-aware replacement baselines;
+- evidence clustering and batching;
+- representation compression/demotion;
+- navigation-resolution caching;
+- asynchronous acquisition;
+- context-thrashing detection.
+
+The objective is not maximum context utilization, minimum tokens or maximum cache hit rate in isolation. The objective is **useful verified work per unit of total reasoning cost**.
+
+## Context, acquisition and exploration
+
 Raw exploration is not automatically waste. An agent can use tools to build semantic understanding. EOKS therefore treats retrieval, graphs and other infrastructure as competing interventions rather than assuming they should replace exploration.
+
+The systems lens sharpens this distinction:
+
+- **cache hit** — needed evidence is already resident in the working set;
+- **context miss** — needed evidence must be acquired;
+- **prefetch** — evidence is acquired based on a prediction of future need;
+- **admission** — acquired evidence is considered for retention in the working set;
+- **eviction** — evidence is removed or demoted when it is no longer worth resident capacity;
+- **pinning** — evidence judged critical is protected from ordinary eviction;
+- **thrashing** — acquisition/eviction churn overwhelms useful progress.
+
+These are conceptual labels for candidate policies, not mandatory EOKS components.
 
 ## Navigation versus knowledge
 
@@ -48,6 +122,8 @@ Two related but different goals are useful:
 2. **Knowledge** — preserve information that does not otherwise exist in authoritative sources, such as rationale, invariants, trade-offs and lessons learned.
 
 A code graph is often excellent navigation evidence. It does not automatically become semantic truth. Conversely, a durable invariant may need an explicit knowledge representation even when the relevant source files are easy to find.
+
+Navigation/resolution itself can be cached. A workload should be able to request a logical evidence requirement without knowing which physical provider or storage system will satisfy it.
 
 ## Evidence providers
 
@@ -63,6 +139,8 @@ Task: change authentication
         +--> verification       -> tests/static checks
         |
         v
+  task working set
+        |
   task-specific context
 ```
 
@@ -79,11 +157,13 @@ These resources can share the generic governance/lifecycle abstraction described
 ```text
 all reusable resources
           |
- governance: access / ownership / scope / lifecycle
+ governance: access / ownership / scope / lifecycle / policy
           |
        agent/task loadout
           |
- relevance / applicability / value / budget
+ working-set estimation
+          |
+ relevance / applicability / value / locality / budget
           |
     context acquisition
           |
@@ -96,6 +176,45 @@ A **loadout** is the workload-scoped set of assets an agent/task is allowed and 
 
 A resource can be relevant but inaccessible, out of scope, stale, contradictory, unverified or too expensive for the task.
 
+## Memory hierarchy
+
+EOKS should treat memory/resource hierarchy as a principle rather than a fixed L1/L2/L3 architecture. Different representations may trade off:
+
+- latency;
+- capacity;
+- persistence;
+- freshness;
+- authority;
+- fidelity;
+- retrieval cost;
+- transformation cost.
+
+The controller should materialize the least expensive representation sufficient for the current requirement while preserving provenance and authority.
+
+Keep the **semantic/context cache** distinct from the model-serving **KV cache**. The former contains reusable information/evidence and navigation resolutions managed around the workload; the latter is inference state used to avoid recomputation. EOKS may influence KV-cache reuse indirectly through stable context structure, but they are not the same memory abstraction.
+
+## Locality
+
+EOKS can test several forms of locality:
+
+### Temporal locality
+
+Recently useful evidence is more likely to be reused.
+
+### Structural locality
+
+If a workload touches one symbol/file/package, related symbols, callers, dependencies or tests may be more likely to be needed.
+
+### Semantic locality
+
+If reasoning concerns an invariant or decision, related evidence is more likely to be useful.
+
+### Workflow locality
+
+The outcome of one step can predict the evidence required by the next step.
+
+Locality provides a principled basis for prefetching, clustering, pinning and retention decisions. It must be measured rather than assumed.
+
 ## Proactive, reactive and hybrid delivery
 
 Context engines can differ in when they make information available.
@@ -103,13 +222,13 @@ Context engines can differ in when they make information available.
 ### Proactive
 
 ```text
-Task -> retrieval/packing -> context -> model
+Task -> retrieval/packing -> working set/context -> model
 ```
 
 ### Reactive
 
 ```text
-Task -> model -> query -> evidence -> model -> query ...
+Task -> model -> query/context miss -> evidence -> model -> query ...
 ```
 
 ### Hybrid
@@ -124,14 +243,25 @@ compact bootstrap
       +--> repository-context queries
       |
       v
-minimum sufficient task context
+working set -> minimum sufficient task context
 ```
 
-EOKS should not assume one delivery mode is universally superior. Compare proactive, reactive and hybrid strategies by task outcome, evidence coverage, discovery work, context growth, latency and cost.
+The OS analogy suggests a further distinction: proactive acquisition is a **prefetch hypothesis**. Its value depends on prediction accuracy and acquisition cost. EOKS should not assume proactive delivery is superior to reactive exploration.
+
+Compare proactive, reactive and hybrid strategies by task outcome, evidence coverage, discovery work, context growth, miss rate, churn, latency and cost.
 
 ## Context quality
 
-Context quality should consider relevance, correctness, freshness, completeness, redundancy, contradiction risk, provenance, ordering, dependency completeness, acquisition cost and token/latency cost. The goal is not maximum information but maximum useful evidence per unit of total reasoning cost.
+Context quality should consider relevance, correctness, freshness, completeness, redundancy, contradiction risk, provenance, ordering, dependency completeness, acquisition cost and token/latency cost. Add working-set health measures where possible:
+
+- context/working-set hit and miss rate;
+- repeated retrievals;
+- eviction/reacquisition churn;
+- pinned/resident critical evidence;
+- acquisition-to-progress ratio;
+- stale or contradicted resident evidence.
+
+The goal is not maximum information but maximum useful evidence per unit of total reasoning cost.
 
 Context should be represented conceptually as **inspectable blocks** rather than an opaque prompt. Blocks can represent constraints, knowledge, decisions, structural evidence, tests, runtime observations, history or working hypotheses.
 
@@ -194,7 +324,7 @@ tool execution / evidence requests
       |
 observe outcome
       |
-update execution state
+update execution state / working set
       |
 finalize / persist candidates
 ```
@@ -229,10 +359,10 @@ rather than treating context engineering as a model-independent optimization.
 
 ## Relationship to compaction and model routing
 
-Conversation compaction preserves useful information inside a continuing conversation. Context compilation reconstructs task-specific context from durable knowledge and authoritative evidence. Execution state records what the workflow has already established. These are related but different operations.
+Conversation compaction preserves useful information inside a continuing conversation. Context compilation reconstructs task-specific context from durable knowledge and authoritative evidence. Execution state records what the workflow has already established. Working-set management decides what should remain readily available across reasoning steps. These are related but different operations.
 
 Model routing chooses **which model** to use; context compilation chooses **what information** to give it. Both should be evaluated independently before optimizing them jointly.
 
 ## Evaluation boundary
 
-Context interventions must be evaluated on end-to-end task outcomes, not only retrieval or token metrics. The canonical methodology and benchmark matrix live in [Context evaluation and benchmarking](../research/context-evaluation.md).
+Context interventions must be evaluated on end-to-end task outcomes, not only retrieval, cache or token metrics. The canonical methodology and benchmark matrix live in [Context evaluation and benchmarking](../research/context-evaluation.md).
