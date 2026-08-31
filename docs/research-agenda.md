@@ -6,7 +6,7 @@ A central rule is:
 
 > **Treat every infrastructure capability as an intervention whose value depends on the model, workload, repository, budget and baseline.**
 
-The goal is not to prove that graphs, retrieval, memory, context management or multi-agent workflows are good. The goal is to discover **what improves engineering outcomes, when, by how much, at what cost, and with which failure modes**.
+The goal is not to prove that graphs, retrieval, memory, context management, computer-systems techniques or multi-agent workflows are good. The goal is to discover **what improves engineering outcomes, when, by how much, at what cost, and with which failure modes**.
 
 The evidence intake that currently informs prioritization is [Community and academic evidence on agent bottlenecks](../research/community-evidence-bottlenecks.md). It records effect sizes, experimental settings, community failure reports, contradictory evidence and next tests. It is deliberately non-normative.
 
@@ -229,7 +229,7 @@ Avoid expanding the ontology until a concrete workload demonstrates a missing pr
 
 ## 19. Benchmark methodology
 
-For context and agent infrastructure experiments, use the canonical methodology in [Context evaluation and benchmarking](../research/context-evaluation.md) and maintain the [community/academic evidence ledger](../research/community-evidence-bottlenecks.md).
+For context and agent infrastructure experiments, use the canonical methodology in [Context evaluation and benchmarking](../research/context-evaluation.md) and maintain the [community/academic evidence ledger](../research/community-bottlenecks.md).
 
 At minimum report:
 
@@ -275,7 +275,104 @@ Cross-cutting variables include model capability, repository maturity, task ambi
 
 The bottleneck map is a **research hypothesis**. EOKS should update it as controlled experiments reveal which stage actually limits a workload.
 
-## 21. What EOKS should not assume
+## 21. Computer-systems optimization transfer
+
+Operating systems and computer architecture provide a particularly rich source of established optimization techniques. EOKS should systematically test whether these techniques transfer to probabilistic reasoning workloads rather than rediscovering them ad hoc.
+
+The canonical mapping and detailed rationale live in [OS and computer-architecture lens](../research/prior-art/computer-systems-architecture.md).
+
+### Working-set management
+
+Test whether explicit working-set estimation improves context quality/cost over fixed context budgets. Measure working-set hit/miss rates, context churn, task progress and total cost.
+
+### Locality
+
+Test temporal, structural, semantic and workflow locality. Determine whether access history predicts future evidence needs well enough to support retention, clustering or prefetching.
+
+### Demand retrieval and context misses
+
+Treat absent required evidence as a measurable context miss. Test whether miss-driven retrieval reduces upfront context cost without causing excessive latency or thrashing.
+
+### Prefetching
+
+Compare reactive retrieval against proactive prediction. Include the cost of false-positive prefetches; unlike hardware cache prefetch, evidence acquisition can require expensive model/tool calls.
+
+### Admission and replacement
+
+Compare simple baselines such as LRU/LFU with relevance-, authority-, freshness-, dependency- and retrieval-cost-aware policies. Establish simple baselines before learned policies.
+
+### Pinning
+
+Test whether pinning task objectives, safety/policy constraints, active invariants and critical evidence prevents harmful eviction without causing resident-context pollution.
+
+### Evidence clustering and I/O optimization
+
+Test batching/coalescing of structurally or semantically related retrievals, asynchronous acquisition and ordering for both latency and reasoning coherence.
+
+### Compression and representation demotion
+
+Test whether less-active evidence can be represented as summaries, structural slices or pointers while retaining enough authority/fidelity to recover the source when needed.
+
+### Context thrashing
+
+Detect repeated acquisition/eviction/re-expansion cycles and test control responses such as changing budget, pinning, representation, retrieval policy or task decomposition.
+
+### Scheduling
+
+Test priority, fairness, aging, work stealing, load balancing and deterministic-first scheduling across reasoning, retrieval, verification, testing, review and maintenance. Compare expensive probabilistic execution against the cheapest deterministic capability that can satisfy the requirement.
+
+### Resource protection and shared state
+
+Test workload-scoped resource namespaces, quotas, versioned state, invalidation and copy-on-write-like derived state. Measure stale-state failures and governance overhead rather than assuming one consistency model.
+
+### Navigation-resolution caching
+
+Test caching of logical-resource/provider resolution separately from caching the evidence itself. This may reduce repeated navigation work without retaining large evidence blocks.
+
+### Async/event-driven maintenance
+
+Test whether resource maintenance and reconciliation can be triggered by meaningful events rather than continuous polling, while preserving freshness and recovery guarantees.
+
+## 22. Systems optimization benchmark matrix
+
+The systems-optimization experiments should use the existing EOKS benchmark dimensions:
+
+```text
+model × repository × task × intervention × budget
+```
+
+Add systems-specific measurements:
+
+- working-set size and composition;
+- context miss rate;
+- prefetch precision and recall where measurable;
+- admission/eviction counts;
+- resident critical evidence;
+- context churn;
+- repeated retrievals;
+- navigation-resolution cache hits;
+- acquisition batching/coalescing;
+- representation promotion/demotion;
+- thrashing indicators;
+- scheduling queue time and modality choice;
+- deterministic execution ratio and amortization.
+
+Always evaluate against end-to-end correctness, completeness, verification and cost. A better cache statistic is not a successful EOKS result if the engineering outcome does not improve.
+
+## 23. Analogy boundaries and inference cache
+
+Keep the following distinctions explicit in experiments:
+
+- semantic/context cache vs model-serving KV cache;
+- working set vs context window;
+- durable knowledge vs resident evidence;
+- provider resolution vs evidence retrieval;
+- deterministic capability vs agent role;
+- workload control loop vs execution mechanism.
+
+The OS/Kubernetes analogies are useful because they expose known optimization and control techniques. They should not become assumptions that EOKS must reproduce a Unix process model, fixed memory tiers, a particular cache algorithm or a particular Kubernetes topology.
+
+## 24. What EOKS should not assume
 
 The research agenda deliberately does **not** assume that:
 
@@ -289,7 +386,11 @@ The research agenda deliberately does **not** assume that:
 - planning is a bottleneck for every capable model;
 - a popular project is effective outside its demonstrated workload;
 - a reported token reduction is a productivity improvement unless task quality is preserved;
-- benchmark Pass@1 alone measures deployment usefulness.
+- benchmark Pass@1 alone measures deployment usefulness;
+- classical cache policies will automatically transfer to semantic context;
+- proactive context is automatically better than reactive exploration;
+- lower context size is automatically better than a larger useful working set;
+- Kubernetes or OS architecture should be copied literally.
 
 These are hypotheses to test.
 
