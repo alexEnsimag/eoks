@@ -4,6 +4,13 @@ EOKS is a **workload control loop**, not a monolithic agent runtime. Its purpose
 
 The central abstraction is **reconciliation**: establish the desired outcome and policy, observe current state and evidence, choose an appropriate action, execute it, evaluate the result, and reconcile again until acceptance criteria are satisfied or escalation is required. Plans are action proposals derived from state; they are disposable when observations invalidate their assumptions.
 
+EOKS uses two complementary systems lenses:
+
+- **Operating systems / computer architecture** provide a vocabulary for resource management: hierarchy, working sets, locality, caching, paging, I/O, scheduling, isolation and capacity pressure.
+- **Kubernetes/control-loop architecture** provides a vocabulary for continuous reconciliation: desired state, observed state, controllers, scheduling, lifecycle, events and feedback.
+
+These are **reference architectures, not implementation prescriptions**. The OS lens describes the resource-management problems; the Kubernetes lens describes how EOKS continuously controls the workload.
+
 ```text
                          INTENT
                             |
@@ -19,9 +26,9 @@ The central abstraction is **reconciliation**: establish the desired outcome and
                             |
           +-----------------+-----------------+
           |                 |                 |
-      KNOWLEDGE          CONTEXT          EXECUTION
-    representations     compilation       workflows/runs
-    + evidence          + budgets         models/tools/agents
+      RESOURCES          WORKLOAD         EXECUTION
+  knowledge/evidence   working set/       workflows/runs
+  providers/represent. context            models/tools/agents
           |                 |                 |
           +-----------------+-----------------+
                             |
@@ -40,9 +47,43 @@ The central abstraction is **reconciliation**: establish the desired outcome and
                   next decision / action
 ```
 
-## Architectural boundaries
+## Architectural layers
 
-### Control
+### Resource layer
+
+The resource layer answers **what exists, what it means, who may use it, and how it can be accessed efficiently**.
+
+Resources include knowledge, evidence, representations, tools, models, execution capabilities and other reusable assets. They may differ in latency, capacity, freshness, authority, fidelity, retrieval cost and persistence.
+
+The OS/computer-architecture lens is useful here: resources can have multiple representations and access tiers; locality, caching, batching, prefetching, replacement, isolation and quotas are candidate optimization mechanisms.
+
+See [Resource model](resource-model.md) and [Knowledge representations](knowledge-representations.md). The detailed OS/architecture research is in [OS and computer-architecture lens](../research/prior-art/computer-systems-architecture.md).
+
+### Workload layer
+
+A **Workload** is the bounded unit whose desired outcome, policy, state, resources and execution are being controlled.
+
+Its current information needs form a **working set**: the subset of eligible resources/evidence currently useful for making progress. Working set and context are not synonyms:
+
+```text
+resource/evidence universe
+        |
+ eligibility + policy
+        |
+ workload working set
+        |
+ context acquisition + compilation
+        |
+ model context
+```
+
+The working set is semantic; model context is one materialization of it. The working set may contain exact source, structural slices, verified facts, summaries or pointers to authoritative evidence.
+
+A **context miss** occurs when required evidence is absent from the current working set and must be acquired. Misses, locality and context churn can become control signals.
+
+See [Context engineering](context.md).
+
+### Control layer
 
 The **control plane** is the reconciliation mechanism for a workload. Its primary responsibility is the **conductor**, which compares workload requirements and policy with current state, available capabilities and evaluation evidence, then chooses what should happen next.
 
@@ -50,7 +91,7 @@ The conductor may derive or revise a plan, select resources and execution modali
 
 "Scheduler", "router" and "orchestrator" are implementation functions of this responsibility, not separate EOKS architectural layers. The conductor owns workflow state and decisions, **not durable knowledge**.
 
-A plan is an **action proposal**, not authoritative workload state. When observations invalidate assumptions, the conductor should discard or revise the plan and reconcile again from current state.
+Events can trigger reconciliation: test failures, dependency changes, stale resources, new commits, verification results or human input do not require a separate interrupt subsystem.
 
 ### Knowledge
 
@@ -66,6 +107,10 @@ See [Knowledge base](knowledge-base.md) and [Knowledge representations](knowledg
 
 Context is the **task-specific compilation of evidence and knowledge for a reasoning step**. It is not a storage layer and is not equivalent to durable knowledge or execution state.
 
+Computer architecture provides a useful interpretation: context is a fast, capacity-constrained materialization of the workload's working set. This supports candidate techniques such as locality-aware retrieval, demand acquisition, prefetching, admission, pinning, replacement, clustering and representation demotion/compression.
+
+These are research interventions, not assumptions that one cache policy is universally correct. The objective is useful verified work, not maximum cache hit rate or minimum tokens in isolation.
+
 Context compilation can retrieve, rank, transform, deduplicate, reconcile, order and budget information while preserving provenance and freshness. The resulting context should be inspectable and reproducible.
 
 See [Context engineering](context.md) and [Context Workbench](context-workbench.md).
@@ -77,6 +122,8 @@ Execution contains workflows and runs plus the resources that perform their step
 Roles describe responsibilities within a workflow; they do not require a particular agent topology. Planning, execution, review and validation can be separate sessions or phases of one agent.
 
 Execution is an actuator of the control loop. A failed or incomplete run is an observation that can cause reconciliation, not necessarily a terminal workflow failure.
+
+Scheduling can borrow established systems techniques—priority, fairness, aging, batching, work stealing and load balancing—but these remain hypotheses to test. Deterministic tools, retrieval, specialized models, general reasoning, multi-agent workflows and humans are execution resources/modalities, not mandatory agent types.
 
 See [Agent roles](agent-roles.md), [Agent workflows](agent-workflows.md) and [Deterministic execution](deterministic-execution.md).
 
@@ -98,16 +145,16 @@ The minimal loop is:
 
 ```text
 1. establish desired outcome/state from intent and policy
-2. observe current workload state and available evidence/capabilities
-3. identify the relevant gap or uncertainty
-4. choose the minimum sufficient action
+2. observe current workload state, working set, resources and evidence
+3. identify the relevant gap, miss, pressure or uncertainty
+4. choose the minimum sufficient action/resource/modality
 5. execute the action
 6. observe and evaluate the result
-7. update actual state/evidence
+7. update actual state/evidence and working-set state
 8. reconcile again, or stop when acceptance criteria are satisfied
 ```
 
-The loop does **not** imply that every step needs an LLM. Deterministic tools, retrieval, specialized models, general reasoning, multi-agent workflows and humans can all be resources used by a controller. The controller chooses the modality required by current evidence and risk.
+The loop does **not** imply that every step needs an LLM. The controller chooses the modality required by current evidence and risk.
 
 A useful property is **reconstructability**: important workload state, evidence, decisions and artifacts should be durable enough that a new controller or execution attempt can resume without hidden agent memory.
 
@@ -117,11 +164,15 @@ Control loops can be nested. A workload loop may depend on knowledge-maintenance
 
 | Concept | Meaning |
 |---|---|
+| **Workload** | Bounded unit whose desired outcome, policy, resources, state and execution are controlled |
+| **Working set** | Workload's currently useful subset of eligible resources/evidence |
 | **Role** | Responsibility that must be performed in a workflow |
 | **Resource** | Capability or reusable thing available to perform work or provide information |
 | **Provider** | Mechanism that retrieves or derives information/evidence |
 | **Representation** | Form in which knowledge/evidence is stored or expressed |
+| **Loadout** | Workload-scoped resource namespace/eligibility boundary |
 | **Context** | Task-specific information compiled for a reasoning step |
+| **Context miss** | Required evidence absent from the current working set |
 | **Execution state** | What the workflow has observed, attempted, changed, verified or invalidated |
 | **Evidence** | Information supporting an assertion or decision |
 | **Reasoning strategy** | How a reasoning step approaches its problem |
@@ -144,7 +195,7 @@ EOKS currently keeps seven runtime primitives:
 | Evaluation | Measurement of intermediate or final quality/assurance |
 | Outcome | What actually happened, including artifacts and delayed results |
 
-Models, tools, agents, memories, graphs and analyzers remain resources/providers rather than ontology objects merely because a framework gives them names. `Decision` remains empirical: implementation traces should determine whether it needs independent lifecycle/identity or can eventually be represented as run/event state.
+Models, tools, agents, memories, graphs, analyzers and working-set policies remain resources/providers/representations rather than ontology objects merely because a framework gives them names. `Decision` remains empirical: implementation traces should determine whether it needs independent lifecycle/identity or can eventually be represented as run/event state.
 
 ## Resource and evidence selection
 
@@ -181,7 +232,48 @@ A workflow step should use the smallest execution modality that satisfies its re
 
 When probabilistic reasoning resolves uncertainty and produces a sufficiently specified procedure, continuous maintenance may promote that procedure into a deterministic capability. Promotion requires validation and explicit dependency/assumption tracking; invalidation returns the workload to reasoning rather than silently executing stale behavior.
 
+A useful systems heuristic is **deterministic-first where sufficient**: do not replace a task merely because an LLM can do it; replace probabilistic execution when the behavior is sufficiently understood, the deterministic capability is simpler to maintain, and the engineering outcome is better.
+
 See [Deterministic execution](deterministic-execution.md) and [Continuous knowledge maintenance](continuous-knowledge-maintenance.md).
+
+## Established systems techniques as hypotheses
+
+OS and architecture techniques should be imported as candidate interventions, not as mandatory EOKS components.
+
+### Context / working-set management
+
+- locality-aware acquisition;
+- demand retrieval/context misses;
+- prefetching;
+- cache admission;
+- pinning;
+- LRU/LFU/relevance-aware replacement baselines;
+- evidence clustering/batching;
+- representation compression/demotion;
+- context-thrashing detection;
+- navigation-resolution caching.
+
+### Work scheduling
+
+- priority;
+- fairness/anti-starvation;
+- aging;
+- batching;
+- work stealing;
+- load balancing;
+- asynchronous acquisition;
+- deterministic-first scheduling.
+
+### Shared resources
+
+- scoped access/protection;
+- quotas;
+- versioned state;
+- invalidation;
+- copy-on-write derived state;
+- explicit consistency boundaries.
+
+These mechanisms should be evaluated against end-to-end outcome, evidence quality, cost, latency, reliability and recovery—not against infrastructure metrics alone.
 
 ## Existing-agent integration
 
@@ -207,12 +299,21 @@ A **Card** may be useful as an inspectable representation of workload state, int
 
 Before introducing Cards into the ontology, test whether existing Task, Policy, Run, Decision, Evaluation and Outcome state already provides the necessary semantics. If Cards prove useful, initially treat them as a representation/protocol/UI over that state rather than a competing source of truth.
 
+## Context cache versus inference cache
+
+Keep two concepts separate:
+
+- **Semantic/context cache** — reusable knowledge, evidence, representations and navigation resolutions managed around an EOKS workload.
+- **Inference/KV cache** — model-serving state used to avoid recomputing attention representations.
+
+EOKS may influence inference-cache reuse indirectly through stable context structure, but the two should not be collapsed into one memory abstraction.
+
 ## Canonical document ownership
 
 The architecture page defines boundaries; detailed behavior belongs in the following documents:
 
 - [Resource model](resource-model.md) — resource, asset, provider, representation and loadout semantics.
-- [Context engineering](context.md) — context acquisition and compilation.
+- [Context engineering](context.md) — context acquisition, working sets and compilation.
 - [Knowledge base](knowledge-base.md) — durable knowledge lifecycle.
 - [Knowledge representations](knowledge-representations.md) — representation families.
 - [Memory](memory.md) — memory and behavioral learning.
@@ -223,5 +324,6 @@ The architecture page defines boundaries; detailed behavior belongs in the follo
 - [Continuous knowledge maintenance](continuous-knowledge-maintenance.md) — incremental maintenance and procedure consolidation.
 - [Deterministic execution](deterministic-execution.md) — deterministic execution as a modality.
 - [Software analysis](software-analysis.md) — deterministic software evidence and analyzer escalation.
+- [OS and computer-architecture lens](../research/prior-art/computer-systems-architecture.md) — systems analogies, optimization techniques and candidate interventions.
 
 Research and prior-art documents remain exploratory and should not create competing normative definitions.
