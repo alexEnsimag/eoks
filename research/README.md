@@ -57,6 +57,8 @@ When a research conclusion becomes stable, its canonical statement should move i
 
 ### Prior art
 
+- [`prior-art/posthog-context-lifecycle.md`](prior-art/posthog-context-lifecycle.md) — PostHog practitioner evidence on resident context cost, stale guidance, context regression evaluation and feedback-driven maintenance; mapped to existing EOKS context and control-loop concepts.
+
 The [`prior-art/`](prior-art/) directory contains deeper notes on individual projects. The consolidated landscape is [`docs/prior-art.md`](../docs/prior-art.md).
 
 ## Useful rule
