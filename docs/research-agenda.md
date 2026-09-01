@@ -394,6 +394,42 @@ The research agenda deliberately does **not** assume that:
 
 These are hypotheses to test.
 
+## 25. AI-native SDLC as a proving ground
+
+Recent AI-native SDLC and spec-driven-development work provides a concrete software-engineering workload for testing EOKS rather than a new EOKS layer. Anthropic's AI-Native SDLC Playbook models the lifecycle as a continuous loop in which versioned intent, specifications, plans, implementation/review artifacts and production observations drive subsequent stages; GitHub Spec Kit similarly uses durable artifacts across specification, planning and implementation. See [AI-native SDLC and EOKS](../research/prior-art/ai-native-sdlc.md).
+
+For EOKS, the key research question is whether these durable artifacts improve **reconstructability, context acquisition, verification and safe automation** when treated as workload state/evidence rather than as a new runtime primitive. Evaluate artifact-driven handoffs against a strong baseline and measure end-to-end correctness, assurance, recovery, cost, latency and human attention.
+
+The architectural connection is deliberately narrow: **AI-native SDLC is a concrete workload/control-loop pattern; EOKS provides the general reconciliation, context, capability-selection and evaluation semantics around it.**
+
+## 26. Evidence-driven bottleneck map
+
+Current evidence suggests that EOKS should not treat “context” as one bottleneck. Track at least:
+
+```text
+1. Task specification
+       |
+2. Repository/context acquisition
+       |
+3. Working-context quality / attention allocation
+       |
+4. Reasoning / diagnosis
+       |
+5. Tool selection and execution
+       |
+6. Long-horizon execution state / recovery
+       |
+7. Integration / completeness
+       |
+8. Verification / evidence
+       |
+9. Cost / latency / predictability
+```
+
+Cross-cutting variables include model capability, repository maturity, task ambiguity, agent topology, context budget and infrastructure complexity.
+
+The bottleneck map is a **research hypothesis**. EOKS should update it as controlled experiments reveal which stage actually limits a workload.
+
 The central EOKS objective is:
 
 > **Discover which capabilities improve trustworthy software-agent outcomes, under which conditions, and whether their benefit justifies their complexity and cost.**
