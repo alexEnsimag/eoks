@@ -128,6 +128,25 @@ A single global ranking can hide useful specialization. EOKS can maintain eviden
 
 This should be learned from representative outcomes rather than assumed from model branding or generic benchmark rankings.
 
+## Benchmark boundary: model, harness and workload loop
+
+Recent coding-agent benchmark research reinforces a distinction already implicit in EOKS: an end-to-end coding result is produced by a **composite execution system**, not by the model in isolation. Gorinova et al., *Position: Coding Benchmarks Are Misaligned with Agentic Software Engineering* (2026), distinguishes an agent harness from a broader system harness and argues that benchmarks should make the measured construct and component contributions explicit. urlPaper: arXiv:2606.17799https://arxiv.org/abs/2606.17799
+
+For EOKS, this does **not** justify a new harness abstraction. It reinforces existing boundaries:
+
+- the model is an execution resource;
+- context is a workload-specific materialization;
+- tools, environment and agent runtime are execution resources/integration boundaries;
+- orchestration is a conductor responsibility;
+- evaluation provides evidence for reconciliation;
+- task/workflow/system outcomes should be evaluated at the level actually being claimed.
+
+The paper's inner/middle/outer feedback distinction is likewise a useful classification of observations by scope and latency, not another EOKS loop. Existing EOKS nested reconciliation loops already provide the mechanism; the benchmark implication is to preserve enough trace and outcome information to distinguish component effects from workload-level effects.
+
+LoopsBench, *From Harness Engineering to Loop Engineering in Coding Agent Evaluation* (2026), provides convergent evidence that sustained software-engineering evaluation increasingly needs to measure the **loop** rather than only localized agent behavior. urlLoopsBench: arXiv:2608.00267https://arxiv.org/abs/2608.00267
+
+The resulting EOKS rule is simple: **benchmark the construct you claim to measure, and record enough execution/context/evaluation state to diagnose changes without turning each implementation boundary into a new ontology object.**
+
 ## Research questions
 
 - Which reliability signals predict correctness for each workload class?
@@ -136,5 +155,6 @@ This should be learned from representative outcomes rather than assumed from mod
 - When is verification cheaper than the expected cost of an error?
 - Can the system learn model/task/context affinity?
 - Which context interventions remain valuable after a model upgrade?
+- How much trace detail is sufficient to attribute workload-level changes to models, context, providers, execution policy and verification without making evaluation prohibitively expensive?
 
 These questions should be answered empirically through the benchmark methodology rather than becoming architecture assumptions first.
