@@ -41,7 +41,7 @@ When a research conclusion becomes stable, its canonical statement should move i
 
 ### Evaluation and reliability
 
-- [`evaluation-and-model-switching.md`](evaluation-and-model-switching.md) — reliability, confidence, model/task affinity and safe model migration.
+- [`evaluation-and-model-switching.md`](evaluation-and-model-switching.md) — reliability, confidence, model/task affinity, safe model migration, and benchmark boundaries for model/harness/workload evaluation.
 - [`llm-uncertainty-and-control.md`](llm-uncertainty-and-control.md) — probabilistic model signals, entropy, semantic entropy, calibration, semantic agreement and using uncertainty as a graph/control signal.
 - [`llm-observability-and-reliability.md`](llm-observability-and-reliability.md) — observability, uncertainty, external evidence and calibration.
 - [`observations-and-questions.md`](observations-and-questions.md) — unresolved questions.
