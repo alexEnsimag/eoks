@@ -12,6 +12,7 @@ For the canonical capability/selection model, see [Tool capability model](../doc
 | **TencentDB Agent Memory** | multi-resolution memory + Skills + Wiki + CodeGraph resources, governance and agent loadouts | reusable resources / memory & knowledge infrastructure |
 | **OKF** | portable Markdown + YAML-frontmatter knowledge bundle | knowledge representation |
 | **Graphify** | code relationship/structure graph | structural evidence provider |
+| **Codebase Memory MCP** | persistent repository structural graph + MCP query interface for code intelligence | structural evidence provider / context acquisition |
 | **CodeSight** | repository code-understanding/context generation | evidence provider |
 | **Understand Anything** | code knowledge graph and impact-oriented exploration | structural/semantic evidence provider |
 | **Semgrep** | deterministic pattern and dataflow analysis | verification/evidence provider |
@@ -83,6 +84,7 @@ Promptfoo, Langfuse and similar systems can run experiments, store traces or com
 - [Agent code understanding and architecture tooling](agent-code-understanding-and-architecture.md)
 - [Agent memory and continuous-learning prior art](prior-art/agent-memory.md)
 - [TencentDB Agent Memory](prior-art/tencent-agent-memory.md)
+- [Codebase Memory MCP](prior-art/codebase-memory-mcp.md)
 - [Learning from development sessions](session-learning.md)
 - [Xirp / Spotify](prior-art/xirp.md)
 - [LLM observability and reliability signals](llm-observability-and-reliability.md)
