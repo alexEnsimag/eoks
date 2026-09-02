@@ -59,6 +59,7 @@ When a research conclusion becomes stable, its canonical statement should move i
 
 - [`prior-art/ai-native-sdlc.md`](prior-art/ai-native-sdlc.md) — AI-native SDLC and spec-driven development mapped onto EOKS control loops, durable artifacts, context compilation and continuous maintenance.
 - [`prior-art/posthog-context-lifecycle.md`](prior-art/posthog-context-lifecycle.md) — PostHog practitioner evidence on resident context cost, stale guidance, context regression evaluation and feedback-driven maintenance; mapped to existing EOKS context and control-loop concepts.
+- [`prior-art/system-harness-and-loop-engineering.md`](prior-art/system-harness-and-loop-engineering.md) — system-harness composition, inner/middle/outer feedback loops, component-level attribution and the emerging shift toward loop-level coding-agent evaluation.
 
 The [`prior-art/`](prior-art/) directory contains deeper notes on individual projects. The consolidated landscape is [`docs/prior-art.md`](../docs/prior-art.md).
 
