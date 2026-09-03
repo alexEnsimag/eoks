@@ -145,7 +145,13 @@ The paper's inner/middle/outer feedback distinction is likewise a useful classif
 
 LoopsBench, *From Harness Engineering to Loop Engineering in Coding Agent Evaluation* (2026), provides convergent evidence that sustained software-engineering evaluation increasingly needs to measure the **loop** rather than only localized agent behavior. [LoopsBench: arXiv:2608.00267](https://arxiv.org/abs/2608.00267)
 
-The resulting EOKS rule is simple: **benchmark the construct you claim to measure, and record enough execution/context/evaluation state to diagnose changes without turning each implementation boundary into a new ontology object.**
+### Agentic Harness Engineering
+
+Lin et al., *Agentic Harness Engineering: Observability-Driven Automatic Evolution of Coding-Agent Harnesses* (2026), is closely aligned with this evaluation model. It treats harness evolution as an iterative experimental process and separates three kinds of observability: editable harness components, distilled trajectory experience, and the prediction attached to each harness edit that is later checked against task outcomes. The reported experiments improve Terminal-Bench 2 pass@1 across repeated iterations and show transfer to other models/tasks. [Paper: arXiv:2604.25850](https://arxiv.org/abs/2604.25850)
+
+The EOKS interpretation is deliberately narrower than the paper's terminology: this is **prior art for evaluating execution-policy/configuration interventions**, not evidence that `Harness` needs to become an EOKS semantic object. Its strongest contribution is the idea of making an intervention falsifiable by linking the change, execution evidence and subsequent outcome. That fits the existing `configuration -> execution -> outcome -> evaluation -> reconciliation` model.
+
+A useful caveat is that harness-evolution results should be interpreted at the level of the experimental baseline and benchmark claim. Improvement over a minimal seed does not by itself establish superiority over mature human-designed harnesses. EOKS should therefore preserve the baseline, task contract, configuration delta and outcome evidence when evaluating such claims.
 
 ## Research questions
 
