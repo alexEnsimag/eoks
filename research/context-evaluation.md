@@ -71,6 +71,8 @@ At minimum vary:
 - deterministic verification;
 - combinations of the above.
 
+Reasoning-format changes belong in this same intervention axis rather than requiring a separate EOKS abstraction. Chain-of-Draft is useful evidence for why the effect must be measured by workload: its original evaluation reported very large token reductions on its tested reasoning tasks, while a subsequent software-engineering evaluation on 300 SWE-bench samples reported a smaller reduction to 55.4% of CoT tokens while retaining over 90% of the reported CoT code-quality measures. The contrast supports the existing EOKS methodology: evaluate representation changes against task outcomes and total resource cost under the model/repository/task/budget matrix, rather than treating token reduction as a universal objective. [Xu et al., *Chain of Draft: Thinking Faster by Writing Less*, arXiv:2502.18600](https://arxiv.org/abs/2502.18600) · [Yang, *Chain of Draft for Software Engineering*, arXiv:2506.10987](https://arxiv.org/abs/2506.10987)
+
 **Budget**
 - model tokens;
 - tool calls;
