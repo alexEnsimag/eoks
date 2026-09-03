@@ -97,14 +97,6 @@ Use an explicit matrix when this interaction matters:
 
 This separates model effects from context effects and exposes interaction effects. The effects should not be assumed additive.
 
-**Reasoning strategy is also an intervention.** Chain-of-Draft (CoD) is useful prior art for testing whether verbose intermediate reasoning can be replaced by a more compact representation without sacrificing task outcomes. Xu et al., *Chain of Draft: Thinking Faster by Writing Less* (2025), reports comparable or better accuracy with as little as 7.6% of the tokens of standard Chain-of-Thought on its evaluated reasoning tasks. [Paper: arXiv:2502.18600](https://arxiv.org/abs/2502.18600)
-
-The software-engineering evidence is more conservative: Yang, *Chain of Draft for Software Engineering: Challenges in Applying Concise Reasoning to Code Tasks* (2025), evaluated 300 SWE-bench samples and found its baseline CoD variant used 55.4% of CoT tokens while retaining over 90% of CoT code quality on its reported dimensions. This illustrates an important EOKS boundary: **reasoning compression is task- and domain-dependent, not a universal token-reduction rule.** [Paper: arXiv:2506.10987](https://arxiv.org/abs/2506.10987)
-
-StyleBench provides broader evidence that reasoning styles interact with both model scale and task type: concise styles such as CoD can be highly efficient on well-defined tasks, while search-oriented styles can be preferable for more open-ended problems. EOKS should therefore treat reasoning representation as a configurable workload intervention and evaluate **outcome preserved per total reasoning cost**, rather than optimizing for a fixed number of reasoning tokens. [Paper: arXiv:2509.20868](https://arxiv.org/abs/2509.20868)
-
-This connects to context compilation without creating another abstraction: intermediate reasoning is itself a representation whose **granularity can be selected according to task requirements and downstream utility**. The same experimental discipline applies as for other context interventions—hold the model/repository/task/budget controlled, measure correctness and verification outcomes, and inspect regressions rather than accepting token reduction as success by itself.
-
 ## Canary and regression workflow
 
 ```text
@@ -164,7 +156,5 @@ The resulting EOKS rule is simple: **benchmark the construct you claim to measur
 - Can the system learn model/task/context affinity?
 - Which context interventions remain valuable after a model upgrade?
 - How much trace detail is sufficient to attribute workload-level changes to models, context, providers, execution policy and verification without making evaluation prohibitively expensive?
-- When does concise reasoning preserve task quality while reducing total reasoning cost, and when does it remove information needed for software-engineering tasks?
-- Can reasoning strategy be selected conditionally on task structure, model capability, verification availability and resource budget?
 
 These questions should be answered empirically through the benchmark methodology rather than becoming architecture assumptions first.
