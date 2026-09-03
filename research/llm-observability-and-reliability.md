@@ -261,6 +261,103 @@ control -> changes future execution policy
 
 This is stronger than a monitoring dashboard because it creates a feedback path from production behavior to future decisions.
 
+## OpenTelemetry and harness evaluation
+
+OpenTelemetry (OTel) GenAI semantic conventions are best treated as an **interoperability substrate for execution evidence**, not as an EOKS ontology. They provide standardized observations for model calls, agents/workflows, tools, retrieval and memory, including model identity, token usage and evaluation results. EOKS should consume such telemetry when available, while remaining provider- and backend-neutral.
+
+The important requirement is not to standardize every EOKS concept as a telemetry attribute. Instead, the trace must preserve enough **identity and lineage** to join:
+
+```text
+task / workload
+      |
+      v
+run / workflow
+      |
+      +--> agent / role / decision
+      |        |
+      |        +--> context / acquisition
+      |        +--> model inference
+      |        +--> tool / retrieval / memory
+      |
+      v
+outcome
+      |
+      v
+evaluation
+```
+
+This gives harness evaluation a precise meaning without creating a `Harness` abstraction: evaluate a change to the execution environment, policy, context mechanism, agent workflow or supporting capability by comparing the **same task/outcome contract** while retaining traceable execution evidence for attribution.
+
+### Raw observations versus derived attribution
+
+Token counts, latency, cache usage, tool calls and evaluation events are observations. Cost shares, per-agent totals, intervention deltas and cost-per-correct-result are **derived measurements**. They should not be conflated with the raw telemetry.
+
+In particular, an outer agent/workflow span that repeats child inference totals can cause double counting. Aggregation should be explicitly identified as derived, with a defined scope and accounting rule.
+
+A useful cost attribution view is therefore:
+
+```text
+raw trace observations
+        |
+        +--> token / latency / infrastructure usage
+        |
+        +--> context composition / acquisition
+        |
+        +--> tool / retrieval / memory / evaluation work
+        |
+        v
+attributed run cost
+        |
+        +--> outcome quality
+        |
+        v
+marginal value of intervention
+```
+
+This extends the existing EOKS token/cost metrics without creating a separate "tokenomics" subsystem. The relevant optimization target remains **useful verified outcome per total resource cost**, not minimum token count.
+
+### Context occupancy is different from token usage
+
+Per-call input/output tokens measure what a provider processed for that call. They do not fully describe the state that caused the agent to make the call. Where an instrumentation ecosystem exposes context occupancy or equivalent state, EOKS should distinguish it from per-call token usage.
+
+This matters for harness evaluation because a persistent context can be expensive even when individual calls look ordinary, while a large call can be justified by productive exploration. Context composition and acquisition provenance are therefore valuable additional evidence when the instrumentation can record them at assembly time.
+
+### What traces can and cannot establish
+
+A trace can establish **what was executed and what was observed**. It does not automatically establish **why a decision was made** or which context evidence was causally responsible for it.
+
+For harness evaluation, consequential decisions should therefore have explicit provenance to the relevant workload state, policy, context/evidence selection and subsequent outcome where practical. This is stronger than relying on operation names alone.
+
+Recent empirical work reinforces this distinction: telemetry can be highly effective for detecting that a run failed while remaining insufficient for accurately localizing the causal origin when decision content and provenance are removed. EOKS should therefore treat decision provenance as evaluation evidence, not assume that a rich span tree alone provides causal explanation.
+
+### Events, spans and evaluations
+
+The OTel model also suggests a useful implementation boundary:
+
+- **spans** represent operations with duration and hierarchy;
+- **events** represent point-in-time occurrences or state transitions;
+- **evaluation results** attach outcome/quality evidence to the evaluated operation or run.
+
+EOKS should not require a particular encoding, but preserving these distinctions makes it easier to reconstruct a run and connect evaluation back to the execution that produced it.
+
+The practical mapping is:
+
+```text
+EOKS meaning             Typical telemetry evidence
+--------------------------------------------------
+Run                      trace / workflow span
+Decision                 span or event + provenance
+Agent invocation         agent/workflow span
+Model inference          GenAI inference span
+Planning                 planning span/event
+Tool execution           tool span
+Retrieval / memory       retrieval/memory span
+Evaluation               evaluation event/result
+Outcome                  run/workflow state + artifacts
+```
+
+This mapping is deliberately approximate. OTel names are an interoperability vocabulary, not a second EOKS model.
+
 ## Research questions
 
 1. Which token-level uncertainty measures correlate with correctness for software-engineering tasks?
@@ -273,6 +370,8 @@ This is stronger than a monitoring dashboard because it creates a feedback path 
 8. Does a vector of evidence outperform a single scalar confidence score for control decisions?
 9. How much additional latency/cost does reliability estimation introduce, and when does it pay for itself?
 10. Can the control plane learn which uncertainty signals are predictive for each workload class?
+11. Which execution/context provenance is necessary to attribute harness changes to outcome improvements or regressions?
+12. Which cost-attribution views remain stable across OTel-compatible instrumentation, provider billing semantics and nested agent spans?
 
 ## Proposed first experiment
 
@@ -302,10 +401,14 @@ Evaluate both **prediction quality** and **decision utility**: does using the si
 
 The experiment should begin offline. Only after calibration is demonstrated should reliability signals be allowed to alter the live control loop.
 
+For harness/cost experiments, retain the same task contract and compare configurations while recording operation-level telemetry and context composition. Attribute costs from raw observations using an explicit aggregation rule, then evaluate whether an intervention improves the verified outcome enough to justify its total cost.
+
 ## Architectural conclusion
 
 The strongest EOKS formulation is therefore:
 
 > **Observability supplies the sensors; evaluation supplies outcome labels; calibration turns raw signals into workload-specific reliability evidence; the control plane uses that evidence to choose the next action.**
+
+OTel GenAI conventions fit naturally as an interoperability layer for those sensors. They should not become a second EOKS ontology. Harness evaluation and token/cost attribution are likewise evaluation views over the existing workload → run → trace → outcome → evaluation loop, not new architectural subsystems.
 
 This makes LangSmith/Langfuse-like systems useful EOKS components without making them the EOKS control plane. It also leaves room for model-level signals, deterministic analyzers, tests, retrieval systems and human feedback to contribute to the same reliability model.
