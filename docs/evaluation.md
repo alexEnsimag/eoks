@@ -2,7 +2,7 @@
 
 Evaluation is a first-class EOKS subsystem. If the system cannot measure whether a context, model, tool or orchestration decision improved an outcome, it cannot reliably optimize that decision.
 
-The detailed benchmark methodology and community-tool survey live in [Context evaluation](../research/context-evaluation.md). The probabilistic uncertainty and control-signal discussion lives in [LLM uncertainty, semantic entropy and control](../research/llm-uncertainty-and-control.md). This page defines the canonical evaluation concepts; the research notes contain the experimental detail.
+The detailed benchmark methodology and community-tool survey live in [Context evaluation](../research/context-evaluation.md). The probabilistic uncertainty and control-signal discussion lives in [LLM uncertainty, semantic entropy and control](../research/llm-uncertainty-and-control.md). The recent harness, observability and telemetry evidence is synthesized in [Evaluation, reliability and model switching](../research/evaluation-and-model-switching.md) and [LLM observability and reliability signals](../research/llm-observability-and-reliability.md). This page defines the canonical evaluation concepts; the research notes contain the experimental detail.
 
 ## What should be evaluated
 
@@ -89,6 +89,25 @@ model uncertainty != evidence strength != probability of correctness
 ```
 
 Raw entropy, logprob-derived statistics and model self-ratings should not automatically be treated as probabilities of correctness. A reliability signal must be calibrated against actual outcomes for the relevant workload and decision.
+
+### Reliability is multi-dimensional evidence
+
+Reliability should remain **decomposable and inspectable** rather than being forced into a universal confidence scalar. A useful representation can keep several evidence dimensions visible, for example:
+
+```text
+ReliabilityEvidence
+├── model uncertainty
+├── answer agreement
+├── evidence agreement
+├── evidence quality
+├── execution validation
+├── historical task reliability
+├── evaluator results
+├── provenance
+└── calibration state
+```
+
+These dimensions are representations of evidence, not necessarily separate EOKS subsystems. A particular policy may derive a scalar, rank or expected-utility estimate from them, but the underlying evidence should remain available for audit, recalibration and alternative policies.
 
 Useful calibration/evaluation families include reliability diagrams, Expected Calibration Error (ECE), Brier score, AUROC and risk-coverage/rejection curves. The metric should match the decision being controlled: correctness probability, ranking, selective acceptance, stop/continue, routing or expected utility.
 
@@ -192,6 +211,18 @@ Use an explicit matrix when this interaction matters:
 
 This separates model effects from context effects and exposes interaction effects. The effects should not be assumed additive.
 
+## Recent evidence: harness and loop evaluation
+
+Recent coding-agent work provides useful evidence for how these existing evaluation concepts should be applied, without requiring a new EOKS architectural layer.
+
+**Agentic Harness Engineering (AHE)** treats harness evolution as a sequence of explicit, reversible component changes whose predictions are checked against subsequent task-level outcomes. Its three observability views—component, experience and decision—are useful representations of the evidence needed to evaluate an intervention. citeturn0academia0
+
+**LoopsBench** shifts attention toward sustained, long-horizon execution: dependency-aware task graphs, regression obligations and the behavior of the complete execution loop. This reinforces the need for workflow/trajectory evaluation in addition to localized step metrics. citeturn0academia1
+
+A broader harness survey and the *Code as Agent Harness* survey likewise treat the runtime around the model as an important contributor to behavior, while identifying evaluation beyond final task success and regression-free evolution as open problems. These are useful evidence categories for EOKS's existing configuration → execution → outcome → evaluation record. citeturn0academia2turn0academia3
+
+The practical rule is: **evaluate the construct being claimed, preserve enough execution state to attribute changes, and keep alternative evidence representations available instead of collapsing them into one score.**
+
 ## Research questions
 
 - Which reliability signals predict correctness for each workload class?
@@ -203,5 +234,7 @@ This separates model effects from context effects and exposes interaction effect
 - Can stopping policies be learned from calibrated uncertainty and marginal value?
 - Can the system learn model/task/context affinity?
 - Which context interventions remain valuable after a model upgrade?
+- Which combinations of reliability evidence are most useful for different control decisions?
+- How much execution evidence is required to attribute an intervention's effect without making evaluation prohibitively expensive?
 
 These questions should be answered empirically through the benchmark methodology rather than becoming architecture assumptions first.
