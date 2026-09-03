@@ -81,12 +81,6 @@ This distinction has empirical support. *TelemetrySuffBench: Is Agent Telemetry 
 
 Therefore, where attribution matters, EOKS should preserve explicit provenance from consequential decisions to relevant workload state, policy and context/evidence selection. Telemetry should not be assumed to provide causal explanation merely because the trace is detailed.
 
-## Harness evaluation
-
-Recent harness-engineering research reinforces the existing EOKS evaluation model rather than requiring a new architectural layer. In particular, *Agentic Harness Engineering: Observability-Driven Automatic Evolution of Coding-Agent Harnesses* (Lin et al., 2026) makes harness edits explicit, distills execution experience into inspectable evidence and links each edit to a prediction that is later checked against task-level outcomes.
-
-Its useful EOKS contribution is the **falsifiable intervention**: a change to the execution environment or policy should be represented together with its execution evidence and subsequent outcome. The appropriate home for this idea is the existing evaluation/reconciliation model, not a new harness ontology. See the dedicated entry in [`evaluation-and-model-switching.md`](evaluation-and-model-switching.md).
-
 ## Research questions
 
 The remaining OTel-specific questions are narrower than the general EOKS evaluation questions:
