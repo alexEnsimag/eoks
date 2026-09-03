@@ -247,7 +247,167 @@ The broader harness literature and source-code studies reinforce the same evalua
 
 LoopsBench extends this concern to sustained long-horizon execution, where dependency structure and regression obligations make trajectory/workflow evaluation important. citeturn0academia1
 
-## 9. Evaluation and control
+## 9. Scenarios: where the representations become useful
+
+The resources discussed in this session are most useful when tested against concrete control situations. These scenarios are intentionally small: they are **worked thought experiments**, not claims that a particular policy is universally optimal.
+
+### Scenario 1 — High model confidence, contradictory execution evidence
+
+```text
+model confidence:       high
+repository evidence:    plausible
+tests:                   failing
+static analysis:         failing
+```
+
+A scalar-confidence policy might stop. A decomposable evidence policy sees a strong contradiction in external validation and routes to **verify / repair / replan**.
+
+**Question:** does retaining the evidence dimensions reduce false acceptance without creating excessive verification cost?
+
+### Scenario 2 — Low model confidence, strong independent evidence
+
+```text
+model confidence:       low
+source agreement:       strong
+provenance:              strong
+deterministic validator: passes
+```
+
+The model's uncertainty should not automatically force escalation. Independent evidence may justify acceptance.
+
+**Question:** can the control policy distinguish model uncertainty from evidence strength well enough to avoid unnecessary work?
+
+### Scenario 3 — Retrieve more context or verify?
+
+The agent reaches a decision with incomplete repository context. It can either retrieve more information or run a deterministic validator.
+
+```text
+                 uncertain result
+                   /          \
+                  /            \
+          retrieve context    verify
+              |                  |
+       information gain       validation
+              |                  |
+              +--------+---------+
+                       |
+                 next control step
+```
+
+The decision depends on expected information gain, probability of resolving the uncertainty, action cost and the value of avoiding an error.
+
+**Question:** can the same reliability representation support resource selection as well as stopping?
+
+### Scenario 4 — Harness intervention and rollback
+
+A harness change improves one task class but introduces a regression elsewhere.
+
+```text
+baseline harness
+      |
+      v
+ intervention
+      |
+      v
+ execution traces
+      |
+      v
+ task outcomes
+   /       \
+  /         \
+ improve   regression
+  |           |
+  +-----+-----+
+        |
+   retain / revert / refine
+```
+
+The intervention should remain explicitly linked to its prediction, configuration, execution evidence and outcome. This is the useful AHE connection.
+
+**Question:** how much evidence is needed to attribute the change rather than merely observe a before/after difference?
+
+### Scenario 5 — Long-horizon confidence trap
+
+An agent completes many individually plausible steps, but a dependency interaction creates a failure near the end.
+
+```text
+step 1 -> step 2 -> step 3 -> ... -> step N
+   |        |        |               |
+ plausible plausible plausible      regression
+```
+
+High confidence at each step does not imply high confidence in the whole trajectory when errors are correlated and later steps depend on earlier state.
+
+**Question:** what trajectory-level evidence should trigger validation before the final result?
+
+### Scenario 6 — Telemetry sufficient for failure detection, insufficient for attribution
+
+Two traces show the same failed outcome:
+
+```text
+Trace A: spans + status + latency
+Trace B: A + decision content + provenance + intervention ID
+```
+
+Both may support “the run failed.” Only the richer trace may support “this intervention caused the regression” with useful confidence.
+
+**Question:** what is the minimum telemetry resolution required by each evaluation claim?
+
+This is the practical meaning of **observability sufficiency**.
+
+### Scenario 7 — Fewer tokens, worse run economics
+
+Compare two policies:
+
+| | Policy A | Policy B |
+|---|---:|---:|
+| context tokens | lower | higher |
+| retrieval calls | higher | lower |
+| verification | higher | lower |
+| retries | higher | lower |
+| final task success | ? | ? |
+| total run cost | ? | ? |
+
+A token-only optimization can select A even when B produces a cheaper or more reliable complete run.
+
+**Question:** does optimizing run economics change the preferred context/control policy compared with optimizing model tokens alone?
+
+### Scenario 8 — One evidence source becomes misleading
+
+A policy has learned that a particular validator is highly reliable. The validator changes or becomes stale.
+
+```text
+historical calibration
+        |
+        v
+ evidence provider
+        |
+    distribution shift
+        |
+        v
+ misleading signal
+```
+
+The evidence vector should make the source visible so that the system can detect degraded calibration instead of silently folding the signal into an opaque scalar.
+
+**Question:** can evidence-level monitoring detect calibration drift early enough to change policy?
+
+## 10. Scenario-to-control matrix
+
+| Scenario | Dominant uncertainty | Useful evidence | Likely control choices |
+|---|---|---|---|
+| contradictory tests | correctness | execution validation | verify / repair |
+| low confidence + strong evidence | model uncertainty | provenance + deterministic evidence | stop / accept |
+| retrieve vs verify | missing knowledge | retrieval quality + validator capability | retrieve / verify |
+| harness intervention | causal attribution | intervention lineage + outcomes | retain / revert |
+| long-horizon trap | trajectory risk | dependency/regression evidence | validate / replan |
+| telemetry sufficiency | attribution | decision content + provenance | enrich telemetry |
+| token vs total cost | economics | run-wide cost + outcome | change policy |
+| stale evidence source | calibration drift | source-level outcomes | recalibrate / switch provider |
+
+These scenarios give the concepts a common test surface without making any one representation canonical.
+
+## 11. Evaluation and control
 
 The evidence views above feed the existing EOKS evaluation model:
 
@@ -338,7 +498,29 @@ Measure:
 
 The point of the simulation is not to discover a universal formula. It is to test whether preserving heterogeneous evidence improves decisions under realistic cost and failure assumptions.
 
-## Appendix C — Open questions
+## Appendix C — From scenarios to executable experiments
+
+The scenarios can progressively become experiments without changing the conceptual model:
+
+```text
+worked scenario
+      |
+      v
+synthetic simulation
+      |
+      v
+controlled benchmark
+      |
+      v
+replayed production traces
+      |
+      v
+online policy evaluation
+```
+
+Start with synthetic evidence distributions so the ground truth is known. Then replay fixed benchmark traces, and finally test candidate policies against production-like traces with held-out outcomes. Keep the evidence representation and control policy versioned so that a change in either is itself an evaluable intervention.
+
+## Appendix D — Open questions
 
 - What telemetry is sufficient for each class of evaluation claim?
 - Which provenance links are necessary for intervention attribution?
