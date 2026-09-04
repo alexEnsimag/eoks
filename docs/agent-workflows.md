@@ -60,7 +60,7 @@ resources / evidence
    workload state
   /      |       \
 state  history  beliefs
-  \      |       /
+  \      |      /
        policies
           |
    context compilation
@@ -190,6 +190,37 @@ Reasoning strategies are reusable ways of approaching a reasoning step. A strate
 Examples include divergent exploration before convergence, adversarial review, hypothesis generation/falsification, threat modeling, architecture review, performance investigation and test-first verification. Experiments around so-called "ADHD" skills/stacking are useful prior art for the general reusable-strategy idea; the label is not an EOKS abstraction.
 
 Roles and reasoning strategies should not be conflated. For example, adversarial review is a reasoning strategy that can implement the reviewer role; hypothesis testing can be used by a planner, reviewer or investigator.
+
+### Iterative computation as a reasoning strategy
+
+A reasoning step does not have to expose its intermediate computation as text. It can iterate over explicit tokens, external observations/actions, or latent model states before producing an output. These are different **representations/modalities of iterative computation**, not separate EOKS runtime primitives.
+
+```text
+             iterative computation
+                     |
+          state -> transform -> state
+                     |
+                  enough?
+                 /       \
+               no         yes
+               |           |
+             repeat      output
+```
+
+One useful distinction is **where the loop lives**:
+
+| Loop location | Intermediate state | Example |
+|---|---|---|
+| Explicit generation | reasoning tokens | chain-of-thought |
+| Agent/workflow | observations, artifacts, decisions | act -> observe -> evaluate -> retry |
+| Latent model computation | hidden representations | recurrent/looped Transformer |
+| Longer-lived control | durable workload state | reconciliation across runs |
+
+Recent research on Universal Transformers, looped Transformers and latent recurrent reasoning shows that shared model computation can be reused to increase effective depth or refine latent states. See [Looped Transformers and latent reasoning](../research/prior-art/looped-transformers-and-latent-reasoning.md).
+
+For EOKS, the durable abstraction is **adaptive iterative computation**: allocate a computation budget, transform state, obtain evidence and stop when a policy-appropriate condition is satisfied. Halting may depend on convergence, evaluation evidence, calibrated confidence, a budget limit or another workload-specific signal. No single signal should be assumed sufficient without evaluation.
+
+Latent computation also creates an assurance trade-off: intermediate states may be less directly inspectable than generated reasoning tokens. EOKS should therefore evaluate observable evidence and end-to-end outcomes rather than equating a readable trace with complete introspection.
 
 ## Workflow quality and assurance
 
