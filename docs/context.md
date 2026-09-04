@@ -98,6 +98,47 @@ Candidate techniques include:
 
 The objective is not maximum context utilization, minimum tokens or maximum cache hit rate in isolation. The objective is **useful verified work per unit of total reasoning cost**.
 
+## Derived computation and reusable artifacts
+
+Context caching and computation reuse are related but distinct:
+
+```text
+context cache
+    -> reuses information already made available
+
+incremental semantic computation
+    -> reuses derived results so they do not need to be recomputed
+```
+
+A computation such as `source -> API graph -> request flow -> authentication flow` can produce a durable, provenance-aware artifact. A later workload can reuse that artifact when its dependencies remain valid, rather than reconstructing the entire derivation from source. If inputs change, dependency information can identify which derived artifacts need revalidation or recomputation.
+
+This follows established incremental-computation ideas such as memoization, dynamic dependency tracking, self-adjusting computation and demand-driven recomputation. See [Incremental semantic computation](../research/prior-art/incremental-semantic-computation.md).
+
+This should **not** turn the context cache into a general-purpose cache of every model state. Model-serving KV caches and other inference intermediates remain a separate implementation-level concern. The EOKS-level object is a reusable derived representation/artifact with provenance, dependencies, validity and verification evidence.
+
+A useful conceptual flow is:
+
+```text
+source / evidence
+       |
+       v
+computed semantic artifact
+       |
+       +--> dependency/provenance record
+       |
+       v
+future context acquisition
+       |
+   reuse / validate / recompute
+       |
+       v
+compiled context -> reasoning
+```
+
+Reuse can be demand-driven: a changed dependency can mark an artifact as potentially stale without immediately recomputing it. Recompute or validation can happen when a workload actually demands the artifact.
+
+The key research question is not cache-hit rate but whether reuse reduces repeated work **without increasing stale-artifact errors or weakening evidence quality**. Relevant measures include recomputation avoided, invalidation precision, freshness, verification effort, latency, cost and end-to-end task outcome.
+
 ## Context, acquisition and exploration
 
 Raw exploration is not automatically waste. An agent can use tools to build semantic understanding. EOKS therefore treats retrieval, graphs and other infrastructure as competing interventions rather than assuming they should replace exploration.
