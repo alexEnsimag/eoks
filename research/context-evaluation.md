@@ -410,3 +410,100 @@ policy evidence
 ```
 
 The benchmark is therefore not an external scorecard. It is an evidence source for the EOKS control loop.
+
+## 19. LLM-as-a-Judge and evaluator validity
+
+**LLM-as-a-Judge** is an evaluation approach in which a model evaluates another model's output against a rubric. It is useful for semantic properties that are difficult to express deterministically, such as groundedness, answer quality or whether an output addressed the actual task. It should complement deterministic checks rather than replace them.
+
+Common forms include:
+
+- **single-output scoring** — assign a scalar or categorical score against a rubric;
+- **binary criteria** — evaluate explicit pass/fail sub-questions and compose them into a verdict;
+- **pairwise comparison** — compare two outputs and choose a winner, useful for model/intervention comparisons;
+- **reference-based judging** — compare an output with a known-good answer where one exists;
+- **multi-judge evaluation** — aggregate independent judgments and use disagreement as a signal for further review.
+
+A small example:
+
+```text
+CONTEXT:  retrieved repository evidence
+QUESTION: "Why can this request bypass authentication?"
+ANSWER:   candidate agent answer
+
+Check independently:
+1. Every factual claim is supported by the context.
+2. No unsupported specifics are introduced.
+3. The answer addresses the actual question.
+
+Return:
+criterion_1 = pass | fail
+criterion_2 = pass | fail
+criterion_3 = pass | fail
+verdict     = pass | fail
+```
+
+The important research question is not merely whether a judge produces plausible scores, but whether the **evaluator itself is reliable for the intended decision**. Candidate validation methods and metrics include:
+
+| Evaluator property | Candidate measurement | Example use |
+|---|---|---|
+| Agreement with human labels | Cohen's kappa | Two-rater categorical judgments |
+| Agreement across several raters | Krippendorff's alpha | Multiple judges, missing labels or generalized categorical/ordinal agreement |
+| Agreement on ordinal scores | Weighted kappa | Penalize large disagreements more than adjacent ones |
+| Ranking consistency | Rank correlation | Judge used to rank candidate systems |
+| Position robustness | Pair-order flip rate | Run A/B and B/A; measure changed winners |
+| Self-preference | Preference toward own-model outputs | Detect evaluator/model-family bias |
+| Generalization | Held-out agreement | Avoid tuning and reporting on the same labeled examples |
+| Temporal stability | Agreement/drift on a fixed labeled set | Detect model, rubric or distribution changes |
+| Judge disagreement | Inter-judge disagreement | Route ambiguous cases to additional evaluation or humans |
+
+These are **candidate evaluator-validity measurements**, not universal thresholds. For example, kappa depends on class balance and label distribution, so raw percentage agreement can be misleading. A judge that accepts almost everything can appear highly accurate on a dataset dominated by passing examples while providing little discrimination.
+
+A useful evaluator-validation experiment is:
+
+```text
+30–50 representative examples
+          |
+          +--> independent human labels
+          |
+          +--> judge labels
+          |
+          v
+agreement / disagreement
+          |
+          +--> tune rubric on training portion
+          |
+          +--> validate on held-out examples
+          |
+          +--> repeat periodically on fixed validation set
+```
+
+For pairwise judges, add an order-swap test:
+
+```text
+judge(A, B) -> A wins
+judge(B, A) -> B wins   <-- flip
+```
+
+The **position-flip rate** is a useful diagnostic of whether the evaluator is responding to presentation order rather than content. Similarly, disagreement between independent judges can identify cases worth human review instead of hiding evaluator uncertainty inside an aggregate score.
+
+Keep evaluator validity separate from outcome validity:
+
+```text
+system output
+     |
+     v
+ evaluator
+     |
+     v
+ evaluation result
+     |
+     v
+ evaluator validation
+     |
+     v
+policy evidence
+```
+
+The judge therefore becomes another component of the evaluation pipeline whose configuration, rubric, model/version, labeled set and validation results should be versioned. If the judge changes, its historical scores may no longer be directly comparable without revalidation.
+
+This material is retained as a **research/evaluation toolbox**, not as a new EOKS architectural primitive. The article that motivated this section is Rohan Mistry, *LLM-as-a-Judge: How to Build Reliable AI Evaluation Systems* (Towards AI, September 2026).
