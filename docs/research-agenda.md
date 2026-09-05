@@ -34,7 +34,7 @@ The purpose of this loop is not to finish the research before building. Research
 
 The evaluation layer in [Evaluation signals and metrics](evaluation-signals.md) defines the common concept → hypothesis → signals → metrics → evaluation → failure-signatures → decision chain. The [Operational synthesis](operational-synthesis.md) defines the current action triage. This agenda defines **what to do next and what evidence should move the work forward**.
 
-The evidence intake that currently informs prioritization is [Community and academic evidence on agent bottlenecks](../research/community-evidence-bottlenecks.md). It records effect sizes, experimental settings, community failure reports, contradictory evidence and next tests. It is deliberately non-normative.
+The evidence intake that currently informs prioritization is [Community and academic evidence on agent bottlenecks](../research/community-evidence-bottlenecks.md). It records effect sizes, experimental settings, community failure reports, contradictory evidence and next tests. It is deliberately non-normative and remains a **first-class research artifact**: it is an input to synthesis and experiment selection, not a disposable preliminary source list.
 
 ## EOKS research methodology
 
@@ -48,25 +48,23 @@ These sources play different roles:
 - **EOKS experiments** test whether a signal or mechanism transfers to the workloads, objectives and control problems EOKS cares about.
 - **Synthesis** connects these sources into explicit hypotheses and architectural decisions without silently promoting any source into EOKS truth.
 
-The relationship is therefore better understood as a triangulation than as a linear authority ladder:
+The relationship is therefore better understood as triangulation than as a pipeline in which one source automatically outranks another:
 
 ```text
-                 ┌── academic research ─────┐
-                 │                          │
-emerging signal ─┼── community practice ────┼─→ EOKS hypothesis
-                 │                          │
-                 └── existing systems/tools ┘
-                                            ↓
-                                      experiment
-                                            ↓
-                                         evidence
-                                            ↓
-                                  synthesis / decision
+ academic research ─────┐
+                        │
+ community practice ────┼──→ synthesis / hypothesis ──→ experiment
+                        │                                      │
+ existing systems/tools ┘                                      ↓
+                                                          EOKS evidence
+                                                               │
+                                                               ↓
+                                                         decision / synthesis
 ```
 
-A community observation can motivate research, an academic result can motivate an experiment, and an EOKS workload can reveal a question that neither literature nor community practice has answered. The important property is that **claims that affect EOKS architecture eventually become testable, traceable and explicit about their evidence status**.
+The arrows describe possible flows of information, not an authority ordering. A community observation can motivate research or an experiment; an academic result can motivate an EOKS experiment; an existing system can expose a mechanism worth testing; and an EOKS workload can reveal a question that neither literature nor community practice has answered. The important property is that **claims that affect EOKS architecture eventually become testable, traceable and explicit about their evidence status**.
 
-This is also why research intake remains part of the agenda even though experiments are now the execution priority: research should feed experiments, and experiments should determine which research deserves more attention.
+This is also why research intake remains part of the agenda even though experiments are now the execution priority: research should feed experiments, and experiments should determine which research deserves more attention. EOKS is therefore neither a literature survey nor a collection of practitioner tricks; it is a process for turning both into **testable engineering knowledge**.
 
 ## Current execution priority
 
@@ -152,20 +150,27 @@ This is a prioritization layer, not a replacement for the detailed agenda.
 
 Use community projects, practitioner reports, academic papers and benchmarks as **signals of what to investigate**. Do not equate popularity with effectiveness.
 
-Use an explicit confidence ladder:
+Do not treat these sources as a single linear evidence ladder. Instead, record the **provenance and role of each piece of evidence** and assess strength along dimensions that matter for the claim: methodological control, replication, workload relevance, recency, independence, measurement quality and direct EOKS evidence. A community report may be weak on experimental control but strong on recency and real-workload relevance; an academic paper may be strong on methodology but weak on transfer to current agent workflows. These are different properties, not positions on one universal ranking.
+
+A useful progression for a specific claim is:
 
 ```text
-community signal
-  -> adoption / repeated reports
-  -> academic controlled result
-  -> independent reproduction
-  -> cross-model/repository replication
-  -> EOKS workload-specific evidence
+signal / observation
+       ↓
+repeated or independently corroborated signal
+       ↓
+controlled or otherwise stronger evidence
+       ↓
+replication across relevant conditions
+       ↓
+EOKS workload-specific evidence
 ```
 
-This ladder is a useful **evidence-strength progression for a particular claim**, not a ranking of communities versus academia. Different claims may enter at different points, and a strong community signal may justify an experiment before academic formalization exists.
+This is a **claim-strengthening path, not an authority hierarchy**. Evidence can enter at any point, move in different directions, or remain useful without reaching the final stage. In particular, community evidence can be the earliest and most valuable trigger for an experiment even when no academic formalization exists yet.
 
 Record contradictory results rather than selecting only supporting evidence. For quantitative claims, preserve the workload, model, sample size, metric, effect size and uncertainty/limitations rather than copying a headline percentage.
+
+The detailed [Community and academic evidence on agent bottlenecks](../research/community-evidence-bottlenecks.md) ledger is the durable intake for these signals: preserve its observations, effect sizes, settings, contradictions and proposed next tests rather than collapsing them into a summary here.
 
 **Exit condition:** each major claim driving an experiment has a traceable evidence basis and an explicit uncertainty/status rather than an implicit assumption.
 
