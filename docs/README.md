@@ -25,6 +25,7 @@ The architecture page is deliberately short. Detailed behavior belongs in the do
 
 ## Governance and research
 
+- [`methodology.md`](methodology.md) — how EOKS combines research, community/practitioner evidence, existing systems and experimentation into testable engineering knowledge and architectural decisions.
 - [`decisions.md`](decisions.md) — current architectural decisions.
 - [`research-agenda.md`](research-agenda.md) — experiments intended to validate or falsify the architecture.
 - [`open-questions.md`](open-questions.md) — unresolved questions.
@@ -49,5 +50,6 @@ In particular:
 - **Provider capabilities, evidence requirements and selection semantics** belong together in `tool-capability-model.md`; there is no separate normative tool-selection model.
 - **Incremental maintenance, promotion and invalidation** belong in `continuous-knowledge-maintenance.md`; deterministic execution is a modality/deep dive, not a separate control architecture.
 - **Individual tools/projects** belong primarily in the landscape/prior-art documents or research notes, not in the core architecture unless they establish a reusable capability boundary.
+- **Research and synthesis methodology** belongs in `methodology.md`; the research agenda owns prioritization and experiments, while research notes own the underlying evidence and exploratory material.
 
 When a new concept appears, first ask whether it is already a role, resource, provider, representation, context artifact, workflow construct, policy or one of the seven runtime primitives. Prefer moving/merging material into an existing owner over adding another document.
