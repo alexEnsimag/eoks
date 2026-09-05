@@ -1,10 +1,8 @@
 # LLM observability and reliability signals
 
-The recent AI-engineering tooling discussion sharpened an important EOKS boundary: **LLM observability is necessary for the control loop, but it is not the control loop itself**.
+This note collects the **observability evidence and representations** that emerged from recent AI-engineering research. It deliberately keeps several representations: they answer different questions and can be useful at different evaluation/control boundaries.
 
-Tools such as LangSmith and Langfuse primarily provide tracing, evaluation, analytics and monitoring around model/agent execution. The EOKS question is one layer further: can those observations become reliable signals that help the control plane decide whether to continue, verify, retry, branch, switch models, or stop?
-
-The distinction is:
+The canonical EOKS distinction remains:
 
 ```text
 observability
@@ -17,211 +15,66 @@ control
   -> use evidence and reliability signals to decide what happens next
 ```
 
-## Why this matters
+The purpose of this note is therefore not to define another EOKS layer. It documents useful telemetry, evidence structures and experiments that can feed the existing evaluation and control model.
 
-An agent can complete successfully at the infrastructure level while producing a bad result. A useful control plane therefore needs signals about **task reliability**, not just request health.
+## 1. Evidence taxonomy
 
-Operational signals remain important:
+The recent resources suggest four complementary views of execution evidence:
 
-- latency;
-- token usage and cost;
-- retries and failures;
-- tool-call success/failure;
-- retrieval activity;
-- model/version;
-- prompt/context version;
-- evaluator scores;
-- human feedback.
+| View | Main question | Useful representation |
+|---|---|---|
+| **Operational** | What happened during execution? | traces, spans, events, metrics |
+| **Reliability** | What evidence supports or contradicts the result? | decomposable evidence vector / evidence graph |
+| **Causal / attribution** | Which intervention or decision contributed to the outcome? | lineage, provenance, intervention → outcome links |
+| **Economic** | What did the run consume and what value did it produce? | run economics and marginal value |
 
-But EOKS should additionally investigate signals that describe uncertainty or disagreement in the model computation and in the surrounding evidence.
+These are not competing ontologies. A single run can have all four views.
 
-## Observability tools are the substrate
+## 2. Observability as execution evidence
 
-The tools discussed in the AI-engineering article occupy useful but different layers:
+Tools such as LangSmith and Langfuse primarily provide tracing, evaluation, analytics and monitoring around model/agent execution. OpenTelemetry (OTel) and OTel-compatible GenAI conventions provide a useful interoperability substrate for representing similar execution evidence across implementations.
 
-| Capability | EOKS interpretation |
+A useful EOKS mapping is:
+
+| EOKS activity | Telemetry representation |
 |---|---|
-| LangSmith-style tracing | execution observations and evaluation traces |
-| Langfuse-style tracing/analytics | open observability/evaluation substrate |
-| Langroid-style multi-agent execution | execution/orchestration evidence |
-| Plano-style routing/governance | infrastructure/control-plane prior art |
-| TransformerLab-style experimentation | offline model/evaluation experimentation |
+| run / workflow | trace or workflow span |
+| agent invocation | agent/workflow span |
+| model inference | GenAI inference span |
+| tool execution | tool span |
+| retrieval / memory | retrieval or memory span/event |
+| evaluation | evaluation result/event |
+| outcome / artifact | workflow state and linked artifact |
+| intervention | explicit configuration/version + lineage |
 
-The article's five projects therefore do not constitute a single EOKS layer. They are evidence that modern AI engineering is becoming a stack of observability, evaluation, orchestration, governance and experimentation capabilities.
+The important boundary is that telemetry records observations; it does not by itself determine correctness, reliability or policy.
 
-In particular, tracing systems can capture prompts, model responses, token usage, latency and tool/retrieval steps. That makes them good sources for EOKS traces and downstream evaluation. They do **not**, by themselves, establish that a model's answer is correct or provide a universally meaningful probability of correctness.
+### Spans versus events
 
-## Do not call one number "confidence"
+Use spans for operations with duration and parent/child relationships. Use events for point-in-time facts or structured annotations. This distinction matters when reconstructing an execution trace and when avoiding accidental double-counting.
 
-A model's self-reported confidence should be treated as evidence, not ground truth. Likewise, a raw entropy or log-probability statistic should not automatically be interpreted as "the answer is 92% likely to be correct."
+OTel should be treated as an **interoperability substrate**, not as the EOKS semantic model. EOKS can consume richer or poorer telemetry depending on the evidence required by the evaluation task.
 
-A better abstraction is a **reliability signal** assembled from multiple evidence sources.
+## 3. Reliability evidence: keep multiple representations
 
-```text
-                         execution trace
-                               |
-          +--------------------+--------------------+
-          |                    |                    |
-     model signals        evidence signals     outcome signals
-          |                    |                    |
-   logprobs / entropy      retrieval agreement   tests
-   token uncertainty       source authority      static analysis
-   answer instability      contradiction         tool outcomes
-   self-assessment         freshness             human review
-          |                    |                    |
-          +--------------------+--------------------+
-                               |
-                       reliability evidence
-                               |
-                    calibrated over outcomes
-                               |
-                     control-plane decision
-```
+A reliability assessment should remain inspectable rather than being reduced immediately to one confidence number.
 
-The useful output may be a vector rather than a scalar:
+A useful vector representation is:
 
 ```text
-ReliabilityEvidence {
-  model_uncertainty,
-  answer_agreement,
-  evidence_agreement,
-  evidence_quality,
-  execution_success,
-  historical_task_reliability,
-  evaluator_scores,
-  provenance,
-  calibration_state,
-}
+ReliabilityEvidence
+├── model uncertainty
+├── answer agreement
+├── evidence agreement
+├── evidence quality
+├── execution validation
+├── historical task reliability
+├── evaluator results
+├── provenance
+└── calibration state
 ```
 
-A scalar score can be derived for a particular policy, but the underlying evidence should remain inspectable.
-
-## Signals from the model computation
-
-### Token probabilities / logprobs
-
-When an inference provider exposes token probabilities, EOKS can derive measures such as token-level uncertainty and entropy.
-
-For example, a generated answer may contain a small number of positions where the model's probability mass is much more diffuse than elsewhere. Those positions can become candidates for verification or additional evidence retrieval.
-
-This is useful because it is closer to the model's actual token-selection computation than a post-hoc self-rating. It is still not a correctness oracle: a model can be confidently wrong.
-
-### Entropy and related information metrics
-
-Entropy can quantify how concentrated or diffuse a token distribution is. Higher uncertainty can be a useful trigger for further work, but its meaning depends on the task, model, tokenization and aggregation method.
-
-EOKS should therefore preserve the raw/derived metric and its calculation metadata rather than pretending that one universal threshold exists.
-
-### Answer instability / semantic agreement
-
-For black-box models or cases where logprobs are unavailable, EOKS can compare multiple independent generations.
-
-```text
-sample 1 -> auth.go
-sample 2 -> auth.go
-sample 3 -> middleware.go
-sample 4 -> auth.go
-sample 5 -> middleware.go
-                    |
-                    v
-             disagreement
-                    |
-              verify / branch
-```
-
-The important measure is semantic agreement, not merely string equality. Several differently worded answers can express the same conclusion, while identical wording can still be consistently wrong.
-
-Repeated sampling is an evaluation cost, so it should be selectively enabled for workloads where the expected value of additional evidence justifies it.
-
-## External reliability signals
-
-Model-internal uncertainty is only one source of evidence. For software engineering, deterministic and executable evidence can often be stronger:
-
-```text
-LLM claim
-   |
-   +--> type checking
-   +--> static analysis
-   +--> tests
-   +--> repository graph
-   +--> runtime/tool result
-   +--> authoritative documentation
-   +--> human review
-```
-
-This connects directly to EOKS's evidence-provider model. A high-uncertainty answer can trigger a deeper analyzer; a high-uncertainty answer that is independently confirmed by strong evidence may be safe to accept; a high-confidence answer contradicted by deterministic evidence should be treated as suspicious.
-
-## Calibration
-
-A raw uncertainty metric is not enough. EOKS should measure whether a reliability signal predicts actual correctness on the workload where it is used.
-
-A simplified calibration loop is:
-
-```text
-prediction / reliability signal
-              |
-              v
-       task actually evaluated
-              |
-              v
-        correct / incorrect
-              |
-              v
-       calibration dataset
-              |
-              v
-       reliability mapping
-```
-
-Useful evaluation families include calibration error and proper scoring rules such as Brier-style scores. The exact method should depend on whether EOKS is predicting binary correctness, ranking candidates, selecting between actions, or estimating expected utility.
-
-The key principle is:
-
-> **Reliability is workload- and decision-dependent; it must be calibrated against outcomes rather than assumed from a model's raw score.**
-
-## Reliability as a control signal
-
-The most interesting EOKS use is not displaying a dashboard. It is changing execution policy.
-
-```text
-                         task
-                           |
-                    context compilation
-                           |
-                     model execution
-                           |
-                reliability evidence
-                           |
-              +------------+------------+
-              |            |            |
-             high        medium         low
-              |            |            |
-             stop       verify        branch
-                         /retry       /retrieve
-                           |
-                      new evidence
-                           |
-                       evaluate
-                           |
-                      final outcome
-```
-
-The actions should be policy-driven rather than hard-coded around one metric. Possible policies include:
-
-- stop when independent evidence is sufficiently strong;
-- run a deterministic check when uncertainty concerns a verifiable invariant;
-- retrieve additional context when evidence coverage is poor;
-- sample another answer when instability is the main concern;
-- route to another model when the workload/model combination has poor historical reliability;
-- ask for human review when the expected cost of an error exceeds the value of additional automated work.
-
-This is where observability becomes part of an EOKS control loop.
-
-## Reliability evidence graph
-
-The existing EOKS evaluation model proposed a confidence evidence graph rather than a single confidence number. This research strengthens that idea.
-
-A result should be represented together with the evidence that supports or contradicts it:
+The same evidence can also be represented as a graph:
 
 ```text
                     candidate conclusion
@@ -240,72 +93,440 @@ A result should be represented together with the evidence that supports or contr
                    decision / outcome
 ```
 
-This allows EOKS to answer not only **"how confident are we?"**, but also **"why should we trust this, what contradicts it, and what evidence would reduce the remaining uncertainty?"**
+The vector is convenient for measurement and calibration. The graph is useful for provenance, contradiction analysis and deciding what evidence is missing. A policy may derive a scalar, ranking or expected-utility estimate from either representation, but the underlying evidence should remain available.
 
-## Relationship to evaluation
+## 4. Model-level uncertainty signals
 
-Evaluation and observability should remain distinct but connected:
+### Token probabilities / logprobs
+
+When an inference provider exposes token probabilities, EOKS can preserve the raw values and derive measures such as token-level uncertainty, length-normalized log probability, top-token margins and predictive entropy.
+
+These measures are closer to the model's token-selection computation than a post-hoc self-rating, but they are not correctness oracles. Their interpretation depends on the task, model, tokenization and aggregation method.
+
+### Entropy and semantic uncertainty
+
+Entropy measures how concentrated or diffuse a token distribution is. For black-box models or cases without logprobs, multiple sampled generations can provide a different signal: semantic agreement or instability.
 
 ```text
-observability -> captures execution evidence
-      |
-      v
-evaluation -> determines quality/outcome
-      |
-      v
-calibration -> learns how signals relate to outcomes
-      |
-      v
-control -> changes future execution policy
+sample 1 -> conclusion A
+sample 2 -> conclusion A
+sample 3 -> conclusion B
+sample 4 -> conclusion A
+                    |
+                    v
+             disagreement
+                    |
+             possible verify
 ```
 
-This is stronger than a monitoring dashboard because it creates a feedback path from production behavior to future decisions.
+Semantic agreement is preferable to literal string equality when the question is whether conclusions agree. Repeated sampling is itself an evaluation cost, so it should be selectively enabled when its expected value exceeds that cost.
 
-## Research questions
+## 5. External evidence and verification
 
-1. Which token-level uncertainty measures correlate with correctness for software-engineering tasks?
-2. When are multiple sampled answers a better black-box uncertainty signal than model self-assessment?
-3. Can semantic answer agreement be computed cheaply enough to use selectively at runtime?
-4. Which external evidence sources reduce uncertainty most efficiently for different task classes?
-5. Can reliability signals predict the value of another tool call or model invocation?
-6. How should uncertainty thresholds change by task type, model, repository and evidence provider?
-7. Can reliability be calibrated well enough to drive automated stop/verify/branch decisions?
-8. Does a vector of evidence outperform a single scalar confidence score for control decisions?
-9. How much additional latency/cost does reliability estimation introduce, and when does it pay for itself?
-10. Can the control plane learn which uncertainty signals are predictive for each workload class?
+Model-internal uncertainty is only one source of reliability evidence. For software engineering, executable evidence can often be stronger:
 
-## Proposed first experiment
+```text
+LLM claim
+   |
+   +--> type checking
+   +--> static analysis
+   +--> tests
+   +--> repository graph
+   +--> runtime/tool result
+   +--> authoritative documentation
+   +--> human review
+```
 
-Use a small software-engineering benchmark with known outcomes.
+This connects observability to EOKS's evidence-provider model. A reliability policy can choose evidence according to the uncertainty or failure mode it is trying to resolve.
 
-For every task, record:
+Examples:
 
-- context manifest and evidence providers;
-- model/version;
-- token-level uncertainty where available;
-- model self-assessment if requested;
-- answer agreement from a small number of samples on selected tasks;
-- retrieval/evidence agreement;
-- tests/static-analysis results;
-- execution cost and latency;
-- final correctness.
+- uncertainty about a verifiable invariant → deterministic check;
+- missing repository knowledge → targeted retrieval;
+- disagreement between plausible conclusions → independent sample or evidence provider;
+- historically unreliable model/task combination → model switch or escalation;
+- high-value result without sufficient provenance → additional evidence or review.
 
-Then compare:
+## 6. Provenance and causal attribution
 
-1. model self-confidence alone;
-2. token uncertainty alone;
-3. answer agreement alone;
-4. external evidence alone;
-5. a combined reliability model.
+A trace tells us **what happened**, but it does not automatically tell us **why a decision happened** or which intervention caused an outcome.
 
-Evaluate both **prediction quality** and **decision utility**: does using the signal actually reduce incorrect actions, unnecessary retries and unnecessary expensive analysis?
+This distinction was made especially clear by telemetry research such as TelemetrySuffBench: compact telemetry can retain strong failure-detection performance while losing the information needed for origin-step or causal attribution. In particular, decision content and provenance links can matter much more for attribution than for simply detecting that something failed.
 
-The experiment should begin offline. Only after calibration is demonstrated should reliability signals be allowed to alter the live control loop.
+The EOKS implication is not to demand maximal telemetry everywhere. Instead, evaluate the minimum evidence needed for the claim being made:
 
-## Architectural conclusion
+```text
+claim
+  |
+  +--> detect failure?
+  |       -> operational telemetry may suffice
+  |
+  +--> locate failing step?
+  |       -> richer lineage needed
+  |
+  +--> attribute outcome to intervention?
+  |       -> intervention + provenance + outcome linkage
+  |
+  +--> learn policy from the result?
+          -> retain enough context to distinguish confounders
+```
 
-The strongest EOKS formulation is therefore:
+This creates an explicit **observability sufficiency** question: what telemetry is sufficient for a particular evaluation or control decision?
 
-> **Observability supplies the sensors; evaluation supplies outcome labels; calibration turns raw signals into workload-specific reliability evidence; the control plane uses that evidence to choose the next action.**
+## 7. Run economics: tokens are one dimension
 
-This makes LangSmith/Langfuse-like systems useful EOKS components without making them the EOKS control plane. It also leaves room for model-level signals, deterministic analyzers, tests, retrieval systems and human feedback to contribute to the same reliability model.
+Token usage is important, but it should not become a new EOKS subsystem called "tokenomics" or "harness economics".
+
+A broader representation is:
+
+```text
+Run economics
+├── model tokens
+├── context occupancy / composition
+├── tool calls
+├── retrieval / memory work
+├── evaluation / verification
+├── retries / replanning
+├── latency
+├── infrastructure cost
+└── human intervention
+          |
+          v
+     outcome value
+          |
+          v
+   marginal run value
+```
+
+This matters because reducing model tokens can increase verification, retrieval or retry costs. Likewise, a larger context can be worthwhile if it prevents expensive exploration or errors.
+
+### Context occupancy is not token usage
+
+Per-call input tokens measure what a provider processed for that call. They do not necessarily describe the semantic composition or occupancy of the context available to the agent across a workflow.
+
+EOKS should therefore distinguish:
+
+```text
+context composition / occupancy
+          !=
+provider-reported per-call token usage
+```
+
+Both can be useful evaluation dimensions, and neither is a universal efficiency score.
+
+### Attribution and nested traces
+
+Aggregating cost from nested spans can double-count the same model or tool work if parent spans already include child usage. Cost accounting therefore needs explicit ownership rules and should preserve raw observations separately from derived aggregates.
+
+## 8. Harness evolution as an evaluation problem
+
+Agentic Harness Engineering (AHE) provides a useful representation of iterative configuration improvement. It makes editable harness components explicit, distills execution experience into layered evidence, and associates an edit with a prediction that can later be checked against task-level outcomes. Its reported gains therefore provide evidence for an existing EOKS pattern:
+
+```text
+configuration intervention
+          |
+          v
+       execution
+          |
+          v
+    observed evidence
+          |
+          v
+    task-level outcome
+          |
+          v
+       evaluation
+          |
+          v
+  retain / revert / evolve
+```
+
+The important contribution for EOKS is the **falsifiable intervention representation**, not a requirement for a new Harness object. AHE also illustrates why component-level, trajectory-level and decision-level observations can coexist without being collapsed into one trace field. citeturn0academia0
+
+The broader harness literature and source-code studies reinforce the same evaluation boundary: behavior emerges from the model together with its runtime, tools, context management and execution policy. citeturn0academia2turn0academia3
+
+LoopsBench extends this concern to sustained long-horizon execution, where dependency structure and regression obligations make trajectory/workflow evaluation important. citeturn0academia1
+
+## 9. Scenarios: where the representations become useful
+
+The resources discussed in this session are most useful when tested against concrete control situations. These scenarios are intentionally small: they are **worked thought experiments**, not claims that a particular policy is universally optimal.
+
+### Scenario 1 — High model confidence, contradictory execution evidence
+
+```text
+model confidence:       high
+repository evidence:    plausible
+tests:                   failing
+static analysis:         failing
+```
+
+A scalar-confidence policy might stop. A decomposable evidence policy sees a strong contradiction in external validation and routes to **verify / repair / replan**.
+
+**Question:** does retaining the evidence dimensions reduce false acceptance without creating excessive verification cost?
+
+### Scenario 2 — Low model confidence, strong independent evidence
+
+```text
+model confidence:       low
+source agreement:       strong
+provenance:              strong
+deterministic validator: passes
+```
+
+The model's uncertainty should not automatically force escalation. Independent evidence may justify acceptance.
+
+**Question:** can the control policy distinguish model uncertainty from evidence strength well enough to avoid unnecessary work?
+
+### Scenario 3 — Retrieve more context or verify?
+
+The agent reaches a decision with incomplete repository context. It can either retrieve more information or run a deterministic validator.
+
+```text
+                 uncertain result
+                   /          \
+                  /            \
+          retrieve context    verify
+              |                  |
+       information gain       validation
+              |                  |
+              +--------+---------+
+                       |
+                 next control step
+```
+
+The decision depends on expected information gain, probability of resolving the uncertainty, action cost and the value of avoiding an error.
+
+**Question:** can the same reliability representation support resource selection as well as stopping?
+
+### Scenario 4 — Harness intervention and rollback
+
+A harness change improves one task class but introduces a regression elsewhere.
+
+```text
+baseline harness
+      |
+      v
+ intervention
+      |
+      v
+ execution traces
+      |
+      v
+ task outcomes
+   /       \
+  /         \
+ improve   regression
+  |           |
+  +-----+-----+
+        |
+   retain / revert / refine
+```
+
+The intervention should remain explicitly linked to its prediction, configuration, execution evidence and outcome. This is the useful AHE connection.
+
+**Question:** how much evidence is needed to attribute the change rather than merely observe a before/after difference?
+
+### Scenario 5 — Long-horizon confidence trap
+
+An agent completes many individually plausible steps, but a dependency interaction creates a failure near the end.
+
+```text
+step 1 -> step 2 -> step 3 -> ... -> step N
+   |        |        |               |
+ plausible plausible plausible      regression
+```
+
+High confidence at each step does not imply high confidence in the whole trajectory when errors are correlated and later steps depend on earlier state.
+
+**Question:** what trajectory-level evidence should trigger validation before the final result?
+
+### Scenario 6 — Telemetry sufficient for failure detection, insufficient for attribution
+
+Two traces show the same failed outcome:
+
+```text
+Trace A: spans + status + latency
+Trace B: A + decision content + provenance + intervention ID
+```
+
+Both may support “the run failed.” Only the richer trace may support “this intervention caused the regression” with useful confidence.
+
+**Question:** what is the minimum telemetry resolution required by each evaluation claim?
+
+This is the practical meaning of **observability sufficiency**.
+
+### Scenario 7 — Fewer tokens, worse run economics
+
+Compare two policies:
+
+| | Policy A | Policy B |
+|---|---:|---:|
+| context tokens | lower | higher |
+| retrieval calls | higher | lower |
+| verification | higher | lower |
+| retries | higher | lower |
+| final task success | ? | ? |
+| total run cost | ? | ? |
+
+A token-only optimization can select A even when B produces a cheaper or more reliable complete run.
+
+**Question:** does optimizing run economics change the preferred context/control policy compared with optimizing model tokens alone?
+
+### Scenario 8 — One evidence source becomes misleading
+
+A policy has learned that a particular validator is highly reliable. The validator changes or becomes stale.
+
+```text
+historical calibration
+        |
+        v
+ evidence provider
+        |
+    distribution shift
+        |
+        v
+ misleading signal
+```
+
+The evidence vector should make the source visible so that the system can detect degraded calibration instead of silently folding the signal into an opaque scalar.
+
+**Question:** can evidence-level monitoring detect calibration drift early enough to change policy?
+
+## 10. Scenario-to-control matrix
+
+| Scenario | Dominant uncertainty | Useful evidence | Likely control choices |
+|---|---|---|---|
+| contradictory tests | correctness | execution validation | verify / repair |
+| low confidence + strong evidence | model uncertainty | provenance + deterministic evidence | stop / accept |
+| retrieve vs verify | missing knowledge | retrieval quality + validator capability | retrieve / verify |
+| harness intervention | causal attribution | intervention lineage + outcomes | retain / revert |
+| long-horizon trap | trajectory risk | dependency/regression evidence | validate / replan |
+| telemetry sufficiency | attribution | decision content + provenance | enrich telemetry |
+| token vs total cost | economics | run-wide cost + outcome | change policy |
+| stale evidence source | calibration drift | source-level outcomes | recalibrate / switch provider |
+
+These scenarios give the concepts a common test surface without making any one representation canonical.
+
+## 11. Evaluation and control
+
+The evidence views above feed the existing EOKS evaluation model:
+
+```text
+execution
+    |
+    +--> operational observations
+    +--> reliability evidence
+    +--> provenance / lineage
+    +--> run economics
+    |
+    v
+ evaluation + calibration
+    |
+    v
+ policy / control
+    |
+    +--> stop
+    +--> verify
+    +--> retrieve
+    +--> retry / replan
+    +--> change model
+    +--> escalate
+```
+
+The policy should use the representation appropriate to the decision. There is no requirement that every decision use the same scalar reliability score or the same telemetry resolution.
+
+## Appendix A — Evidence matrix for the resources discussed
+
+| Resource / idea | Primary contribution | EOKS placement | What it adds |
+|---|---|---|---|
+| Agentic Harness Engineering | component / experience / decision observability; falsifiable edits | evaluation + execution evidence | explicit intervention/evidence/outcome linkage |
+| LoopsBench | long-horizon loop evaluation | workflow evaluation | dependency-aware trajectory/regression evidence |
+| Harness anatomy / source-code study | runtime as a platform around the model | execution resources + evaluation | richer component boundaries and empirical patterns |
+| Code as Agent Harness | code as operational substrate | execution / feedback | alternative harness representation |
+| OpenTelemetry GenAI | common telemetry representation | observability substrate | interoperable traces, events and attributes |
+| TelemetrySuffBench | telemetry sufficiency and attribution limits | observability → evaluation | separates failure detection from causal attribution |
+| Tokenomics / harness economics | resource consumption across an agent run | system evaluation | broadens cost from tokens to run economics |
+
+This table is a **mapping aid**, not a taxonomy of EOKS subsystems.
+
+## Appendix B — Simulation design: reliability evidence and control
+
+A small simulation can test the EOKS control hypothesis without committing the architecture to a particular reliability formula.
+
+Generate synthetic tasks with a known outcome and several imperfect evidence sources:
+
+```text
+                 true task outcome
+                        |
+        +---------------+---------------+
+        |               |               |
+   model signal    evidence signal   validator
+        |               |               |
+     noisy           noisy/strong     deterministic
+        |               |               |
+        +---------------+---------------+
+                        |
+              reliability representation
+                / vector / graph
+                        |
+                 policy decision
+                        |
+          +-------------+-------------+
+          |             |             |
+         stop         verify        retrieve
+          |             |             |
+          +-------------+-------------+
+                        |
+                  final outcome
+```
+
+Compare policies using the same underlying tasks:
+
+1. a single scalar confidence threshold;
+2. a decomposable evidence policy;
+3. a cost-aware policy using expected value of another action;
+4. an oracle policy using the true outcome, only as an upper bound.
+
+Measure:
+
+- task correctness;
+- false acceptance and unnecessary verification;
+- additional tokens / tool calls;
+- latency and cost;
+- calibration;
+- robustness when one evidence source becomes unavailable or misleading.
+
+The point of the simulation is not to discover a universal formula. It is to test whether preserving heterogeneous evidence improves decisions under realistic cost and failure assumptions.
+
+## Appendix C — From scenarios to executable experiments
+
+The scenarios can progressively become experiments without changing the conceptual model:
+
+```text
+worked scenario
+      |
+      v
+synthetic simulation
+      |
+      v
+controlled benchmark
+      |
+      v
+replayed production traces
+      |
+      v
+online policy evaluation
+```
+
+Start with synthetic evidence distributions so the ground truth is known. Then replay fixed benchmark traces, and finally test candidate policies against production-like traces with held-out outcomes. Keep the evidence representation and control policy versioned so that a change in either is itself an evaluable intervention.
+
+## Appendix D — Open questions
+
+- What telemetry is sufficient for each class of evaluation claim?
+- Which provenance links are necessary for intervention attribution?
+- When does a reliability vector outperform a scalar for actual control decisions?
+- Which evidence providers resolve different uncertainty modes most efficiently?
+- How should run economics account for context, verification and retries rather than tokens alone?
+- How should trajectory-level reliability be represented when individual steps are correlated?
+- Can learned control policies remain calibrated when the model, harness configuration or workload distribution changes?
+- What evidence should be retained long-term for regression analysis without retaining every raw token?
