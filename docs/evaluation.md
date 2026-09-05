@@ -90,6 +90,37 @@ model uncertainty != evidence strength != probability of correctness
 
 Raw entropy, logprob-derived statistics and model self-ratings should not automatically be treated as probabilities of correctness. A reliability signal must be calibrated against actual outcomes for the relevant workload and decision.
 
+### Intermediate evidence
+
+**Intermediate evidence** is evidence emitted, derived, or made observable during execution before the final task outcome is established. It can describe the task or external world, an intermediate result, the current execution state, the reliability of an intermediate result, or the behavior and efficiency of the computation itself.
+
+It is deliberately broader than trajectory data and deliberately independent of any particular model implementation:
+
+```text
+Intermediate evidence
+├── external
+│   ├── retrieval
+│   ├── tool observations
+│   └── validators
+├── execution
+│   ├── state transitions
+│   ├── artifacts
+│   └── trajectory observations
+├── process
+│   ├── intermediate results
+│   ├── step evaluations
+│   └── consistency / redundancy signals
+└── model-native
+    ├── log probabilities
+    ├── entropy / probability margins
+    ├── semantic uncertainty
+    └── internal representations / activation-derived signals
+```
+
+Intermediate evidence should not be confused with intermediate truth. A high-confidence model step can be wrong; an uncertain step can later be corrected successfully; multiple agreeing samples can share a correlated error. Evidence therefore retains provenance and temporal position and remains subject to evaluation and calibration.
+
+Model-native evidence includes signals available from the model's computation, when the provider or runtime exposes them. Internal representations (hidden states/activations) are one possible source in instrumentable model runtimes, but EOKS does not require access to them and does not define them as an EOKS resource. See [Intermediate evidence and model-native reliability signals](../research/intermediate-evidence-and-model-signals.md) for the research detail and limitations.
+
 ### Reliability is multi-dimensional evidence
 
 Reliability should remain **decomposable and inspectable** rather than being forced into a universal confidence scalar. A useful representation can keep several evidence dimensions visible, for example:
