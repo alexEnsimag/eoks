@@ -65,6 +65,7 @@ The repository separates **current architecture** from **exploratory research**.
 
 ### Governance and research management
 
+- [Research and synthesis methodology](docs/methodology.md) — how EOKS combines formal research, community/practitioner evidence, existing systems and experiments into testable engineering knowledge.
 - [Architectural decisions](docs/decisions.md)
 - [Research agenda](docs/research-agenda.md)
 - [Open questions](docs/open-questions.md)
