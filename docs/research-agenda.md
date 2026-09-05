@@ -34,6 +34,40 @@ The purpose of this loop is not to finish the research before building. Research
 
 The evaluation layer in [Evaluation signals and metrics](evaluation-signals.md) defines the common concept → hypothesis → signals → metrics → evaluation → failure-signatures → decision chain. The [Operational synthesis](operational-synthesis.md) defines the current action triage. This agenda defines **what to do next and what evidence should move the work forward**.
 
+The evidence intake that currently informs prioritization is [Community and academic evidence on agent bottlenecks](../research/community-evidence-bottlenecks.md). It records effect sizes, experimental settings, community failure reports, contradictory evidence and next tests. It is deliberately non-normative.
+
+## EOKS research methodology
+
+EOKS should deliberately combine **academic research, community/practitioner evidence, existing systems and controlled experimentation** rather than treating any one source as authoritative.
+
+These sources play different roles:
+
+- **Academic research** provides formal concepts, terminology, controlled methods and evidence that can be difficult to obtain from practice alone. It may also lag rapidly evolving agent practice.
+- **Community/practitioner evidence** provides early signals about emerging capabilities, real-world failure modes, useful workflows and tooling. It is faster and often more workload-specific, but usually less controlled and more difficult to compare directly.
+- **Existing systems and tools** provide concrete mechanisms that can be evaluated without assuming EOKS needs to reinvent them.
+- **EOKS experiments** test whether a signal or mechanism transfers to the workloads, objectives and control problems EOKS cares about.
+- **Synthesis** connects these sources into explicit hypotheses and architectural decisions without silently promoting any source into EOKS truth.
+
+The relationship is therefore better understood as a triangulation than as a linear authority ladder:
+
+```text
+                 ┌── academic research ─────┐
+                 │                          │
+emerging signal ─┼── community practice ────┼─→ EOKS hypothesis
+                 │                          │
+                 └── existing systems/tools ┘
+                                            ↓
+                                      experiment
+                                            ↓
+                                         evidence
+                                            ↓
+                                  synthesis / decision
+```
+
+A community observation can motivate research, an academic result can motivate an experiment, and an EOKS workload can reveal a question that neither literature nor community practice has answered. The important property is that **claims that affect EOKS architecture eventually become testable, traceable and explicit about their evidence status**.
+
+This is also why research intake remains part of the agenda even though experiments are now the execution priority: research should feed experiments, and experiments should determine which research deserves more attention.
+
 ## Current execution priority
 
 The immediate objective is to establish an **EOKS evaluation laboratory**, not to add another broad architectural layer.
@@ -128,6 +162,8 @@ community signal
   -> cross-model/repository replication
   -> EOKS workload-specific evidence
 ```
+
+This ladder is a useful **evidence-strength progression for a particular claim**, not a ranking of communities versus academia. Different claims may enter at different points, and a strong community signal may justify an experiment before academic formalization exists.
 
 Record contradictory results rather than selecting only supporting evidence. For quantitative claims, preserve the workload, model, sample size, metric, effect size and uncertainty/limitations rather than copying a headline percentage.
 
