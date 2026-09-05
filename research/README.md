@@ -43,6 +43,7 @@ When a research conclusion becomes stable, its canonical statement should move i
 
 - [`evaluation-and-model-switching.md`](evaluation-and-model-switching.md) — reliability, confidence, model/task affinity, safe model migration, and benchmark boundaries for model/harness/workload evaluation.
 - [`llm-uncertainty-and-control.md`](llm-uncertainty-and-control.md) — probabilistic model signals, entropy, semantic entropy, calibration, semantic agreement and using uncertainty as a graph/control signal.
+- [`intermediate-evidence-and-model-signals.md`](intermediate-evidence-and-model-signals.md) — intermediate evidence across external, execution, process and model-native sources, including token probabilities, semantic uncertainty, hidden-state probing, calibration and the boundary to computation reuse.
 - [`llm-observability-and-reliability.md`](llm-observability-and-reliability.md) — observability, uncertainty, external evidence and calibration.
 - [`prior-art/agent-trajectory-evaluation.md`](prior-art/agent-trajectory-evaluation.md) — agent trajectory evaluation, outcome-vs-process evidence, stochastic evaluation and trajectory capture.
 - [`observations-and-questions.md`](observations-and-questions.md) — unresolved questions.
