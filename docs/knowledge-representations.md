@@ -320,6 +320,34 @@ Derived relationships should carry provenance and confidence where practical. A 
 
 Confidence is not only an LLM property. It can describe the strength of an individual knowledge claim and its evidence chain.
 
+## Reusable representations reduce reconstruction work
+
+Recent comparisons of Graphify, GitNexus and CodeGraph illustrate a broader pattern: structural representations can turn repeated repository reconstruction into a reusable, queryable intermediate artifact. The practical benefit is not simply "using a graph"; it is that relationships can be computed once, retained with provenance/freshness, and queried as evidence when a workload needs them. citeturn0view0
+
+This suggests a useful EOKS distinction:
+
+```text
+raw / authoritative artifacts
+        |
+        v
+representation / analysis
+        |
+        +--> reusable intermediate artifact
+        |       + provenance
+        |       + freshness
+        |       + confidence
+        |
+        v
+workload-specific evidence
+        |
+        v
+context compilation
+```
+
+The representation remains **derived**, not canonical. Its value comes from reducing repeated reconstruction while preserving a path back to authoritative evidence. Different representations may therefore coexist, and EOKS can select among them—or combine them—according to workload, evidence requirements and budget.
+
+The article also usefully frames the progression from simple navigation toward analysis and cross-artifact evidence. EOKS should preserve that distinction rather than collapsing all graph-based systems into one capability: a representation can support navigation, analysis, impact reasoning or evidence delivery, and those capabilities have different validation requirements.
+
 ## Design principle
 
 > There is no single canonical representation of engineering knowledge. There are representations optimized for different questions, and EOKS should compile between them rather than forcing everything into one graph.
