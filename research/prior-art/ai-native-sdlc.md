@@ -29,6 +29,18 @@ new intent                   ->    reconciliation / next workload
 
 The SDLC stages themselves are therefore a **workflow over the control loop**, not additional EOKS primitives.
 
+## AIDLC as a concrete adaptive-workflow case
+
+AWS's current AI-DLC implementation is useful as a more developed case study of the same architectural pressures. The current implementation uses a deterministic engine for routing and state transitions while a conductor executes the selected work; its adaptive composer can propose an `EXECUTE`/`SKIP` plan from the task, workspace scan or running workflow, and it estimates several uncertainty/risk dimensions to justify the minimum sufficient workflow. This is concrete evidence for the EOKS hypothesis that workflow selection can itself be adaptive, rather than evidence that EOKS needs an AIDLC-specific workflow taxonomy. [AI-DLC Workflows](https://github.com/awslabs/aidlc-workflows/) [Adaptive composer](https://github.com/awslabs/aidlc-workflows/blob/main/docs/guide/12-cli-commands.md)
+
+The current implementation also makes a useful state/history distinction: the per-intent state file is the durable cursor for current progress, while an append-only audit trail records decisions and events and can be used to reconstruct state. This reinforces EOKS's separation of current workload state, historical evidence and longer-lived knowledge; it does not imply that `aidlc-state.md` or an AIDLC audit format should become EOKS primitives. [AIDLC state and audit](https://github.com/awslabs/aidlc-workflows/blob/main/docs/guide/10-state-and-audit.md)
+
+A particularly useful assurance lesson is the explicit deterministic boundary between the conductor and the engine: the agent's narrative about a transition should not by itself be treated as authoritative workflow state. AIDLC's implementation experience includes cases where execution and persisted state can diverge, making the broader EOKS requirement concrete: authoritative state transitions should be represented and verified outside an agent's self-report. This is prior-art evidence for deterministic state authority, not a reason to add a new EOKS primitive.
+
+AIDLC also exposes a candidate heuristic for adaptive process selection by estimating implementation uncertainty across intent ambiguity, structural uncertainty, verification uncertainty, risk and unresolved assumptions. These estimates are useful as an **evaluation hypothesis**: can workload-aware uncertainty signals select a minimum sufficient process without sacrificing assurance? The heuristic itself should not be adopted as an EOKS metric without comparative evaluation.
+
+The practitioner account *From OpenSpec to AIDLC* provides independent evidence for the motivation behind these mechanisms: fixed specification workflows can become burdensome, decisions and intent can be lost, and teams may bypass process when its overhead exceeds its perceived value. It therefore strengthens the motivation for adaptive workflow selection, but does not by itself establish that AIDLC improves software quality. [From OpenSpec to AIDLC](https://www.dataleadsfuture.com/from-openspec-to-aidlc-how-i-improved-my-teams-ai-code-quality/)
+
 ## Artifacts are durable control-plane representations
 
 The important architectural lesson is not that EOKS needs an `Artifact` primitive. An artifact is a durable representation that can carry different semantics depending on the workload:
@@ -124,12 +136,13 @@ EOKS should not prescribe:
 - a particular SDD framework;
 - a fixed Plan/Design/Build/Test/Deploy/Maintain workflow;
 - an agent for every SDLC stage;
-- artifacts as a new runtime ontology object.
+- artifacts as a new runtime ontology object;
+- AIDLC's stage taxonomy, scopes, entropy heuristic or audit/state file formats.
 
 Instead, EOKS provides the underlying control semantics: desired state and policy, working-set/context selection, capability selection, execution, observation, evaluation, durable evidence and reconciliation.
 
 ## Research implication
 
-AI-native SDLC and SDD are useful proving grounds for EOKS because they make several hypotheses measurable: whether durable artifacts improve reconstructability, whether artifact-driven handoffs reduce repeated context work, whether continuous evaluation keeps pace with agentic execution, and how much of the lifecycle can safely move from human execution to deterministic or agentic automation.
+AI-native SDLC, SDD and AIDLC are useful proving grounds for EOKS because they make several hypotheses measurable: whether durable artifacts improve reconstructability, whether artifact-driven handoffs reduce repeated context work, whether adaptive workflow selection reduces process overhead without reducing assurance, whether deterministic state authority improves recovery and auditability, whether uncertainty signals can predict the minimum sufficient process, and how much of the lifecycle can safely move from human execution to deterministic or agentic automation.
 
-The evidence should be evaluated at the workload level—correctness, assurance, recovery, latency, cost and human attention—not merely by artifact count or token reduction.
+The evidence should be evaluated at the workload level—correctness, assurance, recovery, latency, cost and human attention—not merely by artifact count, workflow size, or token reduction.
