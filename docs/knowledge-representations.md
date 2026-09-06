@@ -348,6 +348,45 @@ The representation remains **derived**, not canonical. Its value comes from redu
 
 The article also usefully frames the progression from simple navigation toward analysis and cross-artifact evidence. EOKS should preserve that distinction rather than collapsing all graph-based systems into one capability: a representation can support navigation, analysis, impact reasoning or evidence delivery, and those capabilities have different validation requirements.
 
+## Structured knowledge, provenance and lifecycle
+
+Recent work on agent memory and knowledge representations reinforces this abstraction boundary. Ontology-grounded project memory systems model decisions, constraints and rationales with explicit provenance, lifecycle and supersession; temporal graph memory makes validity and update relationships explicit; other systems combine multiple representations such as timelines, entity-event graphs and hierarchical documents. These results suggest that **explicit structure is valuable when the workload needs questions about relationships, completeness, supersession, contradiction or temporal validity**, without implying that a graph is always the best representation.
+
+The recurring properties are:
+
+- provenance — where a claim or representation came from;
+- verification/trust state — how it was checked;
+- freshness — whether the evidence is current;
+- lifecycle — whether information is current, historical, superseded or archived;
+- temporal validity — when a statement applies;
+- relationships — how artifacts or claims depend on one another.
+
+EOKS should represent these properties explicitly when they matter to correctness, while avoiding a mandatory universal schema. The representation may be a graph, document, table, timeline, index or another derived artifact.
+
+This also sharpens the existing synthesis:
+
+```text
+authoritative state
+      |
+      v
+derive representation / computation
+      |
+      v
+validate
+      |
+      v
+publish
+      |
+      v
+reuse
+```
+
+Here, **reuse is not synonymous with prompt injection**. A derived representation can be selectively queried, traversed, filtered or used to compile task-specific context. The goal is to expose the right evidence to the next computation, not to maximize the amount of information visible to a model.
+
+The emerging term **context graph** is useful prior art for this family of systems, but its meaning is not yet stable enough to become an EOKS primitive. EOKS should instead preserve the more general capability: **structured, contextualized evidence that can be selectively accessed, validated, transformed and reused**.
+
+See [`research/prior-art/structured-knowledge-and-context-graphs.md`](../research/prior-art/structured-knowledge-and-context-graphs.md) for the supporting research and references.
+
 ## Design principle
 
 > There is no single canonical representation of engineering knowledge. There are representations optimized for different questions, and EOKS should compile between them rather than forcing everything into one graph.
