@@ -1,6 +1,6 @@
 # Memory
 
-EOKS treats memory as deliberate persistence for future work, not as an ever-growing transcript.
+EOKS treats memory as deliberate persistence for future work, not as an ever-growing transcript. Memory is a lifecycle over retained experience and knowledge, not a single storage technology.
 
 ## Semantic types
 
@@ -12,7 +12,20 @@ EOKS treats memory as deliberate persistence for future work, not as an ever-gro
 - **Policy** — what should happen; requires stronger validation and versioning before influencing execution.
 - **Preference** — human choices that may guide behavior but should not automatically become engineering rules.
 
-These are semantic distinctions, not necessarily separate stores.
+These are semantic distinctions, not necessarily separate stores or databases. Recent agent-memory research increasingly distinguishes persistent experience, generalized knowledge and reusable behavior, while classical cognitive architectures provide related working/episodic/semantic/procedural distinctions. EOKS uses these as engineering categories, not as a claim to reproduce human cognition. See [agent memory lifecycle research](../research/prior-art/agent-memory-lifecycle-2026.md).
+
+## Evidence, experience, knowledge and capability
+
+Memory should not collapse four different things:
+
+```text
+Evidence       what happened: observations, code, traces, tests, reviews, outcomes
+Experience     structured episodes/trajectories recording what was attempted and what happened
+Knowledge      generalized facts, relationships, constraints and project understanding
+Capability     reusable procedures, Skills, workflows and policies describing how work can be performed
+```
+
+A graph, vector index, document, summary or database is a representation/storage choice. It does not define the semantic category of the information stored there.
 
 ## Memory versus other resources and context
 
@@ -45,11 +58,27 @@ TencentDB Agent Memory is useful prior art: its current Chat Memory model uses L
 
 ## Memory lifecycle
 
-A memory candidate follows:
+Recent research suggests a more useful lifecycle than simply short-term versus long-term memory. A practical EOKS formulation is:
+
+```text
+observe
+  -> retain evidence / episode
+  -> retrieve
+  -> reflect
+  -> synthesize
+  -> validate
+  -> promote
+  -> compile context
+  -> execute
+  -> evaluate outcome
+  -> revise / invalidate / forget
+```
+
+A memory candidate therefore follows:
 
 `observe -> extract -> validate -> store -> retrieve -> use -> evaluate -> update/expire`
 
-The hard problem is deciding what deserves persistence and how stale, contradictory or low-quality memory is handled.
+The hard problem is deciding what deserves persistence and how stale, contradictory or low-quality memory is handled. Reflection is not synonymous with ordinary model reasoning or “thinking first”: in the memory literature it is trajectory refinement that can happen after or across experiences. Synthesis is the step that generalizes useful observations into reusable knowledge or capability.
 
 For behavioral learning, extend this with explicit promotion:
 
@@ -103,13 +132,28 @@ A **Skill** is a governed procedural asset rather than a prompt snippet. It shou
 
 The executing agent can record important observations immediately, while background processing compares completed sessions and extracts candidate patterns. This keeps general learning off the critical path where possible.
 
+## Reflection and synthesis
+
+Recent research frames the evolution of agent memory as **Storage -> Reflection -> Experience**: preserve trajectories, refine them, then abstract reusable experience. This complements EOKS's existing reflection/artifact/synthesis work.
+
+For EOKS:
+
+- **Storage** preserves evidence and episodes.
+- **Reflection** asks what happened, what explains it and what changed.
+- **Synthesis** asks what generalizes across evidence or trajectories.
+- **Promotion** asks what evidence justifies making the result reusable or authoritative.
+
+This separation is important because not every reflection becomes knowledge, and not every learned procedure should become policy.
+
 ## Why transcript RAG is insufficient
 
 Historical retrieval can answer "Have I seen this before?" Behavioral learning additionally asks "What worked in similar situations, under what conditions, and should it be reused now?" That requires structured episodes, outcome/evaluation signals, provenance, temporal validity, promotion rules and regression evaluation. Transcripts remain evidence, not learned policy by themselves.
 
+Recent benchmarks reinforce this boundary: long-term memory should be evaluated for temporal/update reasoning, selective forgetting and actual use in task execution—not only passive fact recall. See [agent memory lifecycle research](../research/prior-art/agent-memory-lifecycle-2026.md).
+
 ## Graph memory
 
-Graphs are promising for entities, dependencies, decisions and provenance, especially relationships such as `symbol -> caller -> dependency -> commit -> test`. But EOKS does not require a graph; structured files or other stores can implement the same conceptual contract. A graph is a representation/evidence mechanism, not a universal memory ontology.
+Graphs are promising for entities, dependencies, decisions and provenance, especially relationships such as `symbol -> caller -> dependency -> commit -> test`. Agent-memory research such as A-MEM also shows that dynamically linking memories can improve organization. But EOKS does not require a graph; structured files or other stores can implement the same conceptual contract. A graph is a representation/evidence mechanism, not a universal memory ontology.
 
 ## Learning and control
 
@@ -123,6 +167,21 @@ evaluate -> compare outcomes -> update candidate -> controlled rollout -> evalua
 Learning is currently a **cross-cutting lifecycle**, not a separate mandatory EOKS plane. It transforms evidence into candidate improvements that can be evaluated and versioned; it must not silently rewrite canonical knowledge or policy.
 
 A learned pattern must retain scope: a personal preference is not automatically a project rule; a project convention is not automatically a general engineering principle; and a procedure effective for one model is not necessarily effective for another.
+
+## Evaluation
+
+Memory evaluation should be downstream of retrieval. Relevant dimensions include:
+
+- retrieval accuracy and relevance;
+- temporal and update correctness;
+- contradiction handling and abstention;
+- selective forgetting/invalidation;
+- cross-session and cross-trajectory generalization;
+- use in actual task/action execution;
+- context/token efficiency;
+- downstream workload outcomes such as quality, reliability, cost and latency.
+
+Mem2ActBench is particularly relevant because it evaluates whether memory affects tool selection and parameter grounding rather than merely whether a fact can be recalled. LongMemEval and MemoryAgentBench similarly broaden evaluation toward multi-session reasoning, updates, temporal reasoning, learning and forgetting. These are research references, not EOKS requirements.
 
 ## Research boundary
 
