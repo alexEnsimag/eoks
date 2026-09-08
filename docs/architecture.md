@@ -93,6 +93,26 @@ The conductor may derive or revise a plan, select resources and execution modali
 
 Events can trigger reconciliation: test failures, dependency changes, stale resources, new commits, verification results or human input do not require a separate interrupt subsystem.
 
+### Authority and evidence boundary
+
+EOKS should distinguish **what happened**, **what evidence supports a claim**, and **what is authorized to change workload state**. An agent's self-report is an observation; it is not automatically authoritative acceptance evidence.
+
+```text
+claim / observation
+        |
+      evidence
+        |
+    evaluation
+        |
+ decision + policy
+        |
+ authorized action / state transition
+```
+
+Authority is workload- and policy-specific. Tests, static analysis, runtime observations, independent review, human approval and model self-assessment can all provide evidence with different authority for different decisions. The architecture should preserve provenance and evidence type rather than collapsing them into one confidence value.
+
+This is a boundary, not a new runtime primitive. It explains why validation and policy remain explicit parts of reconciliation and why durable state transitions should not depend solely on an agent's narrative output.
+
 ### Knowledge
 
 The knowledge boundary contains durable project/system information and representations used to preserve or derive it. EOKS does not require one canonical representation. Graphs, indexes, timelines, observations, episodic memory and procedural knowledge are representations/resources, not automatically new ontology objects.
@@ -158,7 +178,17 @@ The loop does **not** imply that every step needs an LLM. The controller chooses
 
 A useful property is **reconstructability**: important workload state, evidence, decisions and artifacts should be durable enough that a new controller or execution attempt can resume without hidden agent memory.
 
-Control loops can be nested. A workload loop may depend on knowledge-maintenance loops, while learning/policy improvement can be a slower loop over accumulated outcomes.
+Control loops can be nested. A workload loop may depend on knowledge-maintenance loops, while learning/policy improvement can be a slower loop over accumulated outcomes. The latter should update policy/resources through evaluation and governed promotion rather than silently changing canonical behavior.
+
+A useful time-scale view is:
+
+```text
+step loop:      act -> observe -> evaluate
+workload loop:  reconcile until acceptance/escalation
+system loop:    aggregate outcomes -> evaluate interventions -> update policy/resources
+```
+
+The system loop is an operational feedback loop, not a new runtime primitive.
 
 ## Core distinctions
 
@@ -325,5 +355,6 @@ The architecture page defines boundaries; detailed behavior belongs in the follo
 - [Deterministic execution](deterministic-execution.md) — deterministic execution as a modality.
 - [Software analysis](software-analysis.md) — deterministic software evidence and analyzer escalation.
 - [OS and computer-architecture lens](../research/prior-art/computer-systems-architecture.md) — systems analogies, optimization techniques and candidate interventions.
+- [AI coding beyond the agent](../research/prior-art/beyond-the-agent.md) — primary-source synthesis of context, execution substrates, authority and multi-timescale feedback.
 
 Research and prior-art documents remain exploratory and should not create competing normative definitions.
