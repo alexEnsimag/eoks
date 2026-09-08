@@ -42,6 +42,69 @@ Several established traditions illuminate different parts of this loop:
 
 The synthesis suggests that **reflection is a strategy, while validated reusable computation is the broader systems problem**.
 
+## Evidence from evaluation and optimization tooling
+
+Recent practitioner tooling helps separate several ideas that are easy to collapse into "reflection."
+
+**Opik** is primarily an observability and evaluation substrate for LLM applications and agents: traces capture executions, evaluations turn traces or dataset runs into evidence, and failures can become regression cases. Its optimizer layer then uses datasets, metrics and traces to compare candidate prompts, tools or workflows. This is concrete prior art for the empirical side of the lifecycle, but it should not be treated as evidence that EOKS needs an Opik-like platform or an observability primitive. Opik's own documentation presents GEPA and HRPO as interchangeable optimization algorithms with different strengths, reinforcing that optimization strategy is a workload-dependent choice rather than a universal EOKS stage.
+
+**GEPA** is better understood as an empirical search/optimization method than as a generic reflection architecture. Reflection is part of its proposal mechanism, but the broader pattern is candidate generation → evaluation → selection → further search. It has also been integrated into other systems, including Opik, DSPy, MLflow and Pydantic AI, which is stronger evidence for the underlying optimization pattern than for any one framework. Its current limitations are equally informative: community reports include budget/accounting mismatches, repeated failed proposals, and concerns about generalization or overfitting. These are reasons to treat optimization evidence as experimental evidence rather than as correctness by itself.
+
+**HRPO** is one particular diagnosis/refinement strategy. Its hierarchical failure analysis is useful prior art for decomposing observation into diagnosis, synthesis and intervention, but it should not be promoted to an EOKS primitive. The fact that Opik exposes HRPO alongside GEPA and other optimizers is evidence that multiple strategies can occupy the same empirical refinement slot.
+
+A useful abstraction is therefore:
+
+```text
+execution
+   ↓
+trace / observation
+   ↓
+evaluation
+   ↓
+evidence
+   ↓
+proposal / diagnosis / search
+   ↓
+candidate
+   ↓
+re-evaluation
+   ↓
+accept / reject / continue
+```
+
+The EOKS question begins where this empirical loop is not sufficient by itself:
+
+```text
+accepted result
+      ↓
+what should become durable?
+      ↓
+knowledge / constraint / test /
+representation / validated computation / policy
+      ↓
+what dependencies make it valid?
+      ↓
+when should it be invalidated?
+```
+
+This distinction prevents three different concepts from being conflated:
+
+- **observability:** what happened during an execution;
+- **evaluation/optimization:** what evidence says about a candidate and what change to try next;
+- **durable knowledge/reuse:** what should survive the execution and under which future conditions it remains valid.
+
+The community evidence is therefore useful not because these tools collectively "are EOKS," but because they provide increasingly concrete implementations of the empirical half of a lifecycle whose durable-knowledge and dependency-aware-reuse half remains an open EOKS research question.
+
+### Control economics is part of the evidence
+
+Optimization and evaluation also expose a cost dimension that should remain explicit. Reflection calls, metric evaluations, tool calls and candidate trials all consume budget. Recent work on cost-aware evolutionary optimization reports large search-cost reductions by separating cheap high-volume evaluation from stronger models used for reflection/variation, while current GEPA/Opik documentation explicitly tracks reflection calls and distinguishes optimizer-internal scores from fresh evaluation scores.
+
+This strengthens an existing EOKS hypothesis:
+
+> **The value of another evaluation, diagnosis or refinement step must be compared with its additional cost and its expected effect on accepted outcome quality.**
+
+It does not imply that a particular optimizer or cost strategy is universally best.
+
 ## 1. Representation is not computation
 
 A durable artifact, a derived representation and a cached computation should not be conflated.
@@ -498,17 +561,6 @@ These are candidate metrics, not established EOKS metrics. They should be valida
 - Morgan, **The Refinement Calculus**, South African Computer Journal — https://ir.unisa.ac.za/bitstream/handle/10500/24169/1995_SACJ_13_Morgan.pdf
 - **Towards Large Language Model Aided Program Refinement** — https://arxiv.org/abs/2406.18616
 - W3C, **PROV-DM / PROV Primer** — https://www.w3.org/TR/prov-primer/
-- Acar et al., work on **Self-Adjusting Computation** and dynamic dependence graphs — https://doi.org/10.1145/2076021.2048101
-- Bazel documentation on **hermeticity and incremental builds** — https://bazel.build/versions/8.6.0/basics/hermeticity
-- Reproducible Builds, **Definition** — https://reproducible-builds.org/docs/definition/
-- Recent agent provenance work, **PROV-AGENT** — https://arxiv.org/abs/2508.02866
-
-## Current EOKS position
-
-The strongest current hypothesis is not that EOKS needs a "reflection layer" or a "cache layer".
-
-It is that reliable AI workloads may benefit from **durable representations whose derivation, supporting evidence, dependencies and validity can be tracked, so that accepted work can be reused and selectively recomputed as the underlying state changes**.
-
-This hypothesis connects reflection, refinement, provenance, evaluation and incremental computation without requiring EOKS to adopt any one of them as its architecture.
-
-The hypothesis remains open and should be tested experimentally.
+- Opik documentation — https://www.comet.com/docs/opik/
+- Opik Agent Optimizer documentation — https://www.comet.com/docs/opik/development/optimization-runs/overview
+- GEPA — https://github.com/gepa-ai/gepa
