@@ -28,7 +28,7 @@ When a research conclusion becomes stable, its canonical statement should move i
 - [`core-model.md`](core-model.md) — resource and semantic-model exploration.
 - [`design-patterns.md`](design-patterns.md) — recurring patterns, including uncertainty-aware graph control.
 - [`evolution.md`](evolution.md) — how the EOKS hypothesis changed over time.
-- [`validated-reusable-computation.md`](validated-reusable-computation.md) — synthesis of refinement, evaluation, provenance, dependency-aware reuse and incremental recomputation for AI workloads.
+- [`validated-reusable-computation.md`](validated-reusable-computation.md) — synthesis of refinement, evaluation, provenance, dependency-aware reuse and incremental recomputation for AI workloads; Opik provides concrete prior art for its empirical execution→evidence→evaluation→refinement side.
 
 ### Memory and learning
 
