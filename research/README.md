@@ -61,6 +61,7 @@ When a research conclusion becomes stable, its canonical statement should move i
 ### Prior art
 
 - [`prior-art/ai-native-sdlc.md`](prior-art/ai-native-sdlc.md) — AI-native SDLC and spec-driven development mapped onto EOKS control loops, durable artifacts, context compilation and continuous maintenance.
+- [`prior-art/beyond-the-agent.md`](prior-art/beyond-the-agent.md) — primary-source synthesis of context engineering, vendor-neutral coding-agent execution, persistent workspaces, evidence/authority boundaries and multi-timescale feedback.
 - [`prior-art/reflection-harness-sdd.md`](prior-art/reflection-harness-sdd.md) — practitioner evidence on reflection over intermediate SDD artifacts, progressive validation/freezing, persistent review state and the boundary between durable artifacts and reusable computation.
 - [`prior-art/posthog-context-lifecycle.md`](prior-art/posthog-context-lifecycle.md) — PostHog practitioner evidence on resident context cost, stale guidance, context regression evaluation and feedback-driven maintenance; mapped to existing EOKS context and control-loop concepts.
 - [`prior-art/github-copilot-task-efficiency.md`](prior-art/github-copilot-task-efficiency.md) — GitHub Copilot practitioner evidence that local token/tool-output savings can create downstream recovery work; maps task-level efficiency onto existing EOKS evaluation and intervention semantics.
