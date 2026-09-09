@@ -70,6 +70,7 @@ When a research conclusion becomes stable, its canonical statement should move i
 - [`prior-art/github-copilot-task-efficiency.md`](prior-art/github-copilot-task-efficiency.md) — GitHub Copilot practitioner evidence that local token/tool-output savings can create downstream recovery work; maps task-level efficiency onto existing EOKS evaluation and intervention semantics.
 - [`prior-art/structured-knowledge-and-context-graphs.md`](prior-art/structured-knowledge-and-context-graphs.md) — ontology, knowledge graphs, context graphs and recent agent-memory research; argues for structured/contextualized evidence as the abstraction rather than a mandatory graph primitive.
 - [`prior-art/codebase-knowledge-graph-relationships.md`](prior-art/codebase-knowledge-graph-relationships.md) — Sachin Kasana's 500K-line codebase knowledge-graph case study, connected to Code Property Graphs, relationship-aware context construction, provenance and evaluation of traversal.
+- [`prior-art/graph-engineering.md`](prior-art/graph-engineering.md) — Lunar Researcher's graph-engineering guide mapped to execution topology, coordination, reduction, verification and graph-level evaluation.
 
 The [`prior-art/`](prior-art/) directory contains deeper notes on individual projects. The consolidated landscape is [`docs/prior-art.md`](../docs/prior-art.md).
 
