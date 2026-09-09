@@ -22,6 +22,8 @@ A third refinement is that **memory is not one flat store**. Agent systems incre
 
 The current architectural hypothesis is deliberately compositional: OKF can provide durable structured knowledge; Graphify-like systems can provide structural evidence; **CodeSight-like systems can provide deterministic repository context and targeted evidence views**; GrapeRoot-like systems can provide proactive context optimization around existing coding agents; TencentDB Agent Memory demonstrates multi-resolution memory, Skills, Wiki and CodeGraph as governed reusable resources; specialized analyzers and tests can provide deterministic evidence; and EOKS can coordinate these resources through task, context, run, decision, policy, evaluation and outcome primitives. The canonical vocabulary for how these resources relate is in [Resource model](docs/resource-model.md).
 
+The latest synthesis sharpens this further: **knowledge, experience, context and evaluation are different roles in the control loop**. Knowledge is governed/reusable meaning; experience records what happened; context is the task-specific projection selected for a run; evaluation determines whether the resulting loop worked. Knowledge graphs, memory graphs and context graphs are therefore optional representations/roles rather than mandatory EOKS subsystems. See [Knowledge, memory and context graphs — synthesis note](research/prior-art/knowledge-memory-context-graph.md).
+
 ```text
                          EOKS CONTROL PLANE
               scheduling · policies · resource selection
@@ -78,6 +80,7 @@ The repository separates **current architecture** from **exploratory research**.
 The [`research/`](research/) directory preserves exploratory reasoning, comparisons and experiments. It is intentionally less normative than `docs/`; research notes may contain competing hypotheses. See [`research/README.md`](research/) for its map.
 
 - [Knowledge, context and the EOKS control plane](research/knowledge-context-control-plane.md)
+- [Knowledge, memory and context graphs — synthesis note](research/prior-art/knowledge-memory-context-graph.md) — maps knowledge, experience, context compilation, decision provenance and evaluation without introducing graph-specific runtime primitives.
 - [CodeSight](research/prior-art/codesight.md) — deterministic repository context and targeted evidence views.
 - [TencentDB Agent Memory](research/prior-art/tencent-agent-memory.md) — multi-resolution memory, Skills, Wiki, CodeGraph, governance/loadouts and hybrid context delivery.
 - [OpenWiki](research/prior-art/openwiki.md) — versioned generated repository knowledge, lightweight discovery and freshness/review lifecycle.
