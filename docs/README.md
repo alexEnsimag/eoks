@@ -21,6 +21,10 @@
 - [`software-engineering.md`](software-engineering.md) — software-engineering workloads and agent practices.
 - [`software-analysis.md`](software-analysis.md) — invariants, dataflow and analyzer escalation.
 
+### Synthesis
+
+- [`synthesis-execution-graphs.md`](synthesis-execution-graphs.md) — execution topology, coordination, reduction, verification and graph-level evaluation, including asymmetric assurance.
+
 The architecture page is deliberately short. Detailed behavior belongs in the document that owns the concept rather than being duplicated across architecture and specialist pages.
 
 ## Governance and research

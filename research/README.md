@@ -50,6 +50,7 @@ When a research conclusion becomes stable, its canonical statement should move i
 - [`intermediate-evidence-and-model-signals.md`](intermediate-evidence-and-model-signals.md) — intermediate evidence across external, execution, process and model-native sources, including token probabilities, semantic uncertainty, hidden-state probing, calibration and the boundary to computation reuse.
 - [`llm-observability-and-reliability.md`](llm-observability-and-reliability.md) — observability, uncertainty, external evidence and calibration.
 - [`prior-art/agent-trajectory-evaluation.md`](prior-art/agent-trajectory-evaluation.md) — agent trajectory evaluation, outcome-vs-process evidence, stochastic evaluation and trajectory capture.
+- [`prior-art/asymmetric-assurance-and-challengers.md`](prior-art/asymmetric-assurance-and-challengers.md) — self-correction limits, adversarial challenge, counterexample generation, verification, correlated failure and assurance topology.
 - [`observations-and-questions.md`](observations-and-questions.md) — unresolved questions.
 - [`prior-art/faraday-replica.md`](prior-art/faraday-replica.md) — Faraday/Replica: learned scientific judgment over coding agents, constrained experimentation, rubric-based evaluation and trajectory-level credit.
 

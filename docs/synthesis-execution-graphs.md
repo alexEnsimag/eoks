@@ -415,3 +415,84 @@ execution selection
 Topology therefore belongs to the **control decision space**, not to a new foundational ontology layer.
 
 The strongest current hypothesis is that EOKS should eventually be able to observe enough of this topology to learn whether a particular coordination structure is actually useful. Until that is demonstrated, graph engineering remains a synthesis lens and experimental target rather than an architectural commitment.
+
+## 15. Asymmetric assurance: support, attack and verification
+
+The assurance research does not require another EOKS primitive. It sharpens the existing `fan-out -> reduce -> verify -> synthesize` pattern by distinguishing the objectives of the evidence-producing paths.
+
+```text
+                         artifact / claim
+                               |
+                    +----------+----------+
+                    |                     |
+                 SUPPORT                 ATTACK
+              construct/support       try to falsify
+                    |                     |
+                    +----------+----------+
+                               |
+                         VERIFY / ADJUDICATE
+                               |
+                           EVALUATION
+                               |
+                    accept / revise / reject
+```
+
+Three distinctions are important:
+
+- **Reflection** inspects or improves a trajectory; it is not automatically independent assurance.
+- **Attack** deliberately searches for a failure condition. A useful attack produces a counterexample, contradiction, missing requirement, violated invariant or other checkable evidence rather than merely disagreeing.
+- **Verification** establishes a particular property using an appropriate mechanism. It may be a test, analyzer, compiler/type checker, authoritative source, formal checker, independent model-based check or human review; it need not be another agent.
+
+The research supports treating these as **roles/objectives over existing Runs**, not as `Challenger`, `Verifier` or `Assurance` primitives.
+
+### Independence, not agent count
+
+More reviewers do not necessarily provide more assurance. Evidence paths can share models, prompts, context, sources, assumptions, acceptance criteria and upstream failures.
+
+```text
+3 agents != 3 independent evidence paths
+```
+
+Therefore the conductor may choose an assurance topology based on consequence, policy, available verification, historical performance and expected independence. The useful objective remains **minimum sufficient assurance**, not maximum agent count.
+
+Independence is itself something to evaluate rather than assume. Candidate experiments include same-model/different-strategy, different-context, different-model, alternative evidence sources, and LLM attack followed by deterministic verification.
+
+### Attack should become evidence
+
+A practical pattern is:
+
+```text
+construct
+  -> state claims / assumptions / acceptance criteria
+  -> attack
+  -> substantiate attack
+  -> verify
+  -> evaluate
+  -> decide
+```
+
+The challenger should normally receive the artifact and relevant requirements/evidence. Whether it also receives the worker trajectory is a policy choice: withholding it may reduce anchoring and correlated assumptions; exposing it may be useful when the rationale itself is under examination.
+
+### Assurance survives reuse
+
+Assurance evidence should remain attached to the artifact/state transition with provenance, including what was challenged and verified, which evidence and versions were covered, and which assumptions mattered. This connects directly to EOKS temporal lineage and dependency-aware reuse: material changes can trigger targeted re-assurance instead of an unconditional full rerun.
+
+### Assurance is evaluated too
+
+Candidate measurements include attack yield, unique attack yield, attack precision, severity-weighted challenge value, escaped defects, false reassurance, verification coverage and effective assurance independence. These are research metrics, not established standards.
+
+The highest-value validation is a controlled topology comparison:
+
+```text
+worker
+worker + verifier
+worker + challenger
+worker + challenger + verifier
+worker + independent challenger + verifier
+```
+
+Evaluate final correctness, unique validated defects, false positives, escaped defects, cost, latency and revision effort. This tests whether improvements come from asymmetry, independence, verification or merely additional computation.
+
+The resulting synthesis is deliberately modest:
+
+> **Construct with support, search for failure with attack, establish properties with verification, and make decisions from provenance-preserving evidence. Use only as much assurance topology as the consequence of being wrong justifies.**
