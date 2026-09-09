@@ -8,6 +8,7 @@
 - [`control-loop-consolidation.md`](control-loop-consolidation.md) — consolidated mapping of existing concepts onto the reconciliation model; Cards remain an open hypothesis.
 - [`resource-model.md`](resource-model.md) — resources, assets, providers, representations and loadouts.
 - [`context.md`](context.md) — context engineering and compilation.
+- [`context-evolution.md`](context-evolution.md) — evolving active context state without retaining the entire session; causal continuity, semantic consolidation and lifecycle transitions.
 - [`context-workbench.md`](context-workbench.md) — inspectable context blocks, budgets and human control.
 - [`knowledge-base.md`](knowledge-base.md) — durable project knowledge and lifecycle.
 - [`knowledge-representations.md`](knowledge-representations.md) — multiple representations of engineering reality.
@@ -47,7 +48,7 @@ In particular:
 - **Architecture, control loop, planes and runtime primitives** belong in `architecture.md`.
 - **Control-loop consolidation and cross-concept mapping** belong in `control-loop-consolidation.md`; it should not create competing definitions.
 - **Resource/Asset/Provider/Representation/Loadout definitions** belong in `resource-model.md`; the glossary in `terminology.md` stays compact.
-- **Context selection and compilation** belong in `context.md`; the Workbench focuses on inspectable interaction/prototyping rather than redefining context engineering.
+- **Context selection and compilation** belong in `context.md`; **context evolution** belongs in `context-evolution.md`; the Workbench focuses on inspectable interaction/prototyping rather than redefining context engineering.
 - **Knowledge and memory lifecycle** belong in `knowledge-base.md` and `memory.md`.
 - **Workflow, roles and reasoning strategies** belong in `agent-roles.md` and `agent-workflows.md`. Scheduler, router and orchestrator are implementation terms under the conductor/control responsibility, not competing architecture documents.
 - **Evaluation, reliability and calibration** belong in `evaluation.md`.
