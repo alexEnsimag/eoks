@@ -18,6 +18,61 @@ It also distinguishes deterministic checks from judgment-based evaluation and of
 
 Source: [Agent Evaluation: How Do You Know Your Agent Actually Works?](https://blog.gopenai.com/agent-evaluation-how-do-you-know-your-agent-actually-works-1c6b7cef5461)
 
+## Agentic Evals: A Software Engineer's Perspective
+
+Yesha's *Agentic Evals: A Software Engineer's Perspective* is useful because it frames evaluation as an engineering feedback loop rather than as a leaderboard exercise. The article emphasizes evaluating the **trajectory and execution behavior** of an agent, not only the final answer, and combining deterministic checks with judgment where deterministic verification is insufficient.
+
+A particularly useful pattern is:
+
+```text
+eval set
+   -> environment / task
+   -> agent execution
+   -> trace / trajectory
+   -> evaluators
+   -> metrics / failures
+   -> new or refined eval cases
+   -> next evaluation cycle
+```
+
+For EOKS, the important synthesis is that the evaluation corpus itself becomes a governed resource. Production failures and newly discovered edge cases can become candidate evaluation cases, but should be validated and promoted rather than silently changing the canonical benchmark. This connects evaluation to the existing EOKS candidate-extraction and controlled-promotion model.
+
+The article also highlights repeated-run reliability rather than treating one successful execution as sufficient evidence. Concepts such as **pass@k** and **pass^k** are useful examples of different reliability questions: whether at least one attempt succeeds versus whether repeated attempts succeed consistently. EOKS should retain the underlying distribution and workload slice rather than collapsing these into a universal reliability score.
+
+The article's strongest architectural implication is therefore:
+
+```text
+run
+  -> trace / intermediate evidence
+  -> evaluation
+  -> outcome
+  -> policy evidence
+  -> control decision
+       |-> stop
+       |-> verify
+       |-> retry / replan
+       |-> branch
+       |-> switch resource/model
+       `-> create candidate eval case
+```
+
+This is consistent with EOKS's existing separation of **observability**, **reliability estimation**, and **control**. Evaluation should produce evidence that can inform the control loop; it should not itself become an opaque control policy.
+
+Source: [Agentic Evals: A Software Engineer's Perspective](https://yeshas93.substack.com/p/agentic-evals-a-software-engineers)
+
+### What this adds to the synthesis
+
+This article does **not** justify a new EOKS `trajectory` primitive or a generic agent-evaluation subsystem. The existing execution trace and evaluation record are sufficient representations.
+
+It does strengthen four existing hypotheses:
+
+- **Trajectory evidence is first-class evaluation evidence.** Final-output success can hide inefficient, fragile or silently faulty execution.
+- **Evaluation is part of the control loop.** Evaluation results can become evidence for stop/verify/retry/branch/resource-selection decisions, subject to policy and calibration.
+- **Eval sets are governed knowledge/evidence resources.** They need provenance, versioning, task coverage, freshness and controlled promotion of production-derived cases.
+- **Reliability is workload-specific and distributional.** Repeated-run behavior matters; a single aggregate score is insufficient for graduated autonomy.
+
+These points reinforce the broader EOKS synthesis: **knowledge, experience, context, execution evidence and evaluation are different roles in one closed loop**. The architecture should coordinate them without prematurely turning each role into a mandatory subsystem.
+
 ## Trajectory-Judge
 
 *Trajectory-Judge: What Outcome-Only LLM Judges Miss on Agent Trajectories* directly studies the gap between evaluating the final outcome and evaluating the trajectory. The authors construct cases in which faults are visible in the outcome versus silently masked by later recovery. Their reported experiments show substantially lower recall for silent trajectory faults when judging outcomes alone, while step-level evaluation improves detection.
