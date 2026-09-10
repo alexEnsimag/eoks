@@ -30,6 +30,8 @@ When a research conclusion becomes stable, its canonical statement should move i
 - [`evolution.md`](evolution.md) — how the EOKS hypothesis changed over time.
 - [`validated-reusable-computation.md`](validated-reusable-computation.md) — synthesis of refinement, evaluation, provenance, dependency-aware reuse and incremental recomputation for AI workloads; recent evaluation/optimization tooling is treated as evidence for the empirical execution→trace→evaluation→candidate-refinement side, not as an EOKS primitive.
 - [`prior-art/validated-reusable-computation-sources.md`](prior-art/validated-reusable-computation-sources.md) — preserved source register for the validated/reusable-computation synthesis, including foundational research, standards, evaluation/optimization tooling and recent research leads.
+- [`prior-art/incremental-context-maintenance.md`](prior-art/incremental-context-maintenance.md) — focused synthesis connecting self-adjusting computation, incremental view maintenance, differential dataflow and dependency-aware build systems to evolving derived context.
+- [`prior-art/llm-context-caching.md`](prior-art/llm-context-caching.md) — current LLM caching evidence across vLLM, Hugging Face, Anthropic, Gemini, OpenAI and Redis; distinguishes computational cache reuse from semantic result reuse and connects cache identity, TTL and scope to EOKS validity.
 - [`prior-art/knowledge-memory-context-synthesis.md`](prior-art/knowledge-memory-context-synthesis.md) — synthesis of knowledge, experience, context compilation, decision provenance and graph/memory/context representations; argues for sharper existing boundaries rather than new graph primitives.
 
 ### Memory and learning
