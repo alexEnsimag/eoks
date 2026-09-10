@@ -6,7 +6,7 @@ The key question is:
 
 > **When authoritative state changes, can EOKS update only the derived context that is affected instead of rebuilding everything?**
 
-This is a narrower and more operational question than context evolution as a whole. It connects EOKS's existing context-evolution and validated-reusable-computation work to established research on self-adjusting computation, incremental view maintenance, differential dataflow, and dependency-aware build systems.
+This is a narrower and more operational question than context evolution as a whole. It connects EOKS's existing context-evolution and validated-reusable-computation work to established research on self-adjusting computation, incremental view maintenance, differential dataflow, dependency-aware build systems, and current LLM context-caching systems.
 
 ## From cache invalidation to incremental maintenance
 
@@ -45,6 +45,30 @@ identify affected dependencies
 ```
 
 This is the important bridge to EOKS. The goal is not simply a larger cache. It is a **maintainable derived-state graph** whose nodes have explicit dependencies and whose update cost can be smaller than full recomputation.
+
+## Current LLM caching systems: useful evidence, but not the whole model
+
+The current model-serving ecosystem provides concrete evidence for several layers of reuse that EOKS needs to distinguish. The detailed tool-by-tool evidence is preserved in [`llm-context-caching.md`](llm-context-caching.md), covering vLLM, Hugging Face, Anthropic, Gemini, OpenAI and Redis.
+
+The recurring pattern is:
+
+```text
+prefix/KV cache
+    -> reuse model computation
+
+prompt/context cache
+    -> reuse expensive input processing
+
+semantic result cache
+    -> retrieve a similar prior result
+    -> validate before reuse
+
+EOKS derived context
+    -> preserve a validated semantic representation
+    -> track dependencies as evidence changes
+```
+
+The production systems therefore give EOKS an important empirical anchor: **cache identity, context ordering, TTLs and scope all affect reuse, but none alone provide a general model for evolving semantic context.**
 
 ## Self-adjusting computation
 
@@ -92,6 +116,14 @@ The analogy is useful:
 | view dependency | provenance/dependency relation |
 
 The analogy should not be taken too literally. LLM-generated synthesis is generally probabilistic and semantically richer than a relational query. The useful transfer is the **maintenance problem**, not the database implementation.
+
+### DBSP and modern incremental view maintenance
+
+DBSP revisits incremental view maintenance for rich query programs and frames incremental computation as maintaining a result as input changes arrive, rather than repeatedly evaluating the complete query. [17]
+
+This strengthens the EOKS analogy because the relevant unit is not necessarily a database row or an entire context document. It can be an intermediate derived representation with its own dependencies and incremental update rule.
+
+For EOKS, this suggests a useful research direction: make the **maintenance strategy itself** part of the provenance of a derived context artifact, rather than treating every update as an opaque LLM call.
 
 ## Differential dataflow and repeated change
 
@@ -245,12 +277,15 @@ It connects directly to:
 - [`docs/context-evolution.md`](../../docs/context-evolution.md) — context as evolving state rather than transcript retention;
 - [`research/validated-reusable-computation.md`](../validated-reusable-computation.md) — provenance, dependency-aware reuse, invalidation and incremental recomputation;
 - [`research/prior-art/incremental-semantic-computation.md`](incremental-semantic-computation.md) — lower-level reusable intermediate computation;
+- [`research/prior-art/llm-context-caching.md`](llm-context-caching.md) — current LLM caching evidence and the computational-vs-semantic reuse boundary;
 - [`docs/synthesis-execution-graphs.md`](../../docs/synthesis-execution-graphs.md) — dependency topology and selective coordination;
 - [`research/prior-art/knowledge-memory-context-synthesis.md`](knowledge-memory-context-synthesis.md) — context as a task-time projection of knowledge, experience and live state.
 
-The main addition is the explicit bridge from **incremental computation/materialized-view maintenance** to **evolving derived context**.
+The main addition is the explicit bridge from **incremental computation/materialized-view maintenance** to **evolving derived context**, grounded both in classical incremental systems and in the current production practice of LLM prefix/KV/context caching and semantic result caching.
 
 ## Sources
+
+### Incremental computation and derived-state maintenance
 
 1. Umut A. Acar, Guy E. Blelloch and Robert Harper, *Adaptive Functional Programming* / self-adjusting computation research. CMU research bibliography: https://www.cs.cmu.edu/~rwh/papers.html
 2. Umut A. Acar, Matthias Blume and Jacob Donham, *A Consistent Semantics of Self-Adjusting Computation*, 2011: https://arxiv.org/abs/1106.0478
@@ -262,3 +297,6 @@ The main addition is the explicit bridge from **incremental computation/material
 8. Bazel, *Remote Caching*: https://docs.bazel.build/versions/0.26.0/remote-caching.html
 9. Nix, *Store Derivation and Deriving Path*: https://nix.dev/manual/nix/2.35/store/derivation/
 10. Nix, *Content-addressing derivation outputs*: https://nix.dev/manual/nix/2.35/store/derivation/outputs/content-address.html
+17. Felice Bacciu et al., *DBSP: Automatic Incremental View Maintenance for Rich Query Languages*, 2023: https://arxiv.org/abs/2307.05551
+
+The current LLM caching sources are maintained separately in [`llm-context-caching.md`](llm-context-caching.md), so that the production/tool-level evidence remains directly inspectable rather than being reduced to a few citations here.
