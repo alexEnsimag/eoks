@@ -28,6 +28,36 @@ model
 
 The model should normally receive the evidence it needs, not the internal graph, index or storage system itself.
 
+## Harness-mediated context transformation
+
+A context intervention does not necessarily require a new persistent knowledge representation. Existing coding-agent harnesses already expose useful control points—hooks, tool boundaries, skills, scripts and repository access—that can transform information **before it enters the expensive model context**.
+
+Spotify's Portal/Shunt is a concrete example: a hook blocks broad reads, a cheaper worker consumes the large files, and only a compact result reaches the frontier model. The authoritative repository remains the source of truth; the intervention changes the materialization path rather than creating another knowledge store. See [Spotify Portal / Shunt](prior-art/spotify-portal-shunt.md).
+
+This suggests a design ordering principle:
+
+> **Before accumulating or maintaining new knowledge, exhaust the context transformations available at the existing harness boundary.**
+
+And, more specifically:
+
+> **Prefer context transformation over context accumulation when authoritative evidence already exists.**
+
+Persistent representations remain appropriate when they preserve information that is otherwise expensive or impossible to reconstruct—such as cross-session rationale, organizational context, validated invariants or reusable derived semantic artifacts. The point is to avoid introducing a graph, wiki, memory store or other knowledge substrate merely to solve a materialization problem.
+
+```text
+authoritative evidence
+        |
+   existing harness
+        |
+ select / summarize / route / generate
+        |
+ context compiler
+        |
+      model
+```
+
+This also clarifies the role of cheap worker models: they can be **context acquisition/compilation resources** without becoming the primary reasoner. Delegation should be evaluated by evidence preservation, verification/rework, latency and end-to-end task outcome, not token reduction alone.
+
 ## Working set, context and execution state
 
 Three concepts must remain distinct:
