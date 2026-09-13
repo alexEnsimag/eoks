@@ -121,7 +121,9 @@ This also avoids the **ultimate graph** trap: EOKS does not need to materialize 
 
 The system representation should not be confused with persistent memory. A code/project/system representation answers **what the system is and how its parts relate**; evolving memory answers **what EOKS learned from prior work, why decisions were made, what evidence supported them, and what should influence future work**.
 
-Second-brain tools such as **Obsidian, Notion, Capacities, Tana, Roam and Mem** are therefore relevant as representation/capture/memory prior art, but they do not by themselves solve this software-system representation problem. **Soda-style passive capture** addresses a different upstream problem: how observations enter the system without making the human manually maintain it.
+Second-brain tools such as **Obsidian, Notion, Capacities, Tana, Roam and Mem**, plus the low-friction **Apple Notes** baseline, are relevant as representation/capture/memory prior art, but they do not by themselves solve this software-system representation problem. **Soda-style passive capture** addresses a different upstream problem: how observations enter the system without making the human manually maintain it.
+
+The second-brain review also reinforces that storage alone is insufficient. Captured information must remain useful as work changes; stale, contradicted or low-value knowledge should be updated, invalidated or allowed to disappear. This connects the representation problem to EOKS's broader **evolution** problem without collapsing the two into one graph.
 
 The boundary is:
 
@@ -135,6 +137,8 @@ representation + evidence
 synthesis
   ↓
 knowledge that changes future work
+  ↺
+refresh / invalidate / evolve
 ```
 
 ## Phase A outcome
@@ -143,6 +147,6 @@ Phase A should produce an explicit answer to:
 
 > What is the smallest practical provider combination that can represent a real polyglot, multi-repository system well enough for both human navigation and agent context construction?
 
-The experiment should also determine whether that representation is **computed on demand** for a task or maintained as a durable unified graph.
+The experiment should also determine whether that representation is **computed on demand** for a task or maintained as a durable unified graph, and which relationships need to remain authoritative versus computed.
 
 If no existing combination is satisfactory, the missing capability itself becomes an EOKS design/research target.
