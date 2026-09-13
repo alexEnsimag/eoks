@@ -27,18 +27,29 @@ Start from mechanisms observed in OpenWolf and Spotify Portal/Shunt rather than 
 
 ### Shunt / Spotify Portal-derived mechanisms
 
-- intercept expensive context-producing operations before they reach the frontier model
-- distinguish cheap/read-oriented work from operations that need the main model
+The Spotify example is narrower and more concrete than a generic "context router": its `shunt` plugin hard-blocks large file reads and redirects them to a cheaper bulk-reader, while targeted reads remain available. It also demonstrates delegating predictable code generation. The published benchmark reports **82–94% savings for the intercepted large-read scenarios**, with a mean around 90%; this is not a claim that total coding-agent cost falls 90% on every workload.
+
+The mechanisms worth testing are:
+
+- intercept expensive, high-volume I/O before it reaches the frontier model
+- distinguish bulk/read-oriented work from operations that need the main model's reasoning
 - transform or delegate selected operations
-- keep the policy decision explicit and measurable
+- keep targeted reads available when edits or precise reasoning require exact source locations
+- keep the routing policy explicit and measurable
+
+The Spotify experiment also gives us important negative evidence: bulk-reader summaries were not reliable enough for editing, a worker missed a subtle thread-safety issue, and delegation adds latency. EOKS should therefore treat **decision quality and task outcome as gates**, not optimize token reduction in isolation.
 
 ### Capture / observation gap
 
-The second-brain review adds an important upstream question. Notion, Obsidian, Capacities, Mem, Tana and Roam all assume some deliberate capture/workspace interaction, although they differ substantially in structure and automation. Soda represents the opposite hypothesis: passively observe work context and turn it into durable, searchable knowledge without requiring the user to stop and record it.
+The second-brain review adds an important upstream question. The six apps tested in the article were **Notion, Obsidian, Capacities, Mem, Tana and Roam Research**. They differ in structure and automation, but the common failure mode was that useful information still had to be captured while the user was doing other work. **Apple Notes** is an important baseline precisely because its very low capture friction survived where the more elaborate systems did not.
 
-EOKS should treat this as a **capture/observation mechanism to investigate**, not as a reason to build a second-brain application. The key experiment is whether work-coupled observation can produce useful, permissioned evidence/artifacts with acceptable privacy, provenance and noise characteristics.
+Soda represents the opposite hypothesis: passively observe work context and turn it into durable, searchable knowledge without requiring the user to stop and record it. The article explicitly treats Soda as a private-beta hypothesis, not validated evidence.
 
-Tana is particularly relevant as a bridge case: its current products combine structured graph memory with meeting/context capture and agentic actions. It is useful prior art for the hypothesis that capture should happen as a side effect of work, while still requiring us to test whether EOKS needs a simpler, harness-native mechanism.
+EOKS should treat this as a **capture/observation mechanism to investigate**, not as a reason to build a second-brain application. The key experiment is whether work-coupled observation can produce useful, permissioned evidence/artifacts with acceptable privacy, provenance, freshness and noise characteristics.
+
+Tana is particularly relevant as a bridge case: its current products combine structured graph memory with capture and agentic access. It is useful prior art for the hypothesis that capture should happen as a side effect of work, while still requiring us to test whether EOKS needs a simpler, harness-native mechanism.
+
+The second-brain review also exposes a second problem beyond capture: **maintenance**. Knowledge becomes stale, contradictory or misleading unless the system can update/invalidate it. A useful EOKS experiment therefore needs to measure not just capture rate, but whether captured knowledge remains correct and useful over time.
 
 ### EOKS harness boundary
 
@@ -70,6 +81,7 @@ Measure at minimum:
 - captured observations per unit of work
 - useful-vs-noisy captured observations
 - provenance and freshness of captured information
+- stale/contradictory observations detected and resolved
 - human intervention required to make captured information usable
 
 The first experiment is not "build the perfect context engine" or "build a second brain". It is to establish controlled places where context acquisition, transformation and capture can change and their consequences can be measured.
@@ -149,10 +161,12 @@ A provider does not have to supply every layer. The experiment should identify w
 The other second-brain tools from the review are comparison points, not runtime dependencies:
 
 - **Notion** — structured workspace/databases/collaboration; useful comparison for organization and operational documentation.
+- **Obsidian** — local Markdown, links and user-controlled artifacts; the preferred Phase A inspection surface because it can consume EOKS artifacts without becoming the runtime knowledge store.
 - **Capacities** — object-based structured knowledge with links/backlinks; useful comparison for typed representations and low-friction organization.
 - **Tana** — typed graph, structured capture and agent-facing knowledge; useful comparison for evolving work-coupled knowledge.
 - **Roam Research** — linked/daily-note model; useful comparison for deliberately curated temporal knowledge.
 - **Mem** — AI-assisted capture, recall and evolving workspace; primarily Phase B memory prior art.
+- **Apple Notes** — important low-friction capture baseline from the article; not a candidate EOKS substrate, but a useful reminder that capture friction can dominate richer organization.
 
 The question is not which of these should become EOKS. The question is which mechanisms are worth reproducing in a simpler, work-coupled EOKS artifact flow.
 
@@ -179,11 +193,14 @@ Phase B begins once Phase A has established that the current-session lifecycle, 
 - **Tana** — especially relevant as prior art for typed knowledge graphs fed by meetings/work and exposed to agents; useful for testing whether structured evolving memory beats simpler EOKS artifacts.
 - **Opik / LangSmith / Langfuse-style observability** — richer traces, evaluations and operational analysis once minimal local measurements are understood.
 - **Notion / Capacities / Roam / Obsidian** — remain human-facing knowledge-management comparison points unless experiments show a concrete mechanism EOKS should adopt.
-- **Soda-style passive work capture** — Phase B candidate if Phase A establishes that observation quality, privacy, provenance and usefulness justify persistent background capture. The current evidence is insufficient to make it an implementation dependency.
+- **Apple Notes** — capture-friction baseline only; useful as a design constraint, not as a memory architecture.
+- **Soda-style passive work capture** — Phase B candidate if Phase A establishes that observation quality, privacy, provenance and usefulness justify persistent background capture. The article's current evidence is explicitly insufficient to treat Soda's approach as validated.
 
 The Phase B question is not "how do we store more memory?" It is:
 
 > Can EOKS preserve and evolve the parts of prior work that materially improve future work, while invalidating stale knowledge, retaining provenance, detecting contradictions and avoiding accumulation of irrelevant history?
+
+This is the **living-knowledge** problem: the system should move from static storage toward knowledge that is refreshed by subsequent work and can be surfaced when relevant, without turning every observation into permanent memory.
 
 ## Deferred / reference tools
 
