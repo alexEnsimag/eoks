@@ -47,16 +47,21 @@ flowchart LR
       GR[GrapeRoot]
       CAS[CodeSight]
       Xirp[Xirp / Spotify]
+      Shunt[Portal / Shunt]
     end
 
-    subgraph StructureTools[Structural evidence]
+    subgraph StructureTools[Structural / system representation]
       Graphify[Graphify]
       UAnything[Understand Anything]
+      Nx[Nx]
+      SG[Sourcegraph]
+      SZ[Structurizr]
+      CS[CodeSee]
     end
 
     subgraph VerificationTools[Verification / analysis]
       TS[TypeScript / ESLint / ts-morph]
-      SG[Semgrep]
+      SGrep[Semgrep]
       CQ[CodeQL]
       Mod[modularity]
     end
@@ -72,6 +77,17 @@ flowchart LR
       Aider[Aider]
       LR[Langroid]
       Cond[Conductor-style systems]
+      OW[OpenWolf mechanisms]
+    end
+
+    subgraph CaptureTools[Capture / human-facing comparison]
+      Soda[Soda-style ambient capture]
+      Obsidian[Obsidian]
+      Notion[Notion]
+      Capacities[Capacities]
+      Tana[Tana]
+      Roam[Roam Research]
+      Apple[Apple Notes]
     end
 
     subgraph EvalTools[Evaluation / observability]
@@ -79,6 +95,7 @@ flowchart LR
       PF[Promptfoo]
       TL[TransformerLab]
       AB[Aider / OpenHands benchmarks]
+      Opik[Opik]
     end
 
     OKF --> K
@@ -88,10 +105,15 @@ flowchart LR
     GR --> C
     CAS --> C
     Xirp --> C
+    Shunt --> C
     Graphify --> E
     UAnything --> E
-    TS --> E
+    Nx --> E
     SG --> E
+    SZ --> E
+    CS --> E
+    TS --> E
+    SGrep --> E
     CQ --> E
     Mod --> E
     TC --> P
@@ -101,8 +123,17 @@ flowchart LR
     Aider --> X
     LR --> X
     Cond --> X
+    OW --> X
+    Soda --> K
+    Obsidian --> K
+    Notion --> K
+    Capacities --> K
+    Tana --> K
+    Roam --> K
+    Apple --> K
     LS --> O
     LS --> V
+    Opik --> O
     PF --> V
     TL --> V
     AB --> V
@@ -135,38 +166,43 @@ Legend:
 
 | EOKS area | ★ Most promising now | ○ Compare / complement | What we currently know | Main unknown to test |
 |---|---|---|---|---|
-| **Context compilation** | **GrapeRoot**, **CodeSight** | Xirp / Spotify | GrapeRoot is strong prior art for proactive repository context around an existing coding agent; CodeSight focuses on code understanding/context generation. | Does structured/proactive context improve outcomes over the agent's native retrieval? |
+| **Harness/context control** | **OpenWolf mechanisms**, **Portal/Shunt mechanisms** | native agent hooks | OpenWolf supplies lifecycle/state/measurement mechanisms; Shunt demonstrates hard interception and delegation of bulk reads/predictable generation. | Can EOKS intervene at the harness boundary without reducing task quality? |
+| **Work capture** | **Soda-style passive capture** | Apple Notes, Mem, Tana | Soda represents ambient capture; the Medium evidence is explicitly private-beta and unvalidated. Apple Notes is the low-friction baseline. | Can work-derived capture beat manual capture while preserving privacy, provenance and acceptable noise? |
+| **Context compilation** | **GrapeRoot**, **CodeSight** | Portal/Shunt | GrapeRoot is prior art for proactive repository context; CodeSight focuses on code understanding/context generation; Shunt attacks expensive I/O before it reaches the frontier model. | Which context operations should be compiled, delegated or retrieved natively? |
 | **Knowledge representation** | **OKF** | `CLAUDE.md`, Tencent Wiki | OKF is a portable Markdown/YAML representation; `CLAUDE.md` is simple, human-reviewed local knowledge; Tencent's Wiki is a broader resource family. | Does a portable structured representation provide enough value to justify another format? |
-| **Memory / learning** | **Hindsight / LangMem-style**, **Mem0/Zep-style** | Tencent Agent Memory | Strong prior art for persistent semantic/episodic/procedural memory; Tencent additionally connects memory, Skills, Wiki and CodeGraph. | Does persistent learned memory improve repeated engineering work without accumulating harmful/stale knowledge? |
-| **Repository structure** | **Graphify**, **Understand Anything** | CodeSight | Both provide graph/relationship-oriented code understanding; useful for navigation and impact analysis. | When does a graph materially outperform search/retrieval or static analyzers? |
+| **Memory / learning** | **Hindsight / LangMem-style**, **Mem0/Zep-style** | Mem, Tana, Tencent Agent Memory | Strong prior art for persistent semantic/episodic/procedural memory; the key EOKS question is useful evolution rather than storage volume. | Does persistent learned memory improve future engineering work without accumulating stale/irrelevant knowledge? |
+| **Repository/code structure** | **Graphify**, **Understand Anything** | CodeSee | Graph/relationship-oriented code understanding is useful for navigation and impact analysis. | When does a graph materially outperform search/retrieval or static analyzers? |
+| **Cross-repository/project structure** | **Nx** | Sourcegraph | Nx's synthetic-monorepo/project-graph direction directly targets the repo divide; Sourcegraph is a strong cross-repository intelligence baseline. | Can project-level cross-repo structure be composed with semantic code and system representations? |
+| **System architecture** | **Structurizr** | CodeSee | C4/system/landscape models provide a system-level layer that code graphs generally lack. | How should architecture models connect to actual code and runtime evidence? |
+| **Visualization** | **Understand Anything**, **CodeSee** | Structurizr, Obsidian | Different tools expose code, dependency, architecture and human knowledge views. | Can humans navigate the same task-specific representation used by agents? |
 | **Lightweight verification** | **Semgrep**, **TypeScript/ESLint/ts-morph** | modularity | Fast, deterministic evidence for patterns, types and targeted project rules. | Can these satisfy most questions before deeper analysis is necessary? |
 | **Deep verification / dataflow** | **CodeQL** | Semgrep | Strong candidate for interprocedural/dataflow/security questions. | Is the additional setup/runtime justified by materially stronger evidence? |
 | **Architecture assurance** | **TrueCourse**, **modularity** | Superpowers | Different approaches to architecture constraints/analysis; useful for testing preventive vs detective assurance. | Which architectural invariants can be enforced mechanically and where should they live? |
 | **Workflow / execution** | **Claude Code**, **OpenHands** | Aider | Existing coding-agent runtimes provide realistic execution substrates for EOKS experiments. | Does EOKS coordination improve a strong single-agent baseline? |
 | **Orchestration** | **Conductor-style systems**, **Langroid** | OpenHands-style workflows | Prior art for decomposition and multi-agent execution. | When does orchestration beat a single agent plus verification? |
 | **Evaluation** | **Promptfoo**, **Aider/OpenHands benchmarks** | TransformerLab | Useful for repeatable task/model/configuration evaluation and end-to-end coding benchmarks. | Can evaluations attribute gains to context/tool/workflow changes rather than just detect them? |
-| **Observability** | **LangSmith/Langfuse-style** | execution traces from agents | Strong infrastructure for traces, experiments and operational evidence. | Which trace signals actually predict useful EOKS interventions? |
+| **Observability** | **LangSmith/Langfuse-style**, **Opik** | execution traces from agents | Strong infrastructure for traces, experiments and operational evidence; start with minimal local measurements. | Which trace signals actually predict useful EOKS interventions? |
 
 ### What I would actually play with
 
-If the goal is to avoid benchmarking twenty tools, I would start with roughly this set:
+If the goal is to avoid benchmarking twenty tools, the current Phase A set is:
 
 ```text
-CONTEXT
-  GrapeRoot
-  CodeSight
+HARNESS / CONTEXT
+  OpenWolf mechanisms
+  Portal/Shunt mechanisms
 
-KNOWLEDGE
-  OKF
-  CLAUDE.md
+CAPTURE
+  work-derived capture hypothesis (Soda as prior art)
 
-MEMORY / LEARNING
-  Hindsight/LangMem-style
-  Mem0/Zep-style
-
-STRUCTURE
-  Graphify
+REPRESENTATION
   Understand Anything
+  Nx
+  + Sourcegraph / Structurizr / CodeSee as comparison baselines
+
+KNOWLEDGE / INSPECTION
+  ordinary Markdown / CLAUDE.md / OKF
+  Obsidian as inspection surface
 
 VERIFICATION
   Semgrep
@@ -183,10 +219,10 @@ EXECUTION
 
 EVALUATION
   Promptfoo
-  Aider/OpenHands benchmark infrastructure
+  local EOKS metrics first
 ```
 
-This is **not** a claim that these are the objectively best products. They are the most useful *current experiments* because they cover distinct hypotheses with relatively little redundancy.
+This is **not** a claim that these are objectively the best products. They are the most useful *current experiments* because they cover distinct hypotheses with relatively little redundancy.
 
 ---
 
@@ -264,39 +300,53 @@ Rather than making a giant pairwise table, this graph identifies the relationshi
 
 ```mermaid
 flowchart TD
-    subgraph Context[Context]
+    subgraph Context[Context / harness]
       GR[GrapeRoot]
       CS[CodeSight]
-      XA[Understand Anything]
+      SH[Portal/Shunt]
+      OW[OpenWolf mechanisms]
+      Soda[Soda capture]
     end
 
     subgraph Structure[Structure]
       GF[Graphify]
-      XA
+      XA[Understand Anything]
+      NX[Nx]
+      SG[Sourcegraph]
+      ST[Structurizr]
+      CM[CodeSee]
     end
 
     subgraph Verify[Verification]
       TS[TypeScript / ESLint]
-      SG[Semgrep]
+      SEM[Semgrep]
       CQ[CodeQL]
     end
 
-    subgraph Knowledge[Knowledge]
+    subgraph Knowledge[Knowledge / memory]
       OKF[OKF]
       CMD[CLAUDE.md]
       TM[Tencent Agent Memory]
+      MEM[Mem / Mem0 / Zep]
+      H[Hindsight / LangMem]
     end
 
-    GR -. overlaps .- CS
-    CS -. consumes .- GF
-    GF -. complements .- SG
-    SG -. escalates to .- CQ
-    TS -. cheaper alternative for type questions .- SG
-    SG -. cheaper alternative for simple patterns .- CQ
+    GR -. proactive context .- CS
+    SH -. intercept/delegate .- GR
+    OW -. lifecycle/measurement .- SH
+    Soda -. capture upstream of .- OKF
+    CS -. consumes/overlaps .- GF
+    XA -. semantic overlap .- CS
+    XA -. complements .- NX
+    NX -. cross-repo baseline .- SG
+    SG -. system architecture complement .- ST
+    ST -. visualization complement .- CM
+    GF -. structural evidence .- SEM
+    SEM -. escalates to .- CQ
+    TS -. cheaper alternative for type questions .- SEM
     OKF -. representation alternative/complement .- CMD
-    TM -. broader resource system .- OKF
-    GF -. structural evidence .- CQ
-    XA -. structural/semantic overlap .- CS
+    H -. persistent evolution .- MEM
+    MEM -. human-facing bridge .- TM
 ```
 
 Relationship semantics come from the canonical capability model: **overlap, complement, alternative, escalation, specialization and dependency**. The graph should remain small and curated; a complete pairwise graph would become unreadable and stale.
@@ -321,6 +371,8 @@ The current evidence is uneven. This is important: the landscape should expose u
 | Real EOKS workload outcomes | **Very weak** | This is the main gap |
 | Cross-tool causal comparison | **Very weak** | Major research opportunity |
 
+For externally reported results, keep the evidence scope attached to the claim. For example, Spotify's 82–94% / ~90% result applies to its tested large-read scenarios; it should not become a generic EOKS assumption.
+
 Therefore the landscape should currently answer:
 
 > **What looks promising and why?**
@@ -335,19 +387,33 @@ not:
 
 The efficient strategy is **one baseline + 2–3 providers per hypothesis**, not a benchmark of every product.
 
-### Context
+### Harness / context control
 
 Compare:
 
 ```text
 native agent context
        vs
-GrapeRoot
+OpenWolf-derived lifecycle/state mechanisms
        vs
-CodeSight
+Portal/Shunt-style interception/delegation
 ```
 
-Hold the agent/model constant.
+Hold the agent/model constant. Measure task outcome as well as tokens and latency.
+
+### Work capture
+
+Compare:
+
+```text
+manual / ordinary capture
+       vs
+low-friction baseline (Apple Notes-style)
+       vs
+work-derived capture hypothesis
+```
+
+The important outcome is useful future context, not the number of observations captured.
 
 ### Knowledge
 
@@ -361,19 +427,35 @@ OKF bundle
 
 Then ask whether the richer representation changes context selection or outcome quality.
 
-### Structure
+### Structure / system representation
 
-Compare:
+Compare progressively:
 
 ```text
 repository search/native tooling
        vs
-Graphify
+Understand Anything / Graphify
        vs
-Understand Anything
+Nx cross-repo/project graph
+       vs
+Sourcegraph cross-repo baseline
+       vs
+Structurizr system model
 ```
 
-Focus on impact analysis, navigation and relationship questions.
+Do not require every provider in every experiment. The goal is to discover the **minimum sufficient representation composition** for real engineering questions.
+
+### Visualization / human inspection
+
+Compare whether task-specific artifacts are understandable through:
+
+```text
+Obsidian / Markdown
+       vs
+code/dependency views (Understand Anything / CodeSee)
+       vs
+system architecture views (Structurizr)
+```
 
 ### Verification
 
@@ -402,7 +484,7 @@ orchestrated executor/reviewer
 
 Don't assume more agents are better.
 
-### Memory
+### Memory / evolution
 
 Compare:
 
@@ -414,7 +496,7 @@ episodic/semantic memory
 procedural/learned memory
 ```
 
-The critical metric is not just retrieval quality; it is **future task outcome after memory has been allowed to influence behavior**.
+The critical metric is not just retrieval quality; it is **future task outcome after memory has been allowed to influence behavior**, including whether stale or contradictory memory is detected and corrected.
 
 ---
 
@@ -491,7 +573,7 @@ If yes, evidence-aware control may be a genuinely useful contribution of EOKS.
 
 ### E. We need causal experiments
 
-If GrapeRoot, Graphify or CodeQL appears to improve an agent, we need to distinguish:
+If GrapeRoot, Graphify, CodeQL, Portal/Shunt or a memory provider appears to improve an agent, we need to distinguish:
 
 ```text
 better context
@@ -503,6 +585,24 @@ more retries
 ```
 
 from one another. Otherwise the landscape remains a collection of plausible tool descriptions rather than an empirical basis for control.
+
+### F. We need an explicit representation/evolution boundary
+
+A durable representation should not become a dumping ground for every observation. EOKS needs to distinguish:
+
+```text
+observation
+   ↓
+representation / evidence
+   ↓
+synthesis
+   ↓
+useful knowledge
+   ↓
+refresh / invalidate / evolve
+```
+
+This is where the evolving-context work connects to the tool landscape: the interesting question is not how much can be stored, but how much useful future work can be enabled.
 
 ---
 
@@ -532,3 +632,61 @@ Eventually
 ```
 
 The purpose of this document is to make the **current map of the territory** visible while the formal capability/selection model remains the source of truth for future automated selection.
+
+---
+
+## 9. Phase A overlay: current representation and capture landscape
+
+This section is the current synthesis of the newer research. It does not replace the broader historical map above.
+
+### Capture and knowledge tools
+
+The second-brain tools occupy different points in the capture/organization/evolution space:
+
+| Tool | What it contributes to EOKS research | Boundary |
+|---|---|---|
+| **Apple Notes** | Extremely low-friction manual capture baseline | Not a knowledge architecture; useful as a capture-friction benchmark |
+| **Notion** | Structured workspace, databases, collaboration | High organization power does not remove capture burden |
+| **Obsidian** | Local Markdown, links, graph visualization, human curation | Best treated as an inspection/curation surface, not agent runtime memory |
+| **Capacities** | Typed/object-based knowledge representation | Useful representation comparison; still user-driven capture |
+| **Tana** | Typed graph/supertag model plus increasingly automated capture/agent access | Strong bridge between structured representation and evolving memory; Phase B for EOKS persistence |
+| **Roam Research** | Linked temporal/daily-note model | Useful temporal-knowledge comparison; still deliberate capture |
+| **Mem** | AI-assisted capture/recall | Relevant persistent-memory prior art; trust, provenance and recall quality remain experimental |
+| **Soda** | Ambient/work-derived capture hypothesis | Private-beta evidence; validate before relying on it |
+
+### Software-system representation tools
+
+```text
+code / semantic
+  Understand Anything
+       │
+       ▼
+project / dependency / cross-repo
+  Nx ───────── Sourcegraph
+       │
+       ▼
+system / architecture
+  Structurizr
+       │
+       ├── visualization: CodeSee / Understand Anything
+       ├── evidence: Semgrep / CodeQL
+       └── runtime: traces / telemetry
+```
+
+The experiment is not to choose one of these as the canonical graph. It is to determine the **minimum provider composition** that can answer real system-level questions and construct useful task-specific context.
+
+### Harness mechanisms
+
+OpenWolf and Spotify Portal/Shunt are complementary rather than interchangeable:
+
+- OpenWolf contributes lifecycle/state/session/measurement mechanisms.
+- Shunt contributes enforced interception and delegation of high-volume I/O/predictable generation.
+- Both should remain replaceable EOKS mechanisms behind a small event/policy interface.
+
+The Spotify result is useful as an empirical prior, but only within its tested scope: 82–94% savings on selected large-read scenarios, with known limits around editing, reasoning and latency.
+
+### Current EOKS principle
+
+> **EOKS is not a second brain. It is a work-coupled context/synthesis system.**
+
+Knowledge, representation and memory are intermediate resources. Their value is determined by whether they improve future engineering work while remaining correct, attributable and appropriately scoped.
