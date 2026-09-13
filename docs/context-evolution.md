@@ -60,7 +60,7 @@ An item can be dormant for current reasoning while still being important because
 
 ## Context state and lifecycle
 
-Context state should be treated as a versioned artifact rather than an opaque prompt:
+Context state should be treated as a versioned artifact rather than an opaque prompt. A concrete state can make the distinction visible:
 
 ```text
 Context v17
@@ -86,7 +86,7 @@ DORMANT
   previous investigation D
 ```
 
-A context transition can classify information as:
+A lifecycle transition can classify information as:
 
 - **active** — needed for current reasoning;
 - **supporting** — useful background for the current workload;
@@ -97,6 +97,42 @@ A context transition can classify information as:
 - **expired** — no longer trusted or useful under its retention policy.
 
 These are lifecycle states, not necessarily storage tiers.
+
+### State versus relationship
+
+A lifecycle state describes an item's current standing. It does not fully explain **why** that state changed or how it relates to other evidence. Preserve sparse, explicit relationships where they carry explanatory value:
+
+```text
+E2 --supersedes--> E1
+E3 --contradicts--> E2
+E4 --supports-----> E2
+E5 --merges-------> E2,E4
+```
+
+This distinction is important. EOKS does not need a universal knowledge graph; it needs enough relationship information to preserve causal continuity, contradiction handling and evidence lineage. Recent lifecycle-aware memory work such as MemoryLACE provides useful prior art for this pattern.
+
+## Lossless lineage and derived context
+
+Context evolution may create summaries, abstractions or other derived representations. Those representations should not silently become the only source of truth when the underlying evidence matters.
+
+A useful model is:
+
+```text
+raw experience / evidence
+          |
+          +---- authoritative source
+          |
+          v
+   derived representation
+   (summary / abstraction / context state)
+          |
+          v
+      active context
+```
+
+The derived representation should retain a recoverable pointer to its source when reconstruction or verification may require it. LCM (Lossless Context Management) and `lossless-claw` are useful prior art for this lineage boundary: hierarchical summaries can remain compact while original messages remain recoverable.
+
+This does not require EOKS to adopt LCM as an implementation. The semantic requirement is **recoverability of important provenance**, not a particular summary algorithm or storage engine.
 
 ## Evolution signals
 
@@ -206,7 +242,7 @@ context evolution
   = change the representation of what matters as the work changes
 ```
 
-Compaction can be one trigger for reconstruction. It is not the persistence model.
+LCM is useful prior art for the first problem. It does not replace the second: lossless compaction preserves recoverability, while context evolution decides what is currently relevant and why.
 
 ## Context evolution versus caching
 
@@ -221,6 +257,34 @@ context compile -> materialize next reasoning context
 
 Caching policies such as admission, pinning, demotion and TTL can support evolution, but cache efficiency is not the objective. EOKS should optimize useful verified work per unit of total reasoning cost.
 
+QMD is useful prior art for sophisticated local retrieval, while OpenClaw's retirement of its QMD integration is a reminder that retrieval engines should remain replaceable rather than becoming the architectural memory boundary.
+
+## Utility feedback
+
+Selection should eventually learn from what actually helped, not only what looked relevant at retrieval time.
+
+```text
+candidate evidence
+      |
+      v
+selected context
+      |
+      v
+agent run
+      |
+      v
+outcome
+      |
+      v
+utility evidence
+      |
+      +--> selection/ranking update
+      +--> lifecycle reinforcement/demotion
+      +--> missing-evidence signal
+```
+
+Hindsight Memory-PRM is useful prior art for making this distinction explicit. EOKS should preserve enough run/context attribution to support experiments that distinguish retrieval relevance from actual downstream contribution.
+
 ## Evaluation
 
 Context evolution should be evaluated by downstream workload outcomes, not by summary quality alone.
@@ -234,6 +298,9 @@ Useful measures include:
 - context churn and repeated reacquisition;
 - semantic-boundary detection quality;
 - causal-spine usefulness for verification and recovery;
+- lineage/recoverability of derived representations;
+- lifecycle relationship accuracy;
+- context-selection utility and attribution quality;
 - token, latency and acquisition cost;
 - task quality, reliability and completion outcomes;
 - ability to recover the required evidence when dormant information becomes relevant.
@@ -250,11 +317,13 @@ evolving context state + causal spine + on-demand evidence
 
 while holding model, task and budget conditions constant.
 
+A second experiment can compare retrieval ranking with utility-aware selection: measure whether evidence that appears relevant actually improves downstream engineering outcomes.
+
 ## Prior art and research hypothesis
 
-Recent agent-memory research is converging on related operations: consolidation, updating, indexing, forgetting, retrieval and condensation; hierarchical memory architectures distinguish short-lived interaction state from more durable abstractions; reflective memory systems distinguish prospective decisions about what to retain from retrospective revision of earlier memory; and recent work explores semantic-segment consolidation to reduce the cost and noise of turn-by-turn memory construction.
+Recent agent-memory research is converging on related operations: consolidation, updating, indexing, forgetting, retrieval and condensation. Relevant EOKS prior art now includes MemoryOS, MemGPT/Letta, Hindsight, Graphiti/Zep, Mem0, MemoryLACE, LCM/lossless-claw, OpenClaw built-in Memory and structured-memory tooling such as Obsidian/QMD. Hindsight Memory-PRM adds an important evaluation dimension: memory utility should be connected to downstream outcomes rather than inferred from retrieval alone.
 
-Relevant EOKS prior art includes MemoryOS, MemGPT/Letta, Hindsight, Graphiti/Zep, Mem0, reflective memory management and semantic-segment consolidation. These systems demonstrate pieces of the lifecycle, but EOKS's proposed boundary remains broader: **context evolution coordinates retained knowledge/experience with task state, context compilation, execution and evaluation**.
+These systems demonstrate pieces of the lifecycle, but EOKS's proposed boundary remains broader: **context evolution coordinates retained knowledge/experience with task state, context compilation, execution and evaluation**.
 
 These references are evidence and design inputs, not EOKS dependencies. The falsifiable question is whether an explicit evolving context state improves long-horizon software-engineering outcomes enough to justify its complexity.
 
@@ -262,4 +331,66 @@ These references are evidence and design inputs, not EOKS dependencies. The fals
 
 This is a current architectural hypothesis, not a claim that EOKS requires a dedicated database or runtime component called `ContextEvolution`.
 
-The implementation may be distributed across memory management, context compilation, execution-state tracking and evaluation. The important contract is semantic: **EOKS must be able to update what is actively relevant without retaining the entire session, while preserving provenance and causal continuity for important decisions and directions.**
+The implementation may be distributed across memory management, context compilation, execution-state tracking and evaluation. The important contract is semantic: **EOKS must be able to update what is actively relevant without retaining the entire session, while preserving provenance, recoverable lineage and sparse lifecycle relationships for important decisions and directions, and learning from downstream utility when evidence is selected.**
+
+## Core synthesis: context as a computed view over evolving evidence
+
+The research should not be read as proposing a single EOKS memory stack. The tools expose different mechanisms that can participate in one smaller control model:
+
+```text
+experience
+   |
+   v
+recoverable evidence
+   |
+   +--> lineage ---------------- LCM / lossless-claw
+   |
+   +--> lifecycle relationships - MemoryLACE
+   |
+   v
+context candidates
+   |
+   +--> selection policy
+   |
+   v
+compiled task context
+   |
+   v
+agent execution
+   |
+   v
+outcome + trajectory evidence
+   |
+   +--> utility ---------------- Hindsight Memory-PRM
+   |
+   +--> selection update
+   +--> lifecycle update
+   +--> missing-evidence signal
+```
+
+This leads to four explicit EOKS questions:
+
+1. **Lineage — where did this representation come from?**
+2. **Lifecycle — what changed, and how does this evidence relate to other evidence?**
+3. **Selection — why is this evidence eligible for this workload and context?**
+4. **Utility — did using it actually help the downstream task?**
+
+The tools are evidence for these mechanisms, not architectural primitives that EOKS must adopt. In particular, **context is best understood as a computed, task-specific view over evolving evidence**, not as another durable object that must itself become the source of truth. The same evidence may therefore produce different contexts for different tasks without silently rewriting the underlying evidence or knowledge.
+
+This is also why the existing EOKS separation remains important:
+
+```text
+persistence / evidence
+        !=
+memory / retained knowledge
+        !=
+context state
+        !=
+compiled context
+        !=
+execution state
+        !=
+evaluation / utility
+```
+
+The architectural question is not which product owns all of these. It is which policy determines how they interact, and whether that policy improves measurable software-engineering outcomes enough to justify its complexity.

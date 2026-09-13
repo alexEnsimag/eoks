@@ -2,7 +2,7 @@
 
 Evaluation is a first-class EOKS subsystem. If the system cannot measure whether a context, model, tool or orchestration decision improved an outcome, it cannot reliably optimize that decision.
 
-The detailed benchmark methodology and community-tool survey live in [Context evaluation](../research/context-evaluation.md). The probabilistic uncertainty and control-signal discussion lives in [LLM uncertainty, semantic entropy and control](../research/llm-uncertainty-and-control.md). The recent harness, observability and telemetry evidence is synthesized in [Evaluation, reliability and model switching](../research/evaluation-and-model-switching.md) and [LLM observability and reliability signals](../research/llm-observability-and-reliability.md). This page defines the canonical evaluation concepts; the research notes contain the experimental detail.
+The detailed benchmark methodology and community-tool survey live in [Context evaluation](../research/context-evaluation.md). The probabilistic uncertainty and control-signal discussion lives in [LLM uncertainty, semantic entropy and control](../research/llm-uncertainty-and-control.md). The recent harness, observability and telemetry evidence is synthesized in [Evaluation, reliability and model switching](../research/evaluation-and-model-switching.md) and [LLM observability and reliability signals](../research/llm-observability-and-reliability.md). Lossless context, lifecycle-aware memory and utility attribution are synthesized in [Lossless context, memory lifecycle, and utility feedback](../research/prior-art/lossless-context-memory-lifecycle-2026.md). This page defines the canonical evaluation concepts; the research notes contain the experimental detail.
 
 ## What should be evaluated
 
@@ -16,7 +16,8 @@ The detailed benchmark methodology and community-tool survey live in [Context ev
 - regression across model/context versions;
 - calibration of reliability signals;
 - usefulness of uncertainty signals for execution decisions;
-- stopping and branching policy quality.
+- stopping and branching policy quality;
+- **downstream utility of selected context/evidence**, including whether retrieved information was actually used and whether its use improved the outcome.
 
 For coding-agent workloads, evaluate the **whole task**, not merely the textual answer. Tests, deterministic checks, files changed, regressions, repository exploration, tool calls, latency, tokens and cost are often more informative than prose quality alone.
 
@@ -36,6 +37,17 @@ task
 
 At minimum, version the task contract, model/configuration, context composition, execution environment and evaluation result. This makes controlled comparisons reproducible.
 
+For context and memory experiments, the record should also preserve enough lineage to distinguish:
+
+```text
+candidate evidence
+      -> selected context
+      -> actually used evidence, where observable
+      -> outcome
+```
+
+This does not require perfect causal attribution. It makes useful attribution experiments possible and avoids treating retrieval as proof of utility.
+
 ## Context metrics versus outcome metrics
 
 Retrieval metrics such as precision, recall and relevance are **diagnostics**. They do not prove that a context intervention improved the task, because an agent can compensate for imperfect retrieval through exploration. Conversely, a retrieval change may improve the final outcome without maximizing a narrow retrieval metric.
@@ -46,6 +58,21 @@ Two experimental diagnostics are especially useful:
 
 - **Marginal context value** — the change in task quality attributable to adding a context block relative to its additional token/latency cost.
 - **Context necessity** — after a run, classify selected blocks as essential, useful, irrelevant or misleading.
+
+Add a third diagnostic for persistent context:
+
+- **Context/evidence utility** — whether a selected evidence item or context block was actually useful to the downstream task, rather than merely relevant to the retrieval query.
+
+A useful experimental approximation is:
+
+```text
+retrieved
+   -> selected
+   -> used
+   -> outcome changed
+```
+
+Controlled deletion/re-answer or ablation probes can estimate marginal utility where the cost is justified. Hindsight Memory-PRM is relevant prior art for this approach. The result should be treated as an experimental estimate, not as an exact causal truth.
 
 These are measurement concepts, not assumed universal scores.
 
@@ -62,6 +89,18 @@ baseline
 ```
 
 Hold the model and task set constant when measuring context. Hold context and task set constant when comparing models. When interactions are the research question, use an explicit model × context matrix rather than mixing changes implicitly.
+
+For lifecycle-aware memory, also separate at least:
+
+```text
+retrieval relevance
+vs
+context utility
+vs
+downstream task outcome
+```
+
+A system that retrieves more relevant memories but does not improve the task has not demonstrated useful memory improvement.
 
 ## Reliability and confidence
 
@@ -267,5 +306,6 @@ The practical rule is: **evaluate the construct being claimed, preserve enough e
 - Which context interventions remain valuable after a model upgrade?
 - Which combinations of reliability evidence are most useful for different control decisions?
 - How much execution evidence is required to attribute an intervention's effect without making evaluation prohibitively expensive?
+- Can context/evidence utility be estimated reliably enough to improve admission, ranking, demotion or promotion policies?
 
 These questions should be answered empirically through the benchmark methodology rather than becoming architecture assumptions first.
