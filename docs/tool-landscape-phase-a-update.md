@@ -7,8 +7,8 @@ This addendum records the current Phase A positions after the latest tool review
 | Tool / mechanism | Phase A position | Primary EOKS role | Rationale / boundary |
 |---|---|---|---|
 | **OpenWolf mechanisms** | **Core** | harness lifecycle/state/measurement | Strong prior art for hooks, session state, pre-compaction preservation, handoff and token measurement. Use mechanisms, not the whole product. |
-| **Spotify Portal/Shunt mechanisms** | **Core** | interception/transformation/delegation | Adds a complementary harness intervention point for expensive context-producing operations. |
-| **Soda-style passive capture** | **Experiment / candidate** | work observation/capture | Directly attacks the capture bottleneck: derive context from work rather than asking the human to record it. Validate privacy, provenance, noise and usefulness before adoption. |
+| **Spotify Portal/Shunt mechanisms** | **Core** | interception/transformation/delegation | Concrete prior art for hard-gating large reads and delegating predictable I/O/code generation. The 82–94% savings are for its intercepted benchmark scenarios, not a general 90% total-cost claim. |
+| **Soda-style passive capture** | **Experiment / candidate** | work observation/capture | Directly attacks the capture bottleneck: derive context from work rather than asking the human to record it. Treat the private-beta claims as unvalidated; test privacy, provenance, freshness, noise and usefulness. |
 | **Understand Anything** | **Core representation experiment** | code/semantic representation | Promoted for semantic repository/code representation and visualization. Explicitly test polyglot and multi-repository limits. |
 | **Nx** | **Core representation candidate** | project/dependency/cross-repo representation | Synthetic-monorepo/project-graph direction directly targets the cross-repository gap. Test as a provider, not as the EOKS platform. |
 | **Sourcegraph** | **Reference / baseline** | cross-repository code intelligence | Strong baseline for persistent cross-repo code search/navigation; useful for defining the capability EOKS would need without adopting the full platform. |
@@ -19,6 +19,7 @@ This addendum records the current Phase A positions after the latest tool review
 | **Capacities** | **Comparison / reference** | typed object representation | Useful benchmark for object-based, linked knowledge and low-friction organization. |
 | **Tana** | **Comparison + Phase B bridge** | typed evolving knowledge graph / capture | Particularly relevant to structured work-derived capture, current knowledge and agent access; defer persistent memory adoption until Phase A fundamentals are measured. |
 | **Roam Research** | **Comparison / reference** | linked temporal knowledge | Useful benchmark for daily-note and deliberate-link workflows, not a runtime dependency. |
+| **Apple Notes** | **Capture-friction baseline** | minimal human capture | Important because the article found its low-friction capture more durable than richer systems. It is a design constraint/comparison, not an EOKS substrate. |
 | **Mem** | **Phase B prior art** | persistent recall / evolving memory | AI-assisted capture and recall are directly relevant, but durable memory should follow current-session and capture experiments. |
 | **Hindsight / LangMem-style memory** | **Phase B** | durable semantic/episodic/procedural memory | Targets persistent learning/evolution. |
 | **Mem0 / Zep-style memory** | **Phase B** | persistent memory/retrieval | Useful comparison for memory lifecycle and retrieval, not Phase A substrate. |
@@ -51,13 +52,14 @@ representation providers
           ├── CodeSee             → visualization
           └── Graphify/CodeQL/etc → targeted evidence
 
-human-facing surfaces
+human-facing / capture comparison
           │
           ├── Obsidian
           ├── Notion
           ├── Capacities
           ├── Tana
-          └── Roam
+          ├── Roam
+          └── Apple Notes
 
 persistent evolution / observability
           │
@@ -69,25 +71,21 @@ persistent evolution / observability
 
 ## Capture lesson from the second-brain review
 
-The second-brain tools make an important distinction visible:
+The second-brain article explicitly tested **Notion, Obsidian, Capacities, Mem, Tana and Roam Research**. It used **Apple Notes** as the practical low-friction baseline and identified the common failure as capture friction: the valuable information often arrives while the person is already in a call, meeting, Slack thread or focused task.
 
-- **Notion** emphasizes structured workspaces, databases and collaboration.
-- **Obsidian** emphasizes local Markdown, links and a user-controlled knowledge base.
-- **Capacities** makes typed objects and connections the primary unit.
-- **Tana** combines typed nodes/knowledge graphs with increasingly automated capture and agentic workflows.
-- **Roam Research** emphasizes linked, temporal/daily-note thinking.
-- **Mem** emphasizes AI-assisted capture, recall and a persistent workspace.
-- **Soda** attacks the capture bottleneck by observing work context rather than asking the user to manually record it.
+The article's second important observation is that the problem does not end at capture. Information can be difficult to trust when it is hidden behind automation, and any persistent knowledge system must deal with information becoming stale or misleading. That makes **capture, representation, synthesis, maintenance and future use separate capabilities**.
 
-The useful EOKS conclusion is not that one of these is the best second brain. It is that **capture, representation, synthesis and future use are different capabilities**. EOKS should not collapse them into a single knowledge-management product.
+Soda is the article's proposed counter-example: passive work observation rather than manual capture. The article explicitly says Soda was still in private beta and that its efficacy and privacy implications were unknown. EOKS should therefore treat the approach as a hypothesis, not established evidence.
 
-A core principle should therefore be:
+The useful EOKS conclusion is not that one of these is the best second brain. It is that EOKS should be a **work-coupled context/synthesis system rather than a second-brain application**.
+
+Core principles:
 
 > **Knowledge has value when it changes future work, not merely when it is successfully stored.**
 
-And more specifically:
-
 > **EOKS should be work-coupled: the human should not have to stop working just to keep EOKS up to date.**
+
+> **Captured knowledge must be allowed to evolve: stale, contradicted or low-value information should not become permanent simply because it was successfully stored.**
 
 ## System representation gap
 
@@ -111,7 +109,7 @@ This is the current comparison to carry into experiments; ratings are capability
 |---|---:|---|---:|---:|---:|---:|---|
 | OpenWolf | low | session/context artifacts | no | medium | high | medium | Phase A harness mechanisms |
 | Portal/Shunt | low | transformed context | no | low | high | low | Phase A harness mechanisms |
-| Soda | **high** | work/customer context | potentially | medium | high | high | capture experiment; evidence still limited |
+| Soda | **candidate** | work/customer context | potentially | medium | high | **candidate** | capture experiment; private-beta evidence remains limited |
 | Understand Anything | low | code/semantic graph | partial/unknown | high | medium | medium | Phase A representation provider |
 | Nx | low | project/dependency graph | **high candidate** | high | medium | medium | Phase A cross-repo candidate |
 | Sourcegraph | low | code intelligence | **high** | high | high | high | reference/baseline |
@@ -120,9 +118,10 @@ This is the current comparison to carry into experiments; ratings are capability
 | Obsidian | manual | linked Markdown knowledge | user-defined | **high** | low/medium | medium | Phase A inspection surface |
 | Notion | manual/assisted | databases/pages | workspace-oriented | high | medium | high | reference |
 | Capacities | manual/assisted | typed objects/links | workspace-oriented | high | medium | high | reference |
-| Tana | **high candidate** | typed knowledge graph | workspace/team oriented | high | **high** | **high** | bridge/reference; Phase B candidate |
+| Tana | **candidate** | typed knowledge graph | workspace/team oriented | high | **high** | **high candidate** | bridge/reference; Phase B candidate |
 | Roam | manual | linked notes/graph | no | high | low/medium | medium | reference |
-| Mem | assisted | AI memory/workspace | connected apps | high | high | **high** | Phase B prior art |
+| Apple Notes | **very low friction** | simple notes | no | high | low | low | capture baseline |
+| Mem | assisted | AI memory/workspace | connected apps | high | high | **high candidate** | Phase B prior art |
 | Hindsight / LangMem | programmatic | memory records | application-defined | low | high | **high** | Phase B |
 | Mem0 / Zep | programmatic | memory store | application-defined | low | high | **high** | Phase B |
 | Opik / LangSmith / Langfuse | automatic traces | traces/evals | system-dependent | medium | **high** | high | Phase B observability |
