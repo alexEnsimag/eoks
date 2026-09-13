@@ -60,7 +60,33 @@ An item can be dormant for current reasoning while still being important because
 
 ## Context state and lifecycle
 
-Context state should be treated as a versioned artifact rather than an opaque prompt. A lifecycle transition can classify information as:
+Context state should be treated as a versioned artifact rather than an opaque prompt. A concrete state can make the distinction visible:
+
+```text
+Context v17
+
+ACTIVE
+  decision: use approach B
+  question: determine whether X works
+  constraint: Y cannot change
+
+CHANGED SINCE v16
+  + evidence E
+  + decision B
+  - hypothesis A
+  ~ constraint Y clarified
+
+CAUSAL SPINE
+  B <- evidence E
+  B <- rejection(A)
+  B <- constraint(Y)
+
+DORMANT
+  C
+  previous investigation D
+```
+
+A lifecycle transition can classify information as:
 
 - **active** — needed for current reasoning;
 - **supporting** — useful background for the current workload;
@@ -306,3 +332,65 @@ These references are evidence and design inputs, not EOKS dependencies. The fals
 This is a current architectural hypothesis, not a claim that EOKS requires a dedicated database or runtime component called `ContextEvolution`.
 
 The implementation may be distributed across memory management, context compilation, execution-state tracking and evaluation. The important contract is semantic: **EOKS must be able to update what is actively relevant without retaining the entire session, while preserving provenance, recoverable lineage and sparse lifecycle relationships for important decisions and directions, and learning from downstream utility when evidence is selected.**
+
+## Core synthesis: context as a computed view over evolving evidence
+
+The research should not be read as proposing a single EOKS memory stack. The tools expose different mechanisms that can participate in one smaller control model:
+
+```text
+experience
+   |
+   v
+recoverable evidence
+   |
+   +--> lineage ---------------- LCM / lossless-claw
+   |
+   +--> lifecycle relationships - MemoryLACE
+   |
+   v
+context candidates
+   |
+   +--> selection policy
+   |
+   v
+compiled task context
+   |
+   v
+agent execution
+   |
+   v
+outcome + trajectory evidence
+   |
+   +--> utility ---------------- Hindsight Memory-PRM
+   |
+   +--> selection update
+   +--> lifecycle update
+   +--> missing-evidence signal
+```
+
+This leads to four explicit EOKS questions:
+
+1. **Lineage — where did this representation come from?**
+2. **Lifecycle — what changed, and how does this evidence relate to other evidence?**
+3. **Selection — why is this evidence eligible for this workload and context?**
+4. **Utility — did using it actually help the downstream task?**
+
+The tools are evidence for these mechanisms, not architectural primitives that EOKS must adopt. In particular, **context is best understood as a computed, task-specific view over evolving evidence**, not as another durable object that must itself become the source of truth. The same evidence may therefore produce different contexts for different tasks without silently rewriting the underlying evidence or knowledge.
+
+This is also why the existing EOKS separation remains important:
+
+```text
+persistence / evidence
+        !=
+memory / retained knowledge
+        !=
+context state
+        !=
+compiled context
+        !=
+execution state
+        !=
+evaluation / utility
+```
+
+The architectural question is not which product owns all of these. It is which policy determines how they interact, and whether that policy improves measurable software-engineering outcomes enough to justify its complexity.
