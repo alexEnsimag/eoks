@@ -90,6 +90,12 @@ observability
 evaluation
 ```
 
-EOKS is hypothesized to be the **coordination layer across these capabilities**.
+EOKS is hypothesized to be the **coordination layer across these capabilities**, but “coordination” should not be interpreted as owning every underlying mechanism.
 
-That is a stronger and more testable claim than saying EOKS should replace any individual tool.
+A more precise hypothesis is:
+
+> **EOKS coordinates semantic resources, context, policy, assurance and learning across existing execution and harness capabilities.**
+>
+> **It should consume runtime primitives and events rather than reimplementing terminal/process infrastructure.**
+
+That distinction makes the EOKS scope more testable and prevents the project from becoming an undifferentiated agent runtime.
