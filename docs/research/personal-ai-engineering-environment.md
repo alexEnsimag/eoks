@@ -11,7 +11,7 @@ Recent research suggests that many capabilities needed for AI-assisted software 
 - **Obsidian** can provide a personal workspace for notes, projects, goals, research, decisions, and a connected knowledge graph.
 - **OpenWolf** provides practical agent context optimization, lifecycle hooks, project/session state, handoff, and token/context measurement.
 - **cmux** provides a live workspace for running and organizing multiple agent sessions, terminals, panes, notifications, and agent-specific integrations.
-- **Herdr** provides a programmable execution/runtime layer for persistent agent sessions and runtime control, including model/agent switching capabilities.
+- **Herdr** provides a programmable execution/runtime layer for persistent agent sessions and runtime control.
 - **Claude Agent SDK** and **Codex app-server** expose direct programmatic control of agent sessions and their execution loops.
 - **ACP** and IDE integrations provide a replaceable boundary between agents and development environments.
 - **Code-intelligence systems** provide repository and software-system understanding.
@@ -48,6 +48,9 @@ This is broader than an AI IDE and broader than an agent framework. The goal is 
 | Unified work tracking | Treat the goal, context, agents, execution, artifacts, metrics, and outcome as one piece of work | No clear dominant solution found | Strong EOKS hypothesis |
 | Cross-system coordination | Connect workspace, context, agents, runtimes, permissions, evaluation, and history | No clear dominant solution found | Strong EOKS hypothesis |
 | Learning from outcomes | Use successful/failed work to improve future context, choices, and workflows | Memory/self-evolving systems; emerging research | Strong EOKS hypothesis |
+| Proactive assistance | Notice relevant changes, synthesize what matters, suggest or initiate next work | Emerging proactive coding agents / assistants | Strong EOKS hypothesis |
+| Workflow improvement | Learn repeated friction and propose changes to skills, context, tools, policies, or routines | Personalized skills research; workflow research | Strong EOKS hypothesis |
+| Scheduled work | Run recurring synthesis, checks, reviews, or background work | Scheduled agents / automation | Integrate / experiment |
 
 ## One environment, different execution modes
 
@@ -191,6 +194,173 @@ Results:
 
 The developer should be able to inspect, approve, redirect, or stop work without needing to know whether an agent is a local process, a remote worker, or a fleet job.
 
+## Proactive assistance and the personal-assistant layer
+
+The environment does not have to remain purely reactive. A natural extension is for it to notice useful changes, synthesize what matters, and propose the next action.
+
+This is not necessarily a separate "personal assistant" product. It can be viewed as another workload/control mode over the same work model.
+
+### Morning synthesis
+
+A scheduled morning workload could build a concise briefing from the current state of work:
+
+```text
+Good morning.
+
+Priority work
+  1. Review the EOKS research PR: one unresolved architectural question.
+  2. Follow up on the migration: 6 repositories need review.
+  3. Continue the current project goal: validation is the next missing step.
+
+Since yesterday
+  - background agent completed 12 repositories
+  - one agent encountered the same failure twice
+  - a new decision changed the preferred implementation
+
+Suggested
+  - spend 45 min on the review before starting new implementation
+  - let a background agent investigate the repeated failure
+
+Setup improvement
+  - the same architecture context was reacquired in 3 sessions;
+    consider making the compact architecture artifact part of the project context.
+```
+
+The important property is that this is synthesized from the same work, context, agent, outcome, and history model. It should not require a second memory system or task database merely to produce a briefing.
+
+### Scheduled workloads
+
+A scheduler could trigger different classes of work:
+
+- morning work synthesis
+- project status checks
+- recurring validation/evaluation
+- periodic review of agent costs and context efficiency
+- detection of repeated failures or repeated manual corrections
+- weekly workflow/setup review
+- background research or maintenance
+
+The scheduler is therefore a trigger for the existing control loop, not necessarily a new EOKS runtime primitive.
+
+### Proactivity should be treated as a policy
+
+A useful distinction is between **autonomy** and **proactivity**:
+
+- autonomy: the agent can execute a task without step-by-step human control
+- proactivity: the system decides that something is worth surfacing or doing before the developer explicitly asks
+
+Recent research on proactive coding agents frames this as an "insight policy": decide what matters next, what evidence supports it, whether to surface it, and how to adapt after feedback. It also distinguishes reactive, scheduled, and situation-aware proactivity.
+
+This maps naturally onto EOKS's existing policy/control-loop framing. The difficult problem is not simply generating a good morning summary; it is deciding **when an unsolicited intervention is useful enough to justify interrupting the developer**.
+
+## Auto-learning and setup improvement
+
+The strongest extension is not just remembering preferences. It is learning how the engineering environment itself could improve.
+
+Examples:
+
+```text
+Observation
+  Architecture context was reacquired 3 times.
+
+Diagnosis
+  Existing project context is too weak for this class of task.
+
+Suggestion
+  Add a compact architecture artifact to the project's durable context.
+
+Action
+  User approves the change.
+
+Evaluation
+  Future sessions require fewer repeated reads and preserve task success.
+```
+
+Or:
+
+```text
+Observation
+  Review agents repeatedly perform the same checks after CI.
+
+Suggestion
+  Move those checks into the pre-review workflow.
+
+Evaluation
+  Compare review latency, failures, and unnecessary agent work.
+```
+
+This suggests a conservative improvement loop:
+
+```text
+observe
+  -> detect pattern/friction
+  -> form hypothesis
+  -> suggest improvement
+  -> approve or auto-apply if low risk
+  -> evaluate outcome
+  -> keep / revert / revise
+```
+
+The important boundary is that the system should not silently rewrite its own operating policy just because a model believes it found an optimization. Improvements should have evidence, provenance, an explicit risk level, and a measurable outcome.
+
+Low-risk changes could eventually be automated. Higher-impact changes should remain proposals requiring human approval.
+
+## What recent research adds
+
+Several recent results strengthen this direction without proving the full architecture.
+
+### Proactive coding agents
+
+Google Research's 2026 work argues that coding agents are moving beyond autonomous execution toward proactive, long-horizon behavior: noticing relevant changes, connecting signals across tools, deciding when to interrupt, and carrying preferences across sessions. It proposes evaluating the quality of the agent's **insight policy**, including Insight Decision Quality, Context Grounding Score, and Learning Lift.
+
+This is unusually close to the personal-environment hypothesis: the interesting capability is not another agent that can execute commands, but a system that can decide what matters next from accumulated evidence.
+
+### Proactive planning and reflection
+
+A 2026 CHI longitudinal study of a proactive planning/reflection agent found that users accepted, negotiated, corrected, and sometimes resisted proactive suggestions. It also identified failure modes including rigidity, premature turn-taking, and overpromising.
+
+For EOKS, this suggests that proactivity needs its own evaluation signals and an explicit intervention policy. More interventions are not inherently better.
+
+### Personalized developer skills
+
+A 2026 empirical study proposes extracting reusable developer preferences from interaction histories so coding agents can adapt without changing model parameters. This supports the idea that repeated interactions can produce durable developer-specific behavior, but it does not establish that all preferences should become durable memory.
+
+That distinction fits the existing context-evolution principle: preserve useful work state and validated preferences, not raw transcripts.
+
+### Real-world coding-agent misalignment
+
+A large 2026 observational study of 20,574 coding-agent sessions found recurring developer-agent misalignment around project understanding, intent, rules, action boundaries, implementation, and reporting. Most observed episodes imposed effort and trust costs, and visible resolutions frequently required explicit user correction.
+
+This strengthens the case for learning from **corrections and outcomes**, not merely storing successful agent outputs. Repeated correction is itself a valuable signal that the environment, context, policy, or agent setup may need improvement.
+
+### Workflow-level context management
+
+A 2026 practitioner study of coding-agent workflows argues that context management is central and that upstream research/planning mistakes can compound downstream. It also identifies a lack of useful metrics for workflow effectiveness.
+
+This reinforces a core EOKS hypothesis: context quality should ultimately be evaluated through workflow outcomes rather than context size or summary quality alone.
+
+## Evaluation of proactive behavior
+
+The personal environment should measure whether proactivity actually helps.
+
+Potential signals include:
+
+| Signal | Question |
+| --- | --- |
+| Insight quality | Was the surfaced issue/action genuinely useful? |
+| Evidence grounding | Could the suggestion be traced to relevant observations? |
+| Acceptance rate | Did the developer accept, reject, or ignore it? |
+| Intervention cost | Did it interrupt or distract unnecessarily? |
+| Action success | If executed, did the action produce the intended result? |
+| Learning lift | Did feedback improve later suggestions or workflows? |
+| Repetition reduction | Did the system eliminate repeated manual work or corrections? |
+| Outcome impact | Did the intervention improve task success, latency, cost, or quality? |
+| Trust | Did the developer become more or less willing to delegate? |
+
+A useful anti-metric is **unnecessary activity**: an assistant that generates many suggestions, starts many agents, or performs many actions without improving outcomes is not becoming better.
+
+This is consistent with the broader EOKS principle that downstream workload outcomes matter more than intermediate representation quality.
+
 ## What EOKS may actually add
 
 This synthesis does **not** imply that EOKS should implement all of these capabilities.
@@ -208,6 +378,8 @@ Work
   ├── metrics
   ├── artifacts
   ├── decisions
+  ├── triggers / schedules
+  ├── suggestions / interventions
   └── outcome
 ```
 
@@ -221,6 +393,8 @@ The EOKS questions then become practical:
 6. What should be observed and measured?
 7. What evidence says the work succeeded?
 8. What should be kept as useful knowledge afterward?
+9. Is there something the system should proactively surface or do?
+10. Did that intervention actually improve the outcome?
 
 Existing systems can answer many of these questions individually. The open question is whether a common work model and coordination layer can connect them without replacing the systems that already do each job well.
 
@@ -237,6 +411,7 @@ EOKS should prefer integration over reimplementation:
 - Claude/Codex APIs can remain vendor-native agent interfaces.
 - ACP can remain an interoperability boundary.
 - Fleet infrastructure can remain a separate execution backend.
+- A scheduler can remain a generic trigger mechanism where possible.
 
 EOKS should only introduce new abstractions where the ecosystem does not already provide a useful capability and where experiments show that the missing connection materially improves software work.
 
@@ -264,9 +439,21 @@ Can permissions follow the work item and agent role across local and remote exec
 
 ### 6. Learning
 
-Can useful decisions, evidence, failures, and outcomes flow back into the personal engineering workspace without turning the workspace into an automatically generated transcript dump?
+Can useful decisions, evidence, failures, corrections, and outcomes flow back into the personal engineering workspace without turning the workspace into an automatically generated transcript dump?
 
-### 7. EOKS boundary
+### 7. Proactivity
+
+Can the environment decide what is worth surfacing or doing without becoming noisy, interruptive, or overconfident?
+
+### 8. Workflow improvement
+
+Can repeated corrections, friction, cost, and successful patterns produce evidence-backed suggestions for changing the developer's setup?
+
+### 9. Scheduled control
+
+Can morning synthesis, recurring evaluation, and background maintenance be represented as scheduled workloads rather than separate assistant infrastructure?
+
+### 10. EOKS boundary
 
 Which of the coordination questions are already adequately solved by existing systems, and which remain genuinely open?
 
@@ -279,6 +466,8 @@ This direction could be wrong in several ways:
 - Fleet execution may remain mostly useful at organizational scale and add little to an individual developer.
 - Existing agent platforms may absorb workspace, context, memory, evaluation, and orchestration capabilities.
 - The unified work model may become an unnecessary abstraction if existing tools can already exchange the required information.
+- Proactive assistance may create more interruption and trust cost than value.
+- Automated setup improvement may overfit to short-term behavior or optimize proxy metrics such as token savings instead of engineering outcomes.
 
 These are reasons to experiment rather than reasons to commit to the architecture now.
 
@@ -293,6 +482,8 @@ This direction is consistent with the existing EOKS boundary work:
 - Conductor/coordination remains a hypothesis to validate through experiments.
 - Agent-loop mediation provides a possible direct control surface.
 - Outcomes provide the feedback needed to decide whether a capability actually helped.
+- Proactivity can be expressed as policy over observed work state rather than as a separate assistant runtime.
+- Setup improvement can be expressed as a controlled reconciliation loop: observe, hypothesize, change, evaluate.
 
 The new insight is that these mechanisms could eventually be presented to the developer as one expandable environment rather than as a collection of independent tools.
 
@@ -307,5 +498,18 @@ The next useful experiment is not to build the full environment. It is to connec
 5. Represent the running work as a common work item.
 6. Record outcome/evidence back into the workspace.
 7. Add one remote/background execution path if practical.
+8. Add one scheduled **observation-only** morning synthesis that reports current work, unresolved decisions, active agents, and evidence-backed suggested priorities.
+9. Add one periodic setup review that identifies repeated corrections, repeated context acquisition, or repeated workflow friction and produces suggestions without changing configuration automatically.
+10. Measure acceptance, usefulness, intervention cost, and downstream outcomes before allowing autonomous changes.
 
-The goal is to test whether the unified view and cross-system work model provide value before introducing new runtime infrastructure.
+The goal is to test whether the unified view, proactive layer, and cross-system work model provide value before introducing new runtime infrastructure.
+
+## Selected recent evidence
+
+- Google Research, *Agentic Coding Needs Proactivity, Not Just Autonomy* (2026): argues for proactive coding agents and an insight-policy framing with evaluation targets including Insight Decision Quality, Context Grounding Score, and Learning Lift.
+- Abbas et al., CHI 2026, *Having Lunch Now: Understanding How Users Engage with a Proactive Agent for Daily Planning and Self-Reflection*: longitudinal evidence on acceptance, negotiation, correction, and failure modes of proactive agents.
+- Huang, Du, Lan, *Do Personalized Skills Help Coding Agents? An Empirical Study of Developer Interaction Histories* (2026): studies extracting reusable developer preferences from interaction histories.
+- Tang et al., *How Coding Agents Fail Their Users* (2026): observational study of 20,574 real-world coding-agent sessions, highlighting persistent misalignment and the cost of developer correction.
+- Kapetanovic et al., *A Phased Workflow for Operating LLM-Based Coding Agents* (2026): practitioner evidence that workflow-level context management matters and needs better effectiveness metrics.
+
+These results are evidence for research questions, not validation that the proposed personal AI engineering environment is the right architecture.
