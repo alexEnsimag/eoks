@@ -8,7 +8,7 @@ Research direction / architectural hypothesis. This document records a synthesis
 
 Recent research suggests that many capabilities needed for AI-assisted software development already exist, but are split across different tools:
 
-- **Obsidian** can provide a personal workspace for notes, projects, goals, research, decisions, and a connected knowledge graph.
+- **Obsidian** can provide a personal workspace for notes, projects, goals, research, decisions, architecture, and history.
 - **OpenWolf** provides practical agent context optimization, lifecycle hooks, project/session state, handoff, and token/context measurement.
 - **cmux** provides a live workspace for running and organizing multiple agent sessions, terminals, panes, notifications, and agent-specific integrations.
 - **Herdr** provides a programmable execution/runtime layer for persistent agent sessions and runtime control.
@@ -17,12 +17,13 @@ Recent research suggests that many capabilities needed for AI-assisted software 
 - **Code-intelligence systems** provide repository and software-system understanding.
 - **Evaluation/observability systems** provide evidence about whether work succeeded and what it cost.
 - **Spotify's fleet work** demonstrates that the same general model can extend from one local agent to large numbers of background agents working across repositories.
+- **Cursor's Origin and cloud-agent direction** increasingly combine source control, agents, PRs, automations, and remote execution around the same codebase/work surface.
 
 The hypothesis is that these capabilities could be composed into one expandable environment for an individual engineer rather than treated as isolated tools.
 
 ## Core idea
 
-> A personal AI engineering environment gives one developer a unified place to understand their work, manage knowledge, run agents, manage local and remote execution, observe costs and outcomes, and continuously improve how they work with AI.
+> A personal AI engineering environment gives one developer a unified place to understand their work, manage knowledge, run agents, manage local and remote execution, observe costs and outcomes, receive only the human attention requests that matter, and continuously improve how they work with AI.
 
 This is broader than an AI IDE and broader than an agent framework. The goal is to empower the developer while keeping underlying agents, runtimes, context systems, and execution infrastructure replaceable.
 
@@ -44,8 +45,9 @@ This is broader than an AI IDE and broader than an agent framework. The goal is 
 | Permissions and guardrails | Control what an agent can read, change, execute, or deploy | Agent/IDE/runtime permission systems | Coordinate policies |
 | Evaluation | Determine whether work actually succeeded | Tests, evaluation and observability tools | Integrate / correlate |
 | Background execution | Run work without keeping the developer in a terminal | Agent APIs; fleet systems | Integrate |
-| Agent fleets | Run many agents against many tasks/repositories and track exceptions | Spotify Fleetshift/Honk direction | Integrate / experiment |
+| Agent fleets | Run many agents against many tasks/repositories and track exceptions | Spotify fleet direction; Cursor cloud agents | Integrate / experiment |
 | Monitoring and observability | See live and historical agent activity, state, actions, cost, failures, and outcomes | Agent dashboards; runtime telemetry; traces | Integrate / correlate |
+| Attention and intervention | Surface only events that require or materially benefit from human attention | cmux notifications; agent permission/idle events | Integrate delivery; potentially coordinate policy |
 | Provenance | Navigate from code/work artifacts back to agent sessions, prompts, decisions, and evidence | Agent blame/provenance systems; Git metadata | Integrate / extend |
 | Unified work tracking | Treat the goal, context, agents, execution, artifacts, metrics, and outcome as one piece of work | No clear dominant solution found | Strong EOKS hypothesis |
 | Cross-system coordination | Connect workspace, context, agents, runtimes, permissions, evaluation, and history | No clear dominant solution found | Strong EOKS hypothesis |
@@ -53,6 +55,52 @@ This is broader than an AI IDE and broader than an agent framework. The goal is 
 | Proactive assistance | Notice relevant changes, synthesize what matters, suggest or initiate next work | Emerging proactive coding agents / assistants | Strong EOKS hypothesis |
 | Workflow improvement | Learn repeated friction and propose changes to skills, context, tools, policies, or routines | Personalized skills research; workflow research | Strong EOKS hypothesis |
 | Scheduled work | Run recurring synthesis, checks, reviews, or background work | Scheduled agents / automation | Integrate / experiment |
+
+## Agent-native source control: Cursor and the changing role of Git
+
+Cursor's recent direction is important evidence that source control itself is becoming part of the agent environment rather than remaining a separate developer tool.
+
+Cursor's **Origin** is an agent-oriented Git forge. Its current beta combines repositories, standard Git operations, code browsing/search, pull requests, and agents in one surface. Origin repositories can be connected to Cursor Automations and cloud agents; source-control events such as pushes and pull requests can trigger agent work. Cursor describes the system explicitly as a forge built for agent scale. The underlying Git infrastructure work is motivated in part by the increase in code, PRs, and CI activity caused by agents.
+
+This is not evidence that EOKS should build another Git forge. It is evidence for a broader architectural observation:
+
+> As agent concurrency and autonomy increase, Git, CI, PRs, agent execution, and codebase state increasingly form one operational system.
+
+Cursor's longer-running-agent and self-driving-codebase research reinforces this trajectory: agents operate for longer periods, parallelize work, produce merge-ready changes, and increasingly need infrastructure for the volume of generated code and validation work.
+
+The implication for the personal AI engineering environment is that **Git/PR/CI should be treated as part of the work and provenance model**, not merely as external links.
+
+A useful evidence hierarchy is:
+
+```text
+Agent transcript
+  -> what the agent said, considered, and tried
+
+Agent session
+  -> what actually happened during execution
+
+Git / PR / CI
+  -> what became repository state and how it was reviewed/validated
+
+Production / downstream outcome
+  -> whether that state actually worked
+```
+
+These sources are not interchangeable. A rejected idea in a transcript can be useful context; a merged commit is stronger evidence of accepted engineering state; verification and downstream outcomes can provide stronger evidence still. This reinforces EOKS's existing distinction between raw history, authoritative evidence, provenance, and outcome utility.
+
+It also suggests that the causal provenance model should extend beyond the agent session:
+
+```text
+Work
+  -> agent session
+    -> change
+      -> commit / PR
+        -> CI / review
+          -> merge / deployment
+            -> downstream outcome
+```
+
+The environment should make these transitions navigable without requiring a separate provenance product.
 
 ## Monitoring is a first-class capability
 
@@ -106,7 +154,96 @@ OUTCOMES
 
 The important point is that this should not become another generic observability dashboard. Monitoring should connect directly to the work model: **what is happening, what it is doing, what evidence it has produced, what is blocked, and what decision should happen next**.
 
-This also enables proactive behavior. A system cannot safely decide to intervene, redirect, or suggest a workflow improvement without observing enough of the underlying work.
+## Attention and human intervention
+
+A particularly useful refinement from cmux is that monitoring is not only about seeing state. It is about **knowing when the human needs to pay attention**.
+
+cmux provides notification rings, unread workspace indicators, a notification panel, desktop notifications, and agent-specific notification categories. Its built-in policy can notify when an agent is blocked waiting for permission, when a turn completes, or when an agent has been idle waiting for input. It can suppress completion noise while background work is still running, and notification hooks can filter or transform delivery.
+
+This suggests a useful distinction:
+
+```text
+Observation
+  What happened?
+
+Significance
+  Does it matter?
+
+Attention
+  Does the human need to know or decide something?
+
+Intervention
+  What decision/action is required?
+```
+
+An **attention event** can therefore be treated as a semantic signal without making it a new EOKS runtime primitive. Examples include:
+
+- permission required
+- clarification required
+- agent blocked
+- verification failed
+- policy/risk threshold crossed
+- conflicting agent results
+- task completed and awaiting review
+- an important unexpected outcome worth surfacing
+- a proactive suggestion judged useful enough to interrupt
+
+The control boundary can then look like:
+
+```text
+Agent / runtime
+      |
+      | events
+      v
+Observation
+      |
+      v
+Attention policy
+      |
+   +--+----------------+
+   |                   |
+continue          human attention
+                       |
+                       v
+                    decision
+```
+
+This is a better model than treating notifications as generic UI telemetry. The key question is **whether an event changes the need for human attention or intervention**.
+
+### cmux vs EOKS
+
+The boundary should remain consistent with the broader architecture:
+
+```text
+                    EOKS
+                     |
+              attention policy
+                     |
+        +------------+------------+
+        |                         |
+   semantic reason          delivery adapter
+        |                         |
+        +---------------------- cmux
+                                  |
+                         notification / UI
+                                  |
+                                human
+```
+
+cmux can remain responsible for delivering attention through its native workspace and notification mechanisms. EOKS, if it participates, would reason about **why** something deserves attention and what decision is needed; it should not own notification UI or desktop delivery.
+
+This also creates an important evaluation dimension for a multi-agent environment:
+
+- notification volume
+- proportion of notifications that required action
+- false/unnecessary notifications
+- time to human awareness
+- time to intervention
+- human action taken
+- work blocked while awaiting attention
+- whether the agent could have safely continued without intervention
+
+The goal is not to maximize notifications. It is to **scale autonomous throughput without scaling human cognitive load proportionally**.
 
 ## Provenance and the IDE's familiar mechanisms
 
@@ -297,7 +434,7 @@ These should not be collapsed into the same capability.
 
 ### cmux
 
-cmux is most naturally the live execution workspace: a place to organize running sessions, terminals, panes, notifications, and agent teams. It is the developer's view of work that is happening now.
+cmux is most naturally the live execution workspace: a place to organize running sessions, terminals, panes, notifications, and agent teams. It is the developer's view of work that is happening now, including the **attention boundary** where an agent signals that the human needs to act.
 
 ### Herdr
 
@@ -325,7 +462,9 @@ This is what makes it possible for a higher-level system to participate in agent
 
 Spotify's direction suggests a second execution mode beyond the local developer workstation: fleets of background agents.
 
-The key idea for a personal environment is not reproducing Spotify's infrastructure scale. It is making local and remote work appear through the same work/session/result model.
+Cursor's cloud-agent direction provides another concrete example: cloud agents can work against repositories, branch/commit/push, open pull requests, and run from source-control-triggered automations. This makes repository state, agent execution, and background scheduling increasingly interdependent.
+
+The key idea for a personal environment is not reproducing this infrastructure scale. It is making local and remote work appear through the same work/session/result model.
 
 For example:
 
@@ -406,6 +545,8 @@ Recent research on proactive coding agents frames this as an "insight policy": d
 
 This maps naturally onto EOKS's existing policy/control-loop framing. The difficult problem is not simply generating a good morning summary; it is deciding **when an unsolicited intervention is useful enough to justify interrupting the developer**.
 
+Attention policy is the closely related inverse problem: decide when an observed event is important enough to interrupt or request a human decision. Both should be evaluated by downstream utility and intervention cost rather than raw activity.
+
 ## Auto-learning and setup improvement
 
 The strongest extension is not just remembering preferences. It is learning how the engineering environment itself could improve.
@@ -422,238 +563,192 @@ Diagnosis
 Suggestion
   Add a compact architecture artifact to the project's durable context.
 
-Action
-  User approves the change.
+Approval
+  Human approves the change.
 
 Evaluation
-  Future sessions require fewer repeated reads and preserve task success.
+  Later sessions require less reacquisition and produce equal or better outcomes.
+
+Decision
+  Keep the improvement.
 ```
 
-Or:
-
-```text
-Observation
-  Review agents repeatedly perform the same checks after CI.
-
-Suggestion
-  Move those checks into the pre-review workflow.
-
-Evaluation
-  Compare review latency, failures, and unnecessary agent work.
-```
-
-This suggests a conservative improvement loop:
+The general loop is:
 
 ```text
 observe
-  -> detect pattern/friction
-  -> form hypothesis
-  -> suggest improvement
-  -> approve or auto-apply if low risk
-  -> evaluate outcome
-  -> keep / revert / revise
+  -> detect pattern / friction
+    -> form hypothesis
+      -> suggest improvement
+        -> approve / safely auto-apply
+          -> evaluate
+            -> keep / revert / revise
 ```
 
-The important boundary is that the system should not silently rewrite its own operating policy just because a model believes it found an optimization. Improvements should have evidence, provenance, an explicit risk level, and a measurable outcome.
+High-impact changes should require explicit human approval. Low-risk improvements could eventually be auto-applied when sufficient evidence exists.
 
-Low-risk changes could eventually be automated. Higher-impact changes should remain proposals requiring human approval.
+The important point is that the environment learns **how to improve itself**, not merely what the developer likes.
 
-## What recent research adds
+Evaluation should include:
 
-Several recent results strengthen this direction without proving the full architecture.
-
-### Proactive coding agents
-
-Google Research's 2026 work argues that coding agents are moving beyond autonomous execution toward proactive, long-horizon behavior: noticing relevant changes, connecting signals across tools, deciding when to interrupt, and carrying preferences across sessions. It proposes evaluating the quality of the agent's **insight policy**, including Insight Decision Quality, Context Grounding Score, and Learning Lift.
-
-This is unusually close to the personal-environment hypothesis: the interesting capability is not another agent that can execute commands, but a system that can decide what matters next from accumulated evidence.
-
-### Proactive planning and reflection
-
-A 2026 CHI longitudinal study of a proactive planning/reflection agent found that users accepted, negotiated, corrected, and sometimes resisted proactive suggestions. It also identified failure modes including rigidity, premature turn-taking, and overpromising.
-
-For EOKS, this suggests that proactivity needs its own evaluation signals and an explicit intervention policy. More interventions are not inherently better.
-
-### Personalized developer skills
-
-A 2026 empirical study proposes extracting reusable developer preferences from interaction histories so coding agents can adapt without changing model parameters. This supports the idea that repeated interactions can produce durable developer-specific behavior, but it does not establish that all preferences should become durable memory.
-
-That distinction fits the existing context-evolution principle: preserve useful work state and validated preferences, not raw transcripts.
-
-### Real-world coding-agent misalignment
-
-A large 2026 observational study of 20,574 coding-agent sessions found recurring developer-agent misalignment around project understanding, intent, rules, action boundaries, implementation, and reporting. Most observed episodes imposed effort and trust costs, and visible resolutions frequently required explicit user correction.
-
-This strengthens the case for learning from **corrections and outcomes**, not merely storing successful agent outputs. Repeated correction is itself a valuable signal that the environment, context, policy, or agent setup may need improvement.
-
-### Workflow-level context management
-
-A 2026 practitioner study of coding-agent workflows argues that context management is central and that upstream research/planning mistakes can compound downstream. It also identifies a lack of useful metrics for workflow effectiveness.
-
-This reinforces a core EOKS hypothesis: context quality should ultimately be evaluated through workflow outcomes rather than context size or summary quality alone.
-
-## Evaluation of proactive behavior
-
-The personal environment should measure whether proactivity actually helps.
-
-Potential signals include:
-
-| Signal | Question |
-| --- | --- |
-| Insight quality | Was the surfaced issue/action genuinely useful? |
-| Evidence grounding | Could the suggestion be traced to relevant observations? |
-| Acceptance rate | Did the developer accept, reject, or ignore it? |
-| Intervention cost | Did it interrupt or distract unnecessarily? |
-| Action success | If executed, did the action produce the intended result? |
-| Learning lift | Did feedback improve later suggestions or workflows? |
-| Repetition reduction | Did the system eliminate repeated manual work or corrections? |
-| Outcome impact | Did the intervention improve task success, latency, cost, or quality? |
-| Trust | Did the developer become more or less willing to delegate? |
-
-A useful anti-metric is **unnecessary activity**: an assistant that generates many suggestions, starts many agents, or performs many actions without improving outcomes is not becoming better.
-
-This is consistent with the broader EOKS principle that downstream workload outcomes matter more than intermediate representation quality.
-
-## What EOKS may actually add
-
-This synthesis does **not** imply that EOKS should implement all of these capabilities.
-
-The more interesting hypothesis is that EOKS could provide the connective layer around a common work model:
-
-```text
-Work
-  ├── goal
-  ├── project
-  ├── relevant knowledge/context
-  ├── agents
-  ├── execution environments
-  ├── permissions/policy
-  ├── monitoring / observability
-  ├── provenance
-  ├── metrics
-  ├── artifacts
-  ├── decisions
-  ├── triggers / schedules
-  ├── suggestions / interventions
-  └── outcome
-```
-
-The EOKS questions then become practical:
-
-1. What work is the developer trying to accomplish?
-2. What knowledge/context is relevant right now?
-3. Which agent or agents should work on it?
-4. Where should they run: local or remote?
-5. What tools and permissions should they have?
-6. What should be observed and measured?
-7. Can the developer navigate from an artifact or code location back to the work and evidence that produced it?
-8. What evidence says the work succeeded?
-9. What should be kept as useful knowledge afterward?
-10. Is there something the system should proactively surface or do?
-11. Did that intervention actually improve the outcome?
-
-Existing systems can answer many of these questions individually. The open question is whether a common work model and coordination layer can connect them without replacing the systems that already do each job well.
-
-## Important boundary
-
-This is an architectural hypothesis, not a proposal for a monolithic platform.
-
-EOKS should prefer integration over reimplementation:
-
-- Obsidian can remain the workspace.
-- OpenWolf can remain a context/efficiency mechanism.
-- cmux can remain a live execution environment.
-- Herdr can remain a runtime/session layer.
-- Claude/Codex APIs can remain vendor-native agent interfaces.
-- ACP can remain an interoperability boundary.
-- Fleet infrastructure can remain a separate execution backend.
-
-EOKS should only introduce new abstractions where the ecosystem does not already provide a useful capability and where experiments show that the missing connection materially improves software work.
+- insight quality
+- evidence grounding
+- suggestion acceptance
+- intervention cost
+- action success
+- learning lift
+- reduction in repeated friction
+- downstream work/outcome impact
+- trust
+- unnecessary activity as an explicit anti-metric
 
 ## Research questions
 
-### 1. Unified work model
+The main research questions are now:
 
-Can one model represent a single local session, a local multi-agent team, and a remote fleet job without exposing implementation-specific details to the developer?
+1. **Work model:** Can local agents, local multi-agent sessions, and remote fleets be represented as execution modes of one common work model?
+2. **Context:** How should context selection and context evolution connect to work state, evidence, and outcomes?
+3. **Runtime boundary:** Where should EOKS semantic control end and agent/runtime/harness mechanics begin?
+4. **Agent-loop mediation:** When does direct programmatic control of an agent loop provide value beyond terminal/runtime control?
+5. **Source control:** How should Git, PR, CI, deployment, and downstream outcomes participate in the same provenance chain as agent sessions?
+6. **Monitoring:** What observations are actually useful for controlling or evaluating work rather than merely displaying telemetry?
+7. **Attention:** What events genuinely require human attention, and how can notification volume stay below the value threshold as agent concurrency grows?
+8. **Provenance:** Can familiar IDE mechanisms provide causal navigation from code to agent work, evidence, decisions, and outcomes?
+9. **Proactivity:** When should the environment surface or initiate work without an explicit request?
+10. **Learning:** Can repeated friction and outcomes safely improve context, skills, tools, policies, and workflows?
+11. **Human load:** Can increasing autonomous throughput avoid a proportional increase in review, notification, and decision-making burden?
+12. **Interoperability:** Can these capabilities remain replaceable across agents, runtimes, IDEs, context systems, and execution providers?
 
-### 2. Workspace ↔ execution
+## Phase A follow-up experiment
 
-Can an Obsidian-centered workspace launch and inspect local and remote work while preserving the existing strengths of cmux, Herdr, and native agent APIs?
+A small experiment should validate the environment concept without building a new platform.
 
-### 3. Context ↔ outcome
+### A.1 Workspace
 
-Can OpenWolf-style context optimization be connected to actual task outcomes, so that the system learns which context reductions and additions were useful rather than optimizing tokens in isolation?
+Use Obsidian as the human-facing workspace for:
 
-### 4. Monitoring ↔ control
+- project/work items
+- decisions
+- research
+- agent/session links
+- outcomes
+- selected monitoring/provenance information
 
-What minimum live and historical observations are required for the system to safely decide whether to continue, intervene, redirect, verify, or escalate agent work?
+### A.2 Agent execution
 
-### 5. Provenance ↔ UX
+Use existing agent runtimes and harnesses:
 
-Can familiar IDE mechanisms such as blame, history, diffs, search, code lenses, test results, and navigation expose agent sessions and evidence without creating a separate provenance workflow?
+- OpenWolf for agent context/token optimization and lifecycle mechanisms
+- cmux for local multi-agent execution and human attention/notification handling
+- direct Claude/Codex APIs where useful for programmatic control
+- one remote/background execution path if practical
 
-### 6. Fleet ↔ personal workflow
+### A.3 Common work item
 
-Can fleet-style background execution become a natural extension of a personal developer workflow rather than a separate enterprise control plane?
+Represent one real task with:
 
-### 7. Permissions and guardrails
+- objective
+- policy/permissions
+- working context
+- agent/session
+- execution mode
+- evidence
+- attention events
+- artifacts
+- evaluation
+- outcome
 
-Can permissions follow the work item and agent role across local and remote execution?
+### A.4 Monitoring + attention
 
-### 8. Learning
+Build a minimal live view that answers:
 
-Can useful decisions, evidence, failures, corrections, and outcomes flow back into the personal engineering workspace without turning the workspace into an automatically generated transcript dump?
+- what agents are running?
+- what are they working on?
+- which are blocked?
+- which need human attention?
+- what evidence/outcomes have appeared?
+- what can safely continue without the developer?
 
-### 9. Proactivity
+Use cmux's existing notification mechanism as the delivery baseline rather than building a new notification system.
 
-When should the system surface an insight, start work, or interrupt the developer, and how can that behavior be evaluated against intervention cost and outcome impact?
+Measure notification/attention quality separately from generic observability:
 
-### 10. EOKS boundary
+- attention events generated
+- actionable vs informational events
+- false/unnecessary attention events
+- time to awareness
+- time to intervention
+- human decisions/actions
+- blocked time
+- autonomous continuation rate
 
-Which of the coordination questions are already adequately solved by existing systems, and which remain genuinely open?
+### A.5 Provenance
 
-## Alternative interpretations
+Connect at least one traditional IDE mechanism to agent/work provenance, preferably a blame/history/diff path:
 
-This direction could be wrong in several ways:
+```text
+code
+  -> change
+    -> work item
+      -> agent session
+        -> evidence
+          -> verification
+            -> outcome
+```
 
-- A rich Obsidian-based environment may become too complex compared with a simpler IDE/harness workflow.
-- cmux, Herdr, IDEs, and agent APIs may converge enough that an additional coordination layer is unnecessary.
-- Fleet execution may remain mostly useful at organizational scale and add little to an individual developer.
-- Existing agent platforms may absorb workspace, context, memory, evaluation, and orchestration capabilities.
-- The unified work model may become an unnecessary abstraction if existing tools can already exchange the required information.
-- Native IDEs may absorb enough agent-aware provenance and monitoring that a separate personal environment adds little value.
+### A.6 Scheduled/proactive workload
 
-These are reasons to experiment rather than reasons to commit to the architecture now.
+Implement or simulate one scheduled workload such as a morning synthesis, recurring project check, or repeated-failure detector. Evaluate whether its suggestions are useful enough to justify the attention they consume.
 
-## Relation to current EOKS architecture
+### A.7 Setup learning
 
-This direction is consistent with the existing EOKS boundary work:
+Capture one repeated friction pattern and test the observe → suggest → approve → apply → evaluate loop for a low-risk environment improvement.
 
-- EOKS does not need to become another agent runtime.
-- EOKS does not need to own terminal/pane management.
-- EOKS does not need to replace vendor agent APIs.
-- Context evolution remains about what useful work state survives and changes over time.
-- Conductor/coordination remains a hypothesis to validate through experiments.
-- Agent-loop mediation provides a possible direct control surface.
-- Outcomes provide the feedback needed to decide whether a capability actually helped.
-- Monitoring provides the observations needed for safe control.
-- Provenance provides the causal bridge from user-visible artifacts back to agent work and evidence.
+## Architectural hypothesis
 
-The new insight is that these mechanisms could eventually be presented to the developer as one expandable environment rather than as a collection of independent tools.
+The current evidence does **not** justify creating a dedicated "personal AI environment" runtime inside EOKS.
 
-## Phase A follow-up
+A stronger hypothesis is:
 
-The next useful experiment is not to build the full environment. It is to connect a small number of existing pieces:
+> EOKS can become the semantic connective/control layer that makes existing engineering environments, agents, runtimes, context systems, source-control state, evidence, attention, and outcomes participate in one coherent work model.
 
-1. Use Obsidian as the project/workspace surface.
-2. Use an existing agent runtime/harness for local execution.
-3. Capture OpenWolf-style context/token measurements where available.
-4. Use a direct agent API where available.
-5. Represent the running work as a common work item.
-6. Expose live agent state and historical sessions through a monitoring view.
-7. Connect at least one traditional IDE mechanism (for example, blame or diff) to agent-session provenance.
-8. Record outcome/evidence back into the workspace.
-9. Add one remote/background execution path if practical.
-10. Test one proactive/scheduled workload, such as a morning synthesis or repeated-friction review.
+This preserves the existing EOKS boundary:
 
-The goal is to test whether the unified view and cross-system work model provide value before introducing new runtime infrastructure.
+```text
+             Personal AI Engineering Environment
+                         │
+       ┌─────────────────┼──────────────────┐
+       │                 │                  │
+   Workspace          Execution          Control
+   / knowledge        / agents           / semantics
+       │                 │                  │
+   Obsidian          cmux / Herdr       EOKS
+   Git / PR / CI     Claude / Codex     policies
+   code intelligence local / remote      context
+                                         evidence
+                                         attention
+                                         outcomes
+```
+
+The environment should therefore be evaluated as a **system of composable capabilities**, not as a single application that replaces all existing tools.
+
+## Current synthesis
+
+The emerging picture is not simply "build an AI IDE." It is:
+
+> **Make the existing software-engineering environment agent-aware, connect its state through a common work/provenance model, and add semantic control over context, evidence, attention, and outcomes.**
+
+Cursor demonstrates that source control, agents, PRs, cloud execution, and automation are converging. cmux demonstrates that once many agents run concurrently, the critical human UX is not just visibility but **knowing which agent needs attention and why**. OpenWolf demonstrates that context efficiency can be measured and optimized at the harness layer. Obsidian demonstrates a plausible human-facing knowledge/work surface. Direct agent APIs expose a control surface below the semantic layer. Spotify's fleet work demonstrates the scale direction.
+
+The potentially differentiated EOKS contribution is therefore not another one of these subsystems. It is the connective model and control loop that answers:
+
+```text
+What work matters?
+What context is sufficient?
+What is happening?
+What evidence do we have?
+Does this require human attention?
+What should happen next?
+Did it work?
+What should the environment learn from it?
+```
