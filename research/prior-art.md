@@ -60,6 +60,14 @@ We also explored AI/LLM observability and continuous-assurance tooling as potent
 
 The unresolved question is whether existing observability systems primarily record traces or whether they can become active inputs to an AI control loop.
 
+## Herdr and cmux
+
+Herdr and cmux sharpen the boundary between an **agent runtime/harness** and the semantic layer EOKS is intended to provide. Herdr is a server-owned terminal runtime with first-class agent state and automation primitives; cmux is an agent-oriented terminal/workspace surface with particularly strong Claude Teams integration.
+
+The EOKS lesson is not to build another terminal multiplexer. Runtime persistence answers **where the work continues**; context evolution answers **what from that work should continue to matter**. Runtime events such as completion, blocking, handoff and validation can therefore become semantic boundaries for selective knowledge/experience extraction.
+
+See [Herdr and cmux: agent runtime versus harness surface](prior-art/herdr-cmux.md) for the detailed comparison and architectural implications.
+
 ## What the prior art suggests
 
 Taken together, these systems suggest a fragmented stack:
@@ -74,6 +82,8 @@ code intelligence
 LLM execution
        +
 tool orchestration
+       +
+agent runtime / harness
        +
 observability
        +
