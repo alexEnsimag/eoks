@@ -68,34 +68,68 @@ The EOKS lesson is not to build another terminal multiplexer. Runtime persistenc
 
 See [Herdr and cmux: agent runtime versus harness surface](prior-art/herdr-cmux.md) for the detailed comparison and architectural implications.
 
+## Next-generation AI development environments
+
+Recent work from Cursor, VS Code, JetBrains, Zed and Replit suggests that the developer environment itself is becoming an **agent workspace** rather than an IDE with an assistant.
+
+Cursor has moved from an AI-first editor toward a unified workspace for agent fleets and, with Projects, toward durable bodies of work with shared context, coordination, cloud/local execution and recurring automation. VS Code has made sessions a first-class unit of work and now has an Agent Host that owns persistent sessions across editor surfaces and supports multiple agent harnesses. JetBrains is moving Junie from an IDE-native agent toward an ecosystem-level CLI while exposing deep IDE semantic capabilities through ACP. Zed provides multi-agent threads and helped establish ACP as an editor/agent interoperability boundary.
+
+This creates a new adjacent stack:
+
+```text
+AI workspace / IDE
+        |
+  agent protocol
+        |
+agent / harness
+        |
+agent host / runtime
+        |
+context + code intelligence
+```
+
+OpenWolf is particularly useful here because it implements a compact context/state layer around existing coding agents: lifecycle hooks, project anatomy, memory/context artifacts, compaction recovery, token accounting and a local dashboard. Aider's repository map is an earlier example of context compilation: it computes and ranks a structured representation of a repository and fits the relevant subset to a token budget. Sourcegraph provides another layer, positioning code intelligence as shared infrastructure for both developers and agents.
+
+The new EOKS hypothesis is therefore not “build the AI IDE.” It is:
+
+> **EOKS should provide semantic control and context evolution across replaceable AI workspaces, agents, harnesses, runtimes and context sources.**
+
+The emerging infrastructure should be consumed rather than reimplemented. In particular, EOKS should not own editor UI, agent loops, terminal/process runtimes, generic session stores, or agent/editor protocols.
+
+See [Next-generation AI development environment](next-generation-ai-development-environment.md) for the detailed research pass and the provisional primitive/boundary analysis.
+
 ## What the prior art suggests
 
 Taken together, these systems suggest a fragmented stack:
 
 ```text
+AI workspace / IDE
+       +
+agent/editor protocol
+       +
 knowledge / memory
        +
-context management
+context management / compilation
        +
 code intelligence
        +
-LLM execution
+LLM execution / agent loop
        +
 tool orchestration
        +
-agent runtime / harness
+agent runtime / host
        +
 observability
        +
-evaluation
+evaluation / assurance
 ```
 
-EOKS is hypothesized to be the **coordination layer across these capabilities**, but “coordination” should not be interpreted as owning every underlying mechanism.
+EOKS is hypothesized to be the **semantic coordination layer across these capabilities**, but “coordination” should not be interpreted as owning every underlying mechanism.
 
 A more precise hypothesis is:
 
-> **EOKS coordinates semantic resources, context, policy, assurance and learning across existing execution and harness capabilities.**
+> **EOKS coordinates semantic resources, context, policy, assurance and learning across existing agents, developer environments, execution runtimes and context capabilities.**
 >
-> **It should consume runtime primitives and events rather than reimplementing terminal/process infrastructure.**
+> **It should consume runtime and workspace primitives rather than reimplementing editor, agent, session or terminal infrastructure.**
 
-That distinction makes the EOKS scope more testable and prevents the project from becoming an undifferentiated agent runtime.
+That distinction makes the EOKS scope more testable and prevents the project from becoming an undifferentiated AI development environment.
