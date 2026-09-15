@@ -128,6 +128,62 @@ That context can include:
 
 This is broader than repository memory but narrower than an unconstrained enterprise knowledge graph. EOKS should treat it as another set of representations/evidence providers consumed by the context compiler.
 
+## Connection to the #99 architecture
+
+PR #99 established four cooperating capabilities rather than treating the whole AI engineering environment as one system: **personal engineering environment**, **personal engineering assistant**, **fleet control plane**, and **semantic control / reconciliation**. Xirp is useful evidence for where the boundaries between these capabilities should sit.
+
+| #99 capability | Xirp relationship |
+|---|---|
+| **Personal engineering environment** | Strong fit: multi-agent sessions, parallel work, worktrees, agent switching and the developer-facing execution surface. |
+| **Personal engineering assistant** | Partial overlap: Xirp supplies system/organizational context to agents, but is not primarily the intelligence layer answering what matters and why. |
+| **Fleet control plane** | Not the same layer: Xirp coordinates the developer's local/concurrent sessions rather than operating heterogeneous workloads across a fleet. |
+| **EOKS semantic control / reconciliation** | Not the same layer: Xirp provides context and manages the execution surface; EOKS is the candidate layer for deciding what outcome, policy, evidence and next semantic action should govern the workload. |
+
+This gives a more precise placement in the broader #99 loop:
+
+```text
+                         HUMAN
+                           |
+                      intent/judgment
+                           v
+              PERSONAL ENGINEERING ASSISTANT
+                           |
+                    semantic intent
+                           v
+                  +------------------+
+                  | EOKS / semantic  |
+                  |     control      |
+                  | outcome/policy/  |
+                  | evidence/next    |
+                  +--------+---------+
+                           |
+                    policy / decision
+                           v
+              PERSONAL ENGINEERING ENVIRONMENT
+                           |
+                  Xirp-like boundary
+                           |
+                    agent sessions
+                           v
+                     EXECUTION
+                           |
+                    Git / PR / CI / Dev
+                           |
+                     observation
+                           v
+                        EVIDENCE
+                           |
+                        OUTCOME
+                           |
+                        LEARNING
+                           |
+                           +------> next WORK
+```
+
+The important synthesis is therefore not that Xirp is another candidate EOKS control plane. It is evidence for the **CONTEXT ↔ AGENT ↔ EXECUTION** portion of the #99 architecture, with its institutional context and session continuity also contributing to the **LEARNING** side of the loop. EOKS can sit above this boundary and decide what context is relevant, what evidence should become durable, and what semantic state or action comes next.
+
+This also reinforces the #99 distinction between **engineering environment** and **semantic control**: the environment can expose sessions, context and execution state without owning the policy and reconciliation decisions governing the workload.
+
 ## Xirp is not the EOKS control plane
 
 It would be a mistake to turn Xirp into the definition of EOKS.
