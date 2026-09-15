@@ -2,7 +2,7 @@
 
 [Xirp](https://xirp.spotify.com/) is useful prior art for a part of EOKS that is easy to under-specify: **shared institutional context for AI coding agents**.
 
-The public Xirp site describes it as an agentic development environment that connects an agent to services, ownership, dependencies, documentation and architectural decisions. It also describes a Portal-based Workspace for sharing work items, sessions and documentation, and a mechanism for turning coding-session knowledge into living documentation that can be reused by later engineers or agents. Xirp is presented as a beta and as a harness that can work with Claude, Gemini and Codex rather than being tied to one model provider.
+The current public Xirp site describes it as an agentic development environment that connects an agent to services, ownership, dependencies, documentation and architectural decisions. Its current beta provides a desktop interface for managing multiple agent sessions in parallel and supports Claude, Gemini CLI and Codex. Portal Workspace adds shared work items, sessions and documentation, while session results can be shared back to Portal. Xirp is therefore both a **developer-facing multi-agent session surface** and a **context-continuity layer**. citeturn0search0turn0search1
 
 The important point for EOKS is not the product packaging. It is the architectural observation behind it:
 
@@ -10,7 +10,7 @@ The important point for EOKS is not the product packaging. It is the architectur
 
 ## What problem Xirp identifies
 
-Xirp frames a common failure mode of AI coding agents as a retrieval problem. The knowledge needed to make a technically plausible decision operationally correct may already exist in Slack discussions, service ownership, architectural decisions, documentation or the experience of the people who built a system. The difficulty is getting the right knowledge into the session at the right time.
+Xirp frames a common failure mode of AI coding agents as a retrieval problem. The knowledge needed to make a technically plausible decision operationally correct may already exist in service ownership, architectural decisions, documentation or the experience of the people who built a system. The difficulty is getting the right knowledge into the session at the right time.
 
 This complements EOKS's existing context-engineering model. A useful decomposition is:
 
@@ -53,6 +53,8 @@ This reinforces an existing EOKS distinction: a graph, document store or service
 ### 2. Shared Workspace / session continuity
 
 The Xirp Workspace concept addresses a different boundary: useful context should survive the end of an individual coding session and be available to another engineer or agent working on the same system.
+
+Xirp's current public description makes this boundary especially explicit: it can manage multiple agent sessions, switch between them without losing context, and share session context back with the team through Portal. Sessions themselves remain local in the current desktop product; the shared layer is the context/workspace around them. citeturn0search1
 
 This maps closely to EOKS's distinction between **working context** and **durable knowledge**:
 
@@ -112,6 +114,8 @@ Earlier EOKS discussions already separated:
 
 Xirp makes another dimension explicit: **organizational/system context shared across people and agents**.
 
+It also sharpens the boundary between the **development environment** and the **semantic control plane**. Xirp combines multi-agent session management with institutional context, but it does not itself become the semantic authority for objectives, assurance, evidence sufficiency or durable workload reconciliation. Its current public product is a local developer application rather than a fleet-wide cloud execution controller. citeturn0search1
+
 That context can include:
 
 - service ownership;
@@ -130,28 +134,35 @@ It would be a mistake to turn Xirp into the definition of EOKS.
 
 The public material emphasizes the agentic development environment, shared workspace and institutional context. EOKS is exploring a broader control-plane abstraction that can choose among knowledge, context, execution, models, tools and evaluation resources.
 
-A useful relationship is therefore:
+A more precise relationship is therefore:
 
 ```text
-                     EOKS control plane
+                     EOKS semantic control
                             |
           +-----------------+------------------+
           |                                    |
  context / knowledge                      execution
           |                                    |
     +-----+------+                       Xirp-like
-    |            |                       agent harness
+    |            |                       agent environment
  project     organizational                    |
- knowledge      context                     model
+ knowledge      context                  coding agents
     |            |
-    +-----+------+ 
+    +-----+------+
           |
    context compilation
           |
       task context
 ```
 
-Xirp can be viewed as a **candidate implementation of part of the context + execution surface**, while EOKS asks how such capabilities should be selected, evaluated and composed with other providers.
+Xirp is best understood as **prior art for the developer-facing context/execution boundary**: it combines multi-agent session orchestration with organizational/system context and session-to-session continuity. It is not the semantic control plane or the fleet-wide lifecycle controller.
+
+This distinction aligns with the broader EOKS architecture:
+
+- **development environment / harness** — manages the developer's agent sessions and provides the working surface;
+- **context providers** — expose project, organizational and historical evidence;
+- **EOKS semantic control** — decides what outcome, policy, evidence and next action govern the workload;
+- **fleet control** — operates heterogeneous workloads at scale.
 
 ## Xirp versus Graphify
 
@@ -259,4 +270,4 @@ Xirp strengthens an EOKS hypothesis that was already emerging from several other
 
 > **The valuable unit is not "a better prompt" or "a bigger memory store". It is a reliable mechanism for turning distributed engineering reality into the minimum sufficient, provenance-bearing context for the current task.**
 
-Xirp is particularly interesting because it emphasizes **institutional memory and system awareness** rather than only repository structure. EOKS should incorporate that capability into its model without making Xirp, or any other single tool, the canonical architecture.
+Xirp is particularly interesting because it emphasizes **institutional memory and system awareness** rather than only repository structure. It also provides concrete evidence that the developer-facing agent environment can be both a session-management surface and a context-continuity layer. EOKS should incorporate that capability into its model without making Xirp, or any other single tool, the canonical architecture.
