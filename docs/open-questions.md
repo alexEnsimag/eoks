@@ -45,6 +45,14 @@ These are deliberately unresolved. They should become experiments, ADRs or imple
 - What signals predict that an agent is going down an unproductive path early enough to justify intervention?
 - Which control decisions benefit enough from reliability estimation to justify its measurement and calibration cost?
 
+## Agent workflow execution
+
+- Which workflow/runtime interface is sufficient for EOKS to observe and control execution without coupling the architecture to one runtime?
+- Which workflow features should be portable EOKS semantics versus runtime-specific capabilities: state, checkpoints, branches, loops, human gates, retries and handoffs?
+- Can the same workload topology be executed through a simple agent loop, deterministic workflow and graph runtime while preserving comparable Run/evidence/evaluation records?
+- When does a workflow runtime materially improve durability, inspectability or reliability enough to justify its abstraction and operational cost?
+- Can EOKS select topology independently from the runtime that executes it?
+
 ## Architecture and interoperability
 
 - Which interfaces should be stable across implementations?
