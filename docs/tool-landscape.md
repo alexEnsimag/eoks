@@ -74,9 +74,11 @@ The important EOKS question is no longer simply **“which tool provides context
 
 ## 3. Master comparison matrix
 
-### Agent workflow runtimes
+### Execution substrates and agent workflow runtimes
 
-These are execution substrates for loops and graphs, not the EOKS control plane. They should be compared primarily on state, topology, durability, tool execution, human gates, observability and portability.
+The Execution tile is broader than workflow. A Claude Code session, deterministic process, workflow/graph runtime, remote agent or fleet can all be an execution. Workflow runtimes are therefore one class of execution substrate.
+
+They should be compared on the execution semantics they expose: **topology, state, checkpoint/interrupt/resume, recovery, human participation, placement, observability and portability**. EOKS should not assume that one runtime is the canonical implementation, or that a workflow is required for every Work.
 
 | Tool / mechanism | Primary role | Also provides | Popularity | Maturity | Evidence | EOKS fit | Experiment priority |
 |---|---|---|---:|---:|---:|---:|---:|
@@ -117,11 +119,11 @@ These are execution substrates for loops and graphs, not the EOKS control plane.
 | **OpenHands benchmarks** | coding-agent benchmark infrastructure | SWE tasks and agent evaluation | ★★★★☆ | ★★★★☆ | ★★★★★ | ★★★★☆ | ★★★★☆ |
 | **OpenAI Evals-style frameworks** | reusable evaluation harness | private/workload-specific evals | ★★★★★ | ★★★★★ | ★★★★★ | ★★★★☆ | ★★★★☆ |
 | **Conductor-style systems** | task decomposition/orchestration | multi-agent/task topology, coordination | ★★★☆☆ | ★★★☆☆ | ★★★☆☆ | ★★★★☆ | ★★★★☆ |
-| **LangGraph** | stateful agent workflow runtime | explicit graphs, loops, branching, checkpoints, human gates | ★★★★★ | ★★★★☆ | ★★★★★ | ★★★★★ | ★★★★★ |
-| **CrewAI** | role/task agent workflow runtime | crews, tasks, flows, multi-agent coordination | ★★★★☆ | ★★★★☆ | ★★★★☆ | ★★★★☆ | ★★★★☆ |
-| **Microsoft Agent Framework** | agent/workflow runtime | graph workflows, agents, durable execution, Python/.NET | ★★★★☆ | ★★★★☆ | ★★★★☆ | ★★★★☆ | ★★★★☆ |
-| **Google ADK** | agent/workflow runtime | sequential/parallel/loop agents, tools, events, deployment integrations | ★★★★☆ | ★★★★☆ | ★★★★☆ | ★★★★☆ | ★★★★☆ |
-| **OpenAI Agents SDK** | lightweight agent/workflow SDK | tools, handoffs, guardrails, tracing | ★★★★★ | ★★★★☆ | ★★★★☆ | ★★★★☆ | ★★★★☆ |
+| **LangGraph** | stateful execution-graph runtime | explicit graphs, state, durable lifecycle, interrupts/resume, human gates | ★★★★★ | ★★★★☆ | ★★★★★ | ★★★★★ | ★★★★★ |
+| **CrewAI** | agent-team + event-driven execution runtime | crews, Flows, state, resumability, multi-agent coordination | ★★★★☆ | ★★★★☆ | ★★★★☆ | ★★★★☆ | ★★★★☆ |
+| **Microsoft Agent Framework** | agent + workflow execution runtime | durable workflows, checkpoint/resume, HITL, observability, visualization, orchestration | ★★★★☆ | ★★★★☆ | ★★★★☆ | ★★★★★ | ★★★★★ |
+| **Google ADK** | agent development + execution runtime | orchestration, tools, eval, deployment, observability, runtime environments | ★★★★☆ | ★★★★☆ | ★★★★☆ | ★★★★☆ | ★★★★☆ |
+| **OpenAI Agents SDK** | lightweight agent execution SDK | tools, handoffs, guardrails, sessions, HITL, tracing | ★★★★★ | ★★★★☆ | ★★★★☆ | ★★★★☆ | ★★★★☆ |
 | **AutoGen** | conversational multi-agent execution (legacy prior art) | agent conversations, group collaboration | ★★★★☆ | ★★★☆☆ | ★★★★☆ | ★★★★☆ | ★★☆☆☆ |
 | **Langroid** | multi-agent execution/orchestration | agent communication and task coordination | ★★★☆☆ | ★★★★☆ | ★★★☆☆ | ★★★★☆ | ★★★☆☆ |
 | **Plano** | operational routing/governance | runtime operations and control mechanisms | ★★☆☆☆ | ★★☆☆☆ | ★★☆☆☆ | ★★★☆☆ | ★★★☆☆ |
