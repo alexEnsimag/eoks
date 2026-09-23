@@ -80,6 +80,21 @@ The Execution tile is broader than workflow. A Claude Code session, deterministi
 
 They should be compared on the execution semantics they expose: **topology, state, checkpoint/interrupt/resume, recovery, human participation, placement, observability and portability**. EOKS should not assume that one runtime is the canonical implementation, or that a workflow is required for every Work.
 
+### Quick mental models
+
+These analogies are intentionally concise: they describe the role of each tool relative to EOKS, not a claim that the tools are technically equivalent.
+
+| Tool | Mental model | EOKS role |
+|---|---|---|
+| **LangGraph** | **Kubernetes controller + state machine for an agent Run** | explicit graph/stateful execution |
+| **CrewAI** | **n8n for agent teams** | crews + event-driven Flows |
+| **Microsoft Agent Framework** | **Step Functions + agent runtime** | durable workflow execution + HITL/operations |
+| **Google ADK** | **Kubernetes ecosystem for agents** | agent build/eval/deploy/observe/runtime |
+| **OpenAI Agents SDK** | **Go standard library for agents** | small composable agent runtime |
+| **AutoGen** | **actor/message-passing model for agents** | conversational multi-agent execution |
+
+The analogy is useful for orientation; the capability matrix and source notes remain authoritative.
+
 | Tool / mechanism | Primary role | Also provides | Popularity | Maturity | Evidence | EOKS fit | Experiment priority |
 |---|---|---|---:|---:|---:|---:|---:|
 | **Claude Code** | coding-agent execution substrate | hooks, MCP/tools, project instructions, session/context management | ★★★★★ | ★★★★★ | ★★★★★ | ★★★★★ | ★★★★★ |
