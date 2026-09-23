@@ -45,13 +45,26 @@ These are deliberately unresolved. They should become experiments, ADRs or imple
 - What signals predict that an agent is going down an unproductive path early enough to justify intervention?
 - Which control decisions benefit enough from reliability estimation to justify its measurement and calibration cost?
 
-## Agent workflow execution
+## Execution
+
+- What is the minimum portable **Execution** abstraction that can represent a Claude Code session, deterministic process, workflow/graph, remote agent, or agent fleet?
+- Which execution semantics should EOKS understand versus delegate to an execution substrate: topology, state, checkpoint, interrupt, resume, retry/recovery, handoff, human gates, observability and placement?
+- How should a Claude Code session and its harness tools relate to a higher-level execution runtime without collapsing the two layers?
+- Can one Work span multiple executions, sessions, machines, containers, CI jobs or human interventions while retaining coherent provenance and evidence?
+- How should execution topology be selected independently from the runtime that realizes it?
+- When does a richer execution runtime materially improve durability, inspectability, reliability or recovery enough to justify its abstraction and operational cost?
+- Can a simple agent loop remain the default while workflows, graphs and fleets are selected only when their additional coordination semantics are justified?
+- What is the correct scheduling unit: Work, execution, session, task, reasoning step or workflow?
+- Can checkpoint/interrupt/resume become portable EOKS semantics while storage and implementation remain runtime-specific?
+- How should execution events, artifacts, evidence and evaluations be normalized across different substrates?
+
+### Workflow runtimes as execution substrates
 
 - Which workflow/runtime interface is sufficient for EOKS to observe and control execution without coupling the architecture to one runtime?
-- Which workflow features should be portable EOKS semantics versus runtime-specific capabilities: state, checkpoints, branches, loops, human gates, retries and handoffs?
-- Can the same workload topology be executed through a simple agent loop, deterministic workflow and graph runtime while preserving comparable Run/evidence/evaluation records?
-- When does a workflow runtime materially improve durability, inspectability or reliability enough to justify its abstraction and operational cost?
-- Can EOKS select topology independently from the runtime that executes it?
+- Which features are genuinely portable execution semantics versus runtime-specific conveniences?
+- Can the same Work be executed through a simple agent loop, deterministic workflow, graph runtime and multi-agent topology while preserving comparable Run/evidence/evaluation records?
+- Can EOKS use a runtime without making that runtime an EOKS dependency or architectural center?
+- Which capabilities are worth adopting from LangGraph, CrewAI, Microsoft Agent Framework, Google ADK, OpenAI Agents SDK and AutoGen, and which are better left behind their provider boundary?
 
 ## Architecture and interoperability
 
