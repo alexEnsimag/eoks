@@ -22,6 +22,8 @@ For the canonical capability/selection model, see [Tool capability model](../doc
 | **Superpowers** | structured development workflow and quality gates | execution policy |
 | **modularity** | architecture-oriented analysis | architecture evidence/evaluation |
 | **Conductor-style systems** | task decomposition and cross-task orchestration | orchestration |
+| **LangGraph / CrewAI / Microsoft Agent Framework / Google ADK / OpenAI Agents SDK** | agent workflow execution: loops, graphs, state, tools and coordination | execution/orchestration substrate |
+| **AutoGen** | conversational multi-agent execution | execution/orchestration prior art |
 | **`CLAUDE.md` management** | human-reviewed project policy/knowledge | canonical local knowledge |
 | **memsearch / LangMem / Mem0 / Zep** | persistent semantic/episodic/procedural memory patterns | memory |
 | **Xirp / Spotify** | shared system/organizational context and session continuity | context + execution boundary |
@@ -34,6 +36,12 @@ For the canonical capability/selection model, see [Tool capability model](../doc
 | **OpenHands benchmarks** | software-engineering/agent benchmark infrastructure | benchmark prior art |
 | **OpenAI Evals-style frameworks** | reusable private/workload-specific eval harnesses | evaluation harness |
 | **CodeRabbit / Sourcegraph Cody / Aider / Claude Code** | coding-agent execution and/or review | execution/evaluation prior art |
+
+## Agent workflow runtimes
+
+The 2026 agent-framework ecosystem makes EOKS's workflow/graph concepts concrete. These systems execute agentic workflows; they do not replace EOKS's proposed control loop. The relevant EOKS question is whether a runtime can serve as a replaceable execution substrate while EOKS selects topology, resources, context, evidence and assurance.
+
+See [Agent workflow runtimes and EOKS](prior-art/agent-workflow-runtimes-2026.md) for the current synthesis and validation plan.
 
 ## How to compare these tools
 
