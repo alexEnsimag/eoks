@@ -45,6 +45,18 @@ These are deliberately unresolved. They should become experiments, ADRs or imple
 - What signals predict that an agent is going down an unproductive path early enough to justify intervention?
 - Which control decisions benefit enough from reliability estimation to justify its measurement and calibration cost?
 
+## Probabilistic decisions and control
+
+- Can the existing **Decision** primitive represent typed alternatives, ordered scores and yes/no semantic judgments without introducing provider-specific concepts?
+- When does a probabilistic decision signal add enough control value to justify its calibration and measurement cost?
+- Can Jev, token probabilities, semantic-uncertainty estimators and deterministic validators share one provider-neutral decision-evidence contract?
+- How should probability, model confidence, evidence strength and execution authority remain explicitly separate?
+- How should step-level calibrated signals be related to trajectory-level outcomes when decisions are correlated?
+- What calibration metrics and labelled workloads are sufficient before a threshold is allowed to drive automatic routing, stopping, escalation or execution?
+- How sensitive are decision distributions to context wording, option order, irrelevant evidence and prompt injection?
+- How should decision calibration be versioned across model/provider changes?
+- Can a cheap decision layer reduce frontier-model calls without reducing task-level outcome quality?
+
 ## Execution
 
 - What is the minimum portable **Execution** abstraction that can represent a Claude Code session, deterministic process, workflow/graph, remote agent, or agent fleet?
