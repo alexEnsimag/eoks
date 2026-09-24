@@ -56,6 +56,10 @@ When a research conclusion becomes stable, its canonical statement should move i
 - [`observations-and-questions.md`](observations-and-questions.md) — unresolved questions.
 - [`prior-art/faraday-replica.md`](prior-art/faraday-replica.md) — Faraday/Replica: learned scientific judgment over coding agents, constrained experimentation, rubric-based evaluation and trajectory-level credit.
 
+### Probabilistic decisions and control
+
+- [`prior-art/probabilistic-decision-primitives-jev-2026.md`](prior-art/probabilistic-decision-primitives-jev-2026.md) — Jev / System One as prior art for typed probabilistic decisions inside agent harness/control loops; covers Choice, Score, Noul, calibration, composition limits and provider-neutral EOKS interpretation.
+
 ### Software engineering and tools
 
 - [`agent-code-understanding-and-architecture.md`](agent-code-understanding-and-architecture.md) — code understanding, structural evidence, deterministic analysis and architecture assurance.
