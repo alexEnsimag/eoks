@@ -74,6 +74,27 @@ The important EOKS question is no longer simply **“which tool provides context
 
 ## 3. Master comparison matrix
 
+### Execution substrates and agent workflow runtimes
+
+The Execution tile is broader than workflow. A Claude Code session, deterministic process, workflow/graph runtime, remote agent or fleet can all be an execution. Workflow runtimes are therefore one class of execution substrate.
+
+They should be compared on the execution semantics they expose: **topology, state, checkpoint/interrupt/resume, recovery, human participation, placement, observability and portability**. EOKS should not assume that one runtime is the canonical implementation, or that a workflow is required for every Work.
+
+### Quick mental models
+
+These analogies are intentionally concise: they describe the role of each tool relative to EOKS, not a claim that the tools are technically equivalent.
+
+| Tool | Mental model | EOKS role |
+|---|---|---|
+| **LangGraph** | **Kubernetes controller + state machine for an agent Run** | explicit graph/stateful execution |
+| **CrewAI** | **n8n for agent teams** | crews + event-driven Flows |
+| **Microsoft Agent Framework** | **Step Functions + agent runtime** | durable workflow execution + HITL/operations |
+| **Google ADK** | **Kubernetes ecosystem for agents** | agent build/eval/deploy/observe/runtime |
+| **OpenAI Agents SDK** | **Go standard library for agents** | small composable agent runtime |
+| **AutoGen** | **actor/message-passing model for agents** | conversational multi-agent execution |
+
+The analogy is useful for orientation; the capability matrix and source notes remain authoritative.
+
 | Tool / mechanism | Primary role | Also provides | Popularity | Maturity | Evidence | EOKS fit | Experiment priority |
 |---|---|---|---:|---:|---:|---:|---:|
 | **Claude Code** | coding-agent execution substrate | hooks, MCP/tools, project instructions, session/context management | ★★★★★ | ★★★★★ | ★★★★★ | ★★★★★ | ★★★★★ |
@@ -113,6 +134,12 @@ The important EOKS question is no longer simply **“which tool provides context
 | **OpenHands benchmarks** | coding-agent benchmark infrastructure | SWE tasks and agent evaluation | ★★★★☆ | ★★★★☆ | ★★★★★ | ★★★★☆ | ★★★★☆ |
 | **OpenAI Evals-style frameworks** | reusable evaluation harness | private/workload-specific evals | ★★★★★ | ★★★★★ | ★★★★★ | ★★★★☆ | ★★★★☆ |
 | **Conductor-style systems** | task decomposition/orchestration | multi-agent/task topology, coordination | ★★★☆☆ | ★★★☆☆ | ★★★☆☆ | ★★★★☆ | ★★★★☆ |
+| **LangGraph** | stateful execution-graph runtime | explicit graphs, state, durable lifecycle, interrupts/resume, human gates | ★★★★★ | ★★★★☆ | ★★★★★ | ★★★★★ | ★★★★★ |
+| **CrewAI** | agent-team + event-driven execution runtime | crews, Flows, state, resumability, multi-agent coordination | ★★★★☆ | ★★★★☆ | ★★★★☆ | ★★★★☆ | ★★★★☆ |
+| **Microsoft Agent Framework** | agent + workflow execution runtime | durable workflows, checkpoint/resume, HITL, observability, visualization, orchestration | ★★★★☆ | ★★★★☆ | ★★★★☆ | ★★★★★ | ★★★★★ |
+| **Google ADK** | agent development + execution runtime | orchestration, tools, eval, deployment, observability, runtime environments | ★★★★☆ | ★★★★☆ | ★★★★☆ | ★★★★☆ | ★★★★☆ |
+| **OpenAI Agents SDK** | lightweight agent execution SDK | tools, handoffs, guardrails, sessions, HITL, tracing | ★★★★★ | ★★★★☆ | ★★★★☆ | ★★★★☆ | ★★★★☆ |
+| **AutoGen** | conversational multi-agent execution (legacy prior art) | agent conversations, group collaboration | ★★★★☆ | ★★★☆☆ | ★★★★☆ | ★★★★☆ | ★★☆☆☆ |
 | **Langroid** | multi-agent execution/orchestration | agent communication and task coordination | ★★★☆☆ | ★★★★☆ | ★★★☆☆ | ★★★★☆ | ★★★☆☆ |
 | **Plano** | operational routing/governance | runtime operations and control mechanisms | ★★☆☆☆ | ★★☆☆☆ | ★★☆☆☆ | ★★★☆☆ | ★★★☆☆ |
 | **CodeRabbit / Sourcegraph Cody** | coding/review execution prior art | review, repository context, developer workflow integration | ★★★★☆ | ★★★★☆ | ★★★★☆ | ★★★☆☆ | ★★★☆☆ |

@@ -22,6 +22,8 @@ For the canonical capability/selection model, see [Tool capability model](../doc
 | **Superpowers** | structured development workflow and quality gates | execution policy |
 | **modularity** | architecture-oriented analysis | architecture evidence/evaluation |
 | **Conductor-style systems** | task decomposition and cross-task orchestration | orchestration |
+| **LangGraph / CrewAI / Microsoft Agent Framework / Google ADK / OpenAI Agents SDK** | execution substrates for agent loops, graphs, coordination and durable lifecycle | Execution tile / orchestration substrate |
+| **AutoGen** | conversational multi-agent execution | Execution tile / orchestration prior art |
 | **`CLAUDE.md` management** | human-reviewed project policy/knowledge | canonical local knowledge |
 | **memsearch / LangMem / Mem0 / Zep** | persistent semantic/episodic/procedural memory patterns | memory |
 | **Xirp / Spotify** | shared system/organizational context and session continuity | context + execution boundary |
@@ -34,6 +36,35 @@ For the canonical capability/selection model, see [Tool capability model](../doc
 | **OpenHands benchmarks** | software-engineering/agent benchmark infrastructure | benchmark prior art |
 | **OpenAI Evals-style frameworks** | reusable private/workload-specific eval harnesses | evaluation harness |
 | **CodeRabbit / Sourcegraph Cody / Aider / Claude Code** | coding-agent execution and/or review | execution/evaluation prior art |
+
+## Execution tile
+
+The workflow-runtime research should be read as part of the broader **Execution** tile, not as a proposal to make EOKS workflow-centric.
+
+Execution can range from:
+
+~~~text
+one agent session
+  → deterministic process
+  → workflow / graph
+  → parallel or hierarchical agents
+  → remote execution
+  → fleet / distributed execution
+~~~
+
+The runtime is one possible substrate for that execution. Claude Code sessions and harness mechanisms remain relevant at the agent-local layer:
+
+- **Harness** — how an individual agent operates: instructions, skills, hooks, MCP/tools, permissions, context and session lifecycle.
+- **Execution runtime** — how one or more executions are coordinated: topology, state, checkpoint, interrupt/resume, handoff, retry/recovery and human gates.
+- **EOKS** — how executions participate in a larger Work alongside context, resources, evidence, evaluation and human decisions.
+
+The useful EOKS abstraction is therefore not “workflow runtime”. It is the minimum portable **Execution** semantics needed to observe, select and coordinate different execution substrates.
+
+## Agent workflow runtimes
+
+The 2026 agent-framework ecosystem makes EOKS's workflow/graph concepts concrete. These systems execute agentic workflows; they do not replace EOKS's proposed control loop. The relevant EOKS question is whether a runtime can serve as a replaceable execution substrate while EOKS selects topology, resources, context, evidence and assurance.
+
+See [Agent workflow runtimes and EOKS](prior-art/agent-workflow-runtimes-2026.md) for the current synthesis and validation plan.
 
 ## How to compare these tools
 
