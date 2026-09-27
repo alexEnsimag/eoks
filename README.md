@@ -126,6 +126,7 @@ The current practical hypothesis is intentionally conservative:
 20. Move humans toward objectives, policy exceptions, risky/ambiguous decisions and accountability as workflow reliability improves.
 21. Connect consequential architectural intent to executable conformance where practical: ADRs explain why, specifications/contracts describe what, invariants/policies state what must remain true, and deterministic or calibrated fitness functions provide evidence. Keep agentic governance advisory until it is calibrated, and promote repeated findings into deterministic rules where justified.
 22. Treat **graduated autonomy** as an outcome of assurance: increase delegation only when workload-specific evidence supports it, and keep human escalation for risk or ambiguity that current assurance cannot bound.
+23. Treat execution environments as replaceable, stateful resources: separate logical Work/execution state from the process, container, VM or remote resource currently realizing it; model environment/loadout composition and substrate-level enforcement without making a particular sandbox technology part of the EOKS ontology.
 
 This gives EOKS a path from a simple Git repository to richer knowledge infrastructure without requiring a graph database or a new canonical format on day one.
 
