@@ -31,6 +31,9 @@ The vocabulary is intentionally provisional. The definitions below are architect
 | Loadout | The workload-scoped set of assets an agent/task is allowed and expected to use. Loadout eligibility is distinct from final context selection. |
 | Agent | A runtime execution loop capable of performing one or more roles. |
 | Run | One attempt to execute a task or subtask under a particular context, policy and resource configuration. |
+| Execution environment | The concrete runtime in which a Run is realized, such as a local process, container, microVM, VM or remote execution service; distinct from logical execution state. |
+| Environment loadout | The concrete execution environment selection/configuration for a Work, including environment layers, workspace, toolkits/dependencies, resource limits and relevant network/isolation policy. |
+| Execution state | Runtime/work state that must remain associated with a Work across execution-resource lifecycle events; distinct from the process or machine currently holding it. |
 | Decision | A control-plane choice about what happens next, such as retrieve, verify, retry, branch, stop or escalate. |
 | Policy | A constraint or requirement governing system behavior and decisions. |
 | Evaluation | Measurement of intermediate or final quality, evidence strength, assurance or task success. |

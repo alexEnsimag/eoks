@@ -140,6 +140,26 @@ executing
 
 This is a semantic lifecycle model, not a claim that EOKS should implement a new runtime. Existing runtimes and workspaces can own process/session mechanics while EOKS reasons about semantic state and the next decision.
 
+## Execution environment as a realization boundary
+
+DSec provides concrete systems evidence for a distinction already implicit in the six-dimensional model: **execution capability is not the same thing as the environment that realizes it, and neither is identical to semantic Work state**.
+
+A Work may require a capability such as repository execution, but that capability can be realized by different execution environments—local process, container, microVM, VM or remote/fleet execution—depending on functionality, isolation, resource and policy requirements. DSec also demonstrates that environment state can remain meaningful while compute resources are reclaimed or replaced.
+
+Therefore:
+
+```text
+CAPABILITIES -> what can/may be done
+POLICY       -> under what constraints
+LOADOUT      -> which resources/environment are eligible
+EXECUTION    -> concrete realization
+STATE        -> what remains true across lifecycle changes
+```
+
+This does not add a seventh dimension. It sharpens the boundary between the six semantic dimensions and the implementation substrate beneath them.
+
+See [DeepSeek Elastic Compute prior art](../../research/prior-art/deepseek-elastic-compute-2026.md).
+
 ## Execution, evidence, and outcome
 
 Execution, evidence, and outcome are better treated as lifecycle mechanics than additional semantic dimensions:

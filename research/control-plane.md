@@ -20,6 +20,32 @@ EOKS
 
 Kubernetes scheduling is specifically about matching Pods to Nodes according to requirements and available resources. The EOKS analogy generalizes that idea: a workload declares intent and constraints, and the control plane chooses an execution strategy. citeturn0search1turn0search3
 
+## Execution substrate as a control-plane concern
+
+DSec adds a useful systems boundary to the control-plane model. A workload's execution choice can include not only **which model/tool/agent** to invoke, but also **which execution environment** should realize the work.
+
+```text
+workload requirements + policy
+            |
+            v
+     resource selection
+            |
+     +------+------------------+
+     |                         |
+ semantic resources       execution loadout
+ model/tool/analyzer      environment/backend
+     |                         |
+     +-----------+-------------+
+                 |
+                Run
+                 |
+        state + evidence + outcome
+```
+
+The execution environment can be a local process, container, microVM, VM or remote/fleet resource. DSec demonstrates why this can be a real scheduling concern: workloads differ in functionality, isolation, resource profile and environment artifacts, while state may need to survive interruption or resource reclamation.
+
+This does not make the control plane an execution runtime. The control plane selects and governs execution resources; the provider owns the concrete lifecycle, placement, isolation and resource mechanics.
+
 ## What is an AI workload?
 
 A workload may be:

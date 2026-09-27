@@ -69,6 +69,12 @@ These are deliberately unresolved. They should become experiments, ADRs or imple
 - What is the correct scheduling unit: Work, execution, session, task, reasoning step or workflow?
 - Can checkpoint/interrupt/resume become portable EOKS semantics while storage and implementation remain runtime-specific?
 - How should execution events, artifacts, evidence and evaluations be normalized across different substrates?
+- What execution-state semantics are needed when compute can be reclaimed and later reattached to the same Work?
+- How should environment/loadout identity, versioning and provenance be represented when environments are composed from independently evolving layers?
+- Which capability and policy constraints require enforcement by the execution substrate rather than only reasoning by the harness?
+- Can a Work move between execution backends without losing state, evidence, provenance or isolation guarantees?
+- How should shared dependency failures and resource exhaustion be represented at Work/fleet scope rather than as unrelated execution failures?
+- What validation is sufficient before an agent-built environment becomes a reusable execution loadout?
 
 ### Workflow runtimes as execution substrates
 

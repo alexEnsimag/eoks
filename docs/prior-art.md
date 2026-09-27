@@ -18,6 +18,7 @@ Scores below are **EOKS-fit scores, not product-quality rankings**. They reflect
 | Understand Anything | code/domain knowledge graph | **8.5/10** | Interactive graph, guided understanding, impact/change analysis | Full graph generation can itself be expensive; incremental path is still evolving |
 | Hermes | agent learning / reflection | **8.5/10** | Interesting direction for turning experience into reusable capability | Requires careful promotion/governance |
 | Liza | multi-agent execution + auditability | **8/10** | Strong workflow/review/documentation ideas | More execution-focused than knowledge infrastructure |
+| DSec | elastic stateful execution substrate | — | Production evidence for heterogeneous sandbox backends, layered environment composition, durable rollout state, high-density resource management and substrate-level policy | Built for DeepSeek agentic RL/evaluation; EOKS should extract execution semantics rather than adopt its implementation |
 | OKF | portable structured knowledge convention | **9/10 conceptually** | Gives durable, human/agent-friendly knowledge a portable representation with provenance/lifecycle concepts | EOKS should consume it rather than duplicate its schema or make it mandatory |
 | ADHD-style reasoning strategies | reasoning strategy layer | **8/10** | Useful primitive for divergent/convergent or adversarial thinking | The specific naming is less important than the reusable strategy concept |
 | Obsidian | human thinking / research workspace | **8/10** | Good place for cross-cutting architecture/research before promotion to canonical docs | Should not be required at agent runtime |
@@ -396,11 +397,15 @@ The newer synthesis adds an explicit control-plane boundary around this stack:
 Task
   -> Policy
   -> Context compiler
-  -> Resource selection
+  -> Resource / execution-environment selection
   -> Run
   -> Evaluation
   -> Outcome
   -> Feedback
 ```
+
+DSec sharpens the execution boundary in this model. A Run may be realized by different backends while preserving logical Work/state, and the concrete environment can be composed from independently versioned layers. This is useful evidence for keeping **capability**, **environment/loadout**, and **execution state** separate.
+
+At production scale, DSec also shows that execution is not just "start a container": bursty creation, long-lived state, sparse CPU demand, image diversity, memory pressure, placement, lifecycle reclamation and network/isolation policy become first-class infrastructure concerns. These are provider/substrate concerns for EOKS, not new semantic dimensions.
 
 This is deliberately compositional. No single project needs to become EOKS.
