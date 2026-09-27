@@ -177,6 +177,16 @@ This reinforces an EOKS principle: context selection should combine cheap/determ
 
 ## 4. Agent runtimes and execution substrates
 
+### DSec: execution environments are infrastructure
+
+DeepSeek Elastic Compute (DSec) is useful production prior art for this boundary. It exposes function-call, container, microVM and full-VM sandboxes through one SDK, while retaining backend-specific semantics. Its environments are stateful across many agent turns, can be interrupted/reclaimed without discarding logical rollout state, and are composed from independently evolving base, workspace and toolkit layers.
+
+For EOKS, the important consequence is that **execution environment is a replaceable infrastructure resource**. A Work should not be identified with a container, VM, agent process or session. Instead, the semantic Work/state can select an environment loadout and survive changes to the concrete execution resource.
+
+DSec also demonstrates that execution infrastructure has its own control problems—burst placement, resource overcommit, memory reclamation, image distribution, isolation and network policy. Those belong to the provider/runtime boundary, but EOKS should expose the requirements that matter semantically: capability, environment/loadout, resource budget, policy, lifecycle and recoverability.
+
+
+
 The ecosystem now has several increasingly explicit runtime layers:
 
 - **Claude Agent SDK** — programmatic Claude Code agent loop, tools, hooks, sessions and permissions.
