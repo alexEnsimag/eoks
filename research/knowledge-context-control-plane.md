@@ -9,6 +9,28 @@ The working EOKS hypothesis is:
 > It should coordinate tasks, context, execution, policies, evidence and outcomes while consuming specialized knowledge and execution systems underneath.
 
 The terminology remains provisional. This document is an architectural hypothesis, not a claim that the industry has standardized these boundaries.
+## Execution environment boundary
+
+The execution side should be kept distinct from context compilation. A compiled context answers **what information the reasoning step receives**; an execution environment answers **where the resulting action can run and what state/resources it can access**.
+
+DSec provides concrete prior art for this boundary: its sandboxes are stateful, can use different backend strengths (FnCall, containers, microVMs, FullVM), and compose environment layers such as base image, workspace and toolkit. The logical Work can therefore be separated from the concrete execution resource.
+
+```text
+knowledge / evidence
+        |
+context compilation
+        |
+model / decision
+        |
+execution loadout
+        |
+execution environment
+        |
+state + artifacts + evidence
+```
+
+This supports keeping **context**, **environment/loadout**, and **execution state** as separate concepts. It also reinforces that policy can constrain both context eligibility and physical execution (network, filesystem, credentials, resource limits and isolation).
+
 
 ## 1. The layered model
 
