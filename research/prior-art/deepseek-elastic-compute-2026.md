@@ -6,7 +6,7 @@ DeepSeek's **DeepSeek Elastic Compute (DSec)** paper (arXiv:2609.22978, Septembe
 
 DSec is not a new EOKS abstraction and should not be treated as one. Its value to EOKS is as **execution-substrate prior art**: it shows what a stateful, elastic, heterogeneous execution plane looks like when agent environments become a large-scale infrastructure workload.
 
-The paper reports a production-scale unit of roughly 160 CPU nodes, about 30,000 CPU cores and ~250 TB DRAM, serving about 3 million sandboxes/day, more than 380,000 concurrent sandboxes and more than 5,000 sandbox creations/sec. A single training/evaluation job can request up to 32K sandboxes. The exact scale is not the architectural conclusion; it demonstrates that agent execution can become a fleet-management problem rather than a single-runtime problem. citehttps://arxiv.org/abs/2609.22978
+The paper reports a production-scale unit of roughly 160 CPU nodes, about 30,000 CPU cores and ~250 TB DRAM, serving about 3 million sandboxes/day, more than 380,000 concurrent sandboxes and more than 5,000 sandbox creations/sec. A single training/evaluation job can request up to 32K sandboxes. The exact scale is not the architectural conclusion; it demonstrates that agent execution can become a fleet-management problem rather than a single-runtime problem. https://arxiv.org/abs/2609.22978
 
 ## DSec's central model
 
