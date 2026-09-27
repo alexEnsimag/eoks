@@ -6,7 +6,7 @@ DeepSeek's **DeepSeek Elastic Compute (DSec)** paper (arXiv:2609.22978, Septembe
 
 DSec is not a new EOKS abstraction and should not be treated as one. Its value to EOKS is as **execution-substrate prior art**: it shows what a stateful, elastic, heterogeneous execution plane looks like when agent environments become a large-scale infrastructure workload.
 
-The paper reports a production-scale unit of roughly 160 nodes, around 3 million sandboxes/day, more than 380,000 concurrent sandboxes and more than 5,000 sandbox creations/sec. The exact scale is not the architectural conclusion; it demonstrates that agent execution can become a fleet-management problem rather than a single-runtime problem.
+The paper reports a production-scale unit of roughly 160 CPU nodes, about 30,000 CPU cores and ~250 TB DRAM, serving about 3 million sandboxes/day, more than 380,000 concurrent sandboxes and more than 5,000 sandbox creations/sec. A single training/evaluation job can request up to 32K sandboxes. The exact scale is not the architectural conclusion; it demonstrates that agent execution can become a fleet-management problem rather than a single-runtime problem. citehttps://arxiv.org/abs/2609.22978
 
 ## DSec's central model
 
@@ -198,6 +198,8 @@ The semantic model should remain stable while placement, isolation and resource-
 
 DSec does not require a seventh EOKS dimension.
 
+It also reinforces a broader EOKS principle: **execution modality is a workload decision, not an agent taxonomy**. DSec's four backends are selected according to workload functionality, isolation and resource characteristics; similarly, EOKS should choose the smallest/least costly execution substrate that satisfies the Work's requirements and assurance constraints.
+
 Instead, it grounds the **Execution plane** beneath the existing dimensions:
 
 | EOKS dimension | DSec-relevant relationship |
@@ -272,6 +274,40 @@ The reusable research findings are the **boundaries and semantics**:
 6. agent-created environments can become reusable artifacts only after validation;
 7. execution can scale from individual sessions to fleets without changing the higher-level Work model.
 
+## Additional production observations
+
+Several DSec measurements are useful as hypotheses for EOKS experiments:
+
+- Production sandbox lifetimes are long relative to active CPU use; roughly 90% of containers and microVMs average below 5% of allocated CPU.
+- The reported median lifetimes are about 17.4 minutes for containers and 15.5 minutes for microVMs, with p99 lifetimes above three hours.
+- Eager image pulling increases completion time by 1.7× in the paper's ablation, while on-demand loading reduces cumulative disk writes by 57%.
+- In one production week, the container backend served 11,266 base images, 102,171 workspaces and 103 toolkits; 67.8% of sandboxes required at least one workspace or toolkit in addition to the base image.
+- DSec uses cloud bursting for transient peaks; this reinforces that execution capacity can be elastic without changing the logical Work model.
+
+These measurements are specific to DSec's workloads and infrastructure. They should inform hypotheses, not be treated as universal agent-runtime constants.
+
+## Co-design with the control loop
+
+DSec is co-designed with the RL framework rather than exposed as a completely opaque infrastructure service. Stateful rollout execution is separated from preemptible GPU training, allowing GPU resources to be reclaimed while sandbox state remains available for later continuation. The broader architectural lesson is that **control-loop state and execution resources can have different lifecycles**.
+
+The same separation is useful for EOKS software-engineering Work: a controller, model session or worker may be replaced without necessarily losing the Work's authoritative state, evidence or artifacts.
+
+## Agent-built environments and the self-improvement boundary
+
+Section 6 also introduces a loop in which agents construct environments interactively and package their resulting changes into reusable environment state. This is relevant to EOKS because environment construction itself can become part of agentic Work.
+
+The important boundary is validation:
+
+```
+agent-built environment
+        |
+ provenance + tests + policy checks
+        |
+ reusable loadout
+```
+
+An environment produced by an agent should not become a trusted reusable loadout merely because the construction run succeeded. This is analogous to EOKS's broader candidate-learning and controlled-promotion model.
+
 ## Open research questions
 
 1. What is the smallest execution contract that can represent local sessions, containers, VMs and remote/fleet execution?
@@ -315,7 +351,7 @@ The primary question is not whether a particular backend wins. It is:
 
 ## Sources
 
-- Huang et al., *DeepSeek Elastic Compute (DSec): A Sandbox Infrastructure for Effective Agentic Training at Scale*, arXiv:2609.22978, September 2026.
+- Huang et al., *DeepSeek Elastic Compute (DSec): A Sandbox Infrastructure for Effective Agentic Training at Scale*, arXiv:2609.22978v1, September 2026. The paper is a 31-page systems report and is the primary source for the architecture and measurements.
 - https://arxiv.org/abs/2609.22978
 
 This note records architectural prior art and research hypotheses. It does not make DSec an EOKS dependency or claim that its production design is universally applicable.
