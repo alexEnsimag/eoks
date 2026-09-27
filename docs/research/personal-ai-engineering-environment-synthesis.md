@@ -92,6 +92,26 @@ executing
 
 This is a lifecycle model, not necessarily a new EOKS runtime primitive. Existing runtimes and workspaces can own checkpoints and process/session mechanics while EOKS reasons about semantic state and the next decision.
 
+## Execution environments: a replaceable substrate
+
+DSec is useful production prior art for the environment side of the personal AI engineering stack. It shows a stateful sandbox platform spanning FnCall, containers, microVMs and full VMs, with independently composed environment layers and lifecycle/resource management.
+
+For the personal engineering environment, the useful abstraction is therefore not "the agent's machine" but an **execution loadout**:
+
+```text
+Work requirements + policy
+          |
+   environment loadout
+          |
+ local / container / VM / remote
+          |
+ state + artifacts + evidence
+```
+
+The same Work may move between execution resources without changing its semantic identity. This complements the existing distinction between agent loop, runtime, workspace and EOKS semantic/control layer.
+
+DSec also shows why environment infrastructure can become a bottleneck at scale: sandbox creation is bursty, environments remain stateful while compute demand is intermittent, and heterogeneous images/toolkits make distribution expensive. Those mechanisms belong to the execution provider, but EOKS should preserve the semantic requirements that drive selection: capabilities, isolation, resource budgets, network policy, recoverability and assurance.
+
 ## Resource and capability selection
 
 As agents become interchangeable execution workers, another control question becomes important:
