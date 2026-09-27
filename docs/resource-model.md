@@ -126,7 +126,9 @@ See [Engineering knowledge as a multi-representation system](knowledge-represent
 
 A **loadout** is the workload-scoped set of assets/resources that an agent/task is allowed and expected to use.
 
-The OS/resource-protection analogy suggests treating this as a **resource namespace and eligibility boundary**, not merely as a prompt package. It can express readable, writable, executable, derived, restricted or approval-gated resources where policy requires it.
+The same boundary can describe an **execution environment loadout**: the concrete combination of base environment, workspace, toolkit/dependencies, runtime backend and resource/isolation settings used to realize a Work. DSec provides production prior art for this distinction by independently versioning base images, workspaces and toolkits and composing them at sandbox creation.
+
+The OS/resource-protection analogy suggests treating this as a **resource namespace and eligibility boundary**, not merely as a prompt package. It can express readable, writable, executable, derived, restricted or approval-gated resources where policy requires it. For execution, the loadout can additionally carry backend requirements, resource limits, network policy and isolation requirements.
 
 Loadout selection is distinct from working-set/context selection:
 
