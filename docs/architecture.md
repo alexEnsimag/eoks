@@ -143,9 +143,41 @@ Roles describe responsibilities within a workflow; they do not require a particu
 
 Execution is an actuator of the control loop. A failed or incomplete run is an observation that can cause reconciliation, not necessarily a terminal workflow failure.
 
-Scheduling can borrow established systems techniques—priority, fairness, aging, batching, work stealing and load balancing—but these remain hypotheses to test. Deterministic tools, retrieval, specialized models, general reasoning, multi-agent workflows and humans are execution resources/modalities, not mandatory agent types.
+#### Execution environment
 
-See [Agent roles](agent-roles.md), [Agent workflows](agent-workflows.md) and [Deterministic execution](deterministic-execution.md).
+The execution resource is not necessarily the same thing as the execution state. A Run may be realized by a local process, container, microVM, VM or remote execution service, while its logical state, evidence and artifacts need to remain associated with the Work across resource replacement, interruption or reclamation.
+
+This suggests a useful execution boundary:
+
+```
+Work / policy / capabilities
+          |
+          v
+     execution choice
+          |
+          v
+ environment/loadout
+          |
+          v
+ local process | container | microVM | VM | remote
+          |
+          v
+ state + artifacts + evidence
+```
+
+The environment/loadout can be layered rather than monolithic: a base environment, workspace, toolkits/dependencies and writable runtime state may have independent identities and lifecycles. DSec is important prior art here: its production sandbox platform exposes FnCall, container, microVM and full-VM backends through a unified SDK, composes independently versioned environment layers, and preserves state across interruption while reclaiming idle resources. See [DeepSeek Elastic Compute](../research/prior-art/deepseek-elastic-compute-2026.md).
+
+This leads to three architectural constraints:
+
+1. **Execution state should be separable from allocated compute.** Checkpoint/suspend/resume is therefore an execution/state semantic, not only a workflow convenience.
+2. **Capabilities are semantic; environments are realizations.** A capability such as "run repository tests" should not imply a particular container, VM or runtime.
+3. **Policy has an enforcement boundary.** The control plane can reason about policy, but filesystem, network, credential, resource and isolation constraints may need substrate-level enforcement.
+
+These are interface hypotheses, not requirements that EOKS implement a sandbox platform. Existing agents and execution providers should remain replaceable resources.
+
+Scheduling can borrow established systems techniques—priority, fairness, aging, batching, work stealing and load balancing—but these remain hypotheses to test. DSec also shows that agent execution can be bursty, stateful, heterogeneous and mostly idle between model actions, making capacity, memory reclamation and environment distribution relevant execution concerns at scale. Deterministic tools, retrieval, specialized models, general reasoning, multi-agent workflows and humans are execution resources/modalities, not mandatory agent types.
+
+See [Agent roles](agent-roles.md), [Agent workflows](agent-workflows.md), [Deterministic execution](deterministic-execution.md) and [DeepSeek Elastic Compute](../research/prior-art/deepseek-elastic-compute-2026.md).
 
 ### Evaluation and outcomes
 
