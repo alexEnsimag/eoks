@@ -95,6 +95,39 @@ task / desired outcome
 
 This is the bridge from **agent invocation** to **closed-loop workload management**.
 
+## DSec: the execution substrate made concrete
+
+DeepSeek Elastic Compute (DSec) is useful prior art for the execution side of the AI-OS analogy. It shows a production system where the unit being managed is not merely a model invocation or a process, but a **stateful execution environment** with lifecycle, placement, isolation, resources and environment artifacts.
+
+The important mapping is:
+
+```text
+AI-OS / EOKS                 DSec evidence
+
+Work + requirements   ->     sandbox request / task requirements
+Capability            ->     backend + environment requirements
+Environment loadout   ->     base image + workspace + toolkit + runtime state
+Execution resource    ->     FnCall / container / microVM / FullVM
+Execution state       ->     persistent sandbox state across turns/interruption
+Policy                ->     network / identity / quota / isolation controls
+Control decision      ->     placement + lifecycle decisions
+Outcome / evidence    ->     command results, tests, trajectories, rewards
+```
+
+DSec is especially useful because it exposes the resource-management consequences of agentic workloads: creation can be highly bursty, sandboxes remain stateful while CPU is often idle, workloads have heterogeneous isolation/functionality requirements, and environment artifacts have limited reuse. Its production deployment reaches hundreds of thousands of concurrent sandboxes and thousands of creations per second, making these properties infrastructure constraints rather than edge cases.
+
+The EOKS lesson is **not** to reproduce DSec. It is to preserve the semantic boundary:
+
+- a capability is what the Work needs or is authorized to do;
+- an environment/loadout is how that capability is realized;
+- execution state belongs to the Work across resource lifecycle changes;
+- the substrate enforces consequential policy;
+- the control plane selects an appropriate execution modality without owning the underlying runtime.
+
+This also strengthens the Kubernetes analogy: scheduling is not only "which model?" but can include **where/how to execute, with which environment, isolation, resource budget and lifecycle policy**.
+
+See [DeepSeek Elastic Compute prior art](prior-art/deepseek-elastic-compute-2026.md) for the detailed system analysis.
+
 ## 2. Operating system: scheduling capabilities, not just compute
 
 The operating-system analogy shifts attention from cluster management to **resource abstraction**.
