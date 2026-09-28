@@ -191,6 +191,32 @@ Evaluation is a feedback mechanism, not another orchestration layer. Reliability
 
 See [Evaluation](evaluation.md).
 
+## Context-to-decision boundary
+
+Context compilation and semantic decision should remain separate control functions.
+
+A decision provider evaluates a supplied decision state; it does not inherently determine which knowledge or evidence belongs in that state. The control loop should therefore distinguish:
+
+```
+knowledge / evidence
+        |
+ working-set eligibility + policy
+        |
+ context compilation
+        |
+ decision state
+        |
+ semantic decision
+        |
+ policy interpretation / execution
+```
+
+This matters for probabilistic decision providers such as Jev: the provider can produce a typed semantic signal over the supplied state, while EOKS remains responsible for evidence selection, provenance, freshness, authority and the policy that interprets the signal.
+
+The boundary does **not** mean that a Jev-like decision provider cannot participate in context management. It can be used to judge relevance, value, retention or retrieval priority of candidate context items. The distinction is that those are decisions made *about* context; durable knowledge, retrieval, working-set construction and context compilation remain EOKS responsibilities.
+
+The same boundary applies to other decision providers, including general LLM judges, classifiers, deterministic validators and human decisions. A probability or judgment does not replace the evidence it was derived from.
+
 ## Control-loop semantics
 
 The minimal loop is:
