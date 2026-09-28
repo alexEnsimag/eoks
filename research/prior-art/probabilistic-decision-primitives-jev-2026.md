@@ -363,3 +363,60 @@ It is:
 > **When a workflow decomposes control into many typed probabilistic questions, which decisions should be parallel, which should be sequential, which require independent evidence, and how should their uncertainty drive routing, escalation and execution?**
 
 That is the bridge between Jev and EOKS's control-loop model.
+
+
+## Context assembly is outside the Jev decision primitive
+
+A useful clarification from examining the API shape is that Jev does **not** appear to be a context-retrieval system. The application supplies the state that the typed question evaluates. In other words:
+
+```
+knowledge / resources / evidence
+              |
+       context / state assembly
+              |
+              v
+        semantic question
+              |
+              v
+             Jev
+              |
+       probabilistic signal
+```
+
+The question is explicit and typed; the state is the evidence/context against which the question is evaluated. This means two different control problems should remain distinct:
+
+1. **Context selection/compilation:** what evidence should be assembled for the decision?
+2. **Semantic decision:** given that state, what proposition/category/score is supported?
+
+This distinction is important for EOKS because context compilation is already a first-class architectural concern. A Jev-like provider can therefore sit after context compilation and before policy interpretation without owning retrieval, durable knowledge, or authorization.
+
+The resulting boundary is:
+
+```
+Knowledge / evidence
+        |
+ working-set eligibility + policy
+        |
+ context compilation
+        |
+   decision state
+        |
+ semantic decision provider
+   (Jev / LLM / classifier / human)
+        |
+ probabilistic or categorical evidence
+        |
+ policy + execution
+```
+
+This also means that a semantic decision is only as meaningful as the state supplied to it. EOKS should preserve the provenance, freshness and authority of the evidence entering a decision rather than treating the decision probability as a substitute for evidence quality.
+
+### Implication for the EOKS research question
+
+The interesting experiment is therefore not simply "does Jev classify agent state?" It is:
+
+> **How should EOKS construct and verify the minimum sufficient decision state before invoking a semantic decision provider, and how should uncertainty in that decision affect subsequent control?**
+
+This connects the existing Context/working-set research directly to Decision without merging the two primitives.
+
+Source: https://jevmodel.org/docs/
