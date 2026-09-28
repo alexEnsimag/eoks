@@ -391,3 +391,171 @@ It is:
 > **When a workflow decomposes control into many typed probabilistic questions, which decisions should be parallel, which should be sequential, which require independent evidence, and how should their uncertainty drive routing, escalation and execution?**
 
 That is the bridge between Jev and EOKS's control-loop model.
+
+
+## Context assembly is outside the Jev decision primitive
+
+A useful clarification from examining the API shape is that Jev does **not** appear to be a context-retrieval system. The application supplies the state that the typed question evaluates. In other words:
+
+```
+knowledge / resources / evidence
+              |
+       context / state assembly
+              |
+              v
+        semantic question
+              |
+              v
+             Jev
+              |
+       probabilistic signal
+```
+
+The question is explicit and typed; the state is the evidence/context against which the question is evaluated. This means two different control problems should remain distinct:
+
+1. **Context selection/compilation:** what evidence should be assembled for the decision?
+2. **Semantic decision:** given that state, what proposition/category/score is supported?
+
+This distinction is important for EOKS because context compilation is already a first-class architectural concern. A Jev-like provider can therefore sit after context compilation and before policy interpretation without owning retrieval, durable knowledge, or authorization.
+
+The resulting boundary is:
+
+```
+Knowledge / evidence
+        |
+ working-set eligibility + policy
+        |
+ context compilation
+        |
+   decision state
+        |
+ semantic decision provider
+   (Jev / LLM / classifier / human)
+        |
+ probabilistic or categorical evidence
+        |
+ policy + execution
+```
+
+This also means that a semantic decision is only as meaningful as the state supplied to it. EOKS should preserve the provenance, freshness and authority of the evidence entering a decision rather than treating the decision probability as a substitute for evidence quality.
+
+### Implication for the EOKS research question
+
+The interesting experiment is therefore not simply "does Jev classify agent state?" It is:
+
+> **How should EOKS construct and verify the minimum sufficient decision state before invoking a semantic decision provider, and how should uncertainty in that decision affect subsequent control?**
+
+This connects the existing Context/working-set research directly to Decision without merging the two primitives.
+
+Source: https://jevmodel.org/docs/
+
+
+## Third-pass findings: the state/question boundary is more nuanced
+
+Recent TypeSafe material sharpens the model beyond "pre-written question + context":
+
+### 1. State is broader than a prompt/context blob
+
+TypeSafe explicitly describes System One inputs as unstructured data with an emphasis on **structured program state**, and its workflow examples join records such as alerts, assets, tickets, authorizations and maintenance state before asking questions. The important abstraction is therefore not "prompt + question" but:
+
+```
+decision state + typed question(s)
+```
+
+The state can contain the evidence and program state needed for the semantic judgment; the question defines the projection of that state being evaluated.
+
+Source: https://typesafe.ai/blog/introducing-system-one-models-and-jev
+
+### 2. Context selection can itself be a Jev decision
+
+This slightly modifies the boundary in the previous section. Jev does not inherently own a memory store or retrieval system, but a Jev-like decision provider can **make decisions about context**. TypeSafe's context-compaction example evaluates each candidate memory/tool result for relevance, category and value, with the application deciding what to retain or reload.
+
+So the architecture should not say "Jev is outside context management." The more precise statement is:
+
+> **Context management is an EOKS responsibility; semantic decision can be one mechanism used inside it.**
+
+That is a much cleaner abstraction boundary.
+
+Source: https://jevmodel.org/use-cases/context-compaction/
+
+### 3. Question semantics are part of the calibrated object
+
+A probability is not meaningfully calibrated merely because it came from a calibrated model. Calibration depends on what proposition/category/rubric is being asked and on the population of states being evaluated. The API makes this explicit by requiring typed questions and criteria/options.
+
+A useful EOKS formulation is therefore:
+
+```
+Decision contract =
+  question semantics
+  + answer type / rubric
+  + state distribution
+  + provider/model version
+  + calibration evidence
+```
+
+This is stronger than treating a question as a reusable string prompt.
+
+### 4. Context matters empirically
+
+A new September 2026 RLCD study on alignment failures varied question wording separately from the fields supplied in the input. It found that **context had more effect than question wording**, while still showing that the typed-question formulation could be useful for many detection tasks. This is a useful empirical reason for EOKS to treat context selection and provenance as first-class control concerns rather than assuming the question is the dominant factor.
+
+The result is domain-specific and does not establish general agent-control reliability, but it supports the architectural hypothesis that *what the decision model sees* deserves explicit evaluation.
+
+Source: https://arxiv.org/abs/2609.29429
+
+### 5. Decomposition is part of the control design
+
+TypeSafe's workflow evaluations report that reliable real-world workflows tend to use many independent, decomposed questions whose probabilities are consumed by domain-specific code. Questions can share the same state and be evaluated together.
+
+This suggests an important EOKS distinction:
+
+```
+one reasoning step
+    ≠
+one semantic decision
+```
+
+A single reconciliation step may deliberately create several typed decisions in parallel, then combine them through deterministic policy. The decomposition itself becomes part of the control design and should be observable/evaluable.
+
+Source: https://typesafe.ai/blog/introducing-system-one-models-and-jev
+
+### 6. AnyJev gives us a useful provider-neutral experiment
+
+Nokia's AnyJev shows that the **interface** can be reproduced on ordinary open LLMs by reading a constrained decision distribution rather than generating text, then correcting option-position effects and calibrating with labelled data. Its published results also show that raw model probabilities can be poorly calibrated even when classification accuracy is reasonable.
+
+This strengthens an EOKS hypothesis already present in this document:
+
+> **The Decision primitive should describe the contract and evidence, not the internal mechanism used to produce the probability.**
+
+Jev is one provider; an open LLM with a calibrated decision head/readout is another.
+
+Source: https://github.com/nokia-applied-research/AnyJev
+
+### Revised architectural picture
+
+The more precise model is therefore:
+
+```
+                KNOWLEDGE / STATE / EVIDENCE
+                           |
+                    working-set control
+                           |
+                 context construction
+                           |
+              +------------+------------+
+              |                         |
+       deterministic rules       semantic decisions
+              |                  (Jev / LLM / human)
+              |                         |
+              +------------+------------+
+                           |
+                    evaluated evidence
+                           |
+                     POLICY / CONTROL
+                           |
+                       EXECUTION
+```
+
+Semantic decisions can participate in **context construction itself** (for example, deciding which evidence is relevant), while remaining distinct from the context/knowledge stores and from the policy that authorizes consequential actions.
+
+This is a stronger formulation of the Context → Decision boundary than treating Jev as simply "after context."
