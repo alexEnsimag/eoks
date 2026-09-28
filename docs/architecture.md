@@ -93,6 +93,46 @@ The conductor may derive or revise a plan, select resources and execution modali
 
 Events can trigger reconciliation: test failures, dependency changes, stale resources, new commits, verification results or human input do not require a separate interrupt subsystem.
 
+### Decision mechanisms and semantic control
+
+A **Decision** is a control-plane choice about what should happen next. The decision mechanism is intentionally separate from execution: a decision may be produced by deterministic rules, a probabilistic model, an evaluator, a planner, a human, or a composition of these.
+
+Recent Jev/Foreman prior art makes this boundary concrete: probabilistic judgment can be embedded as a bounded semantic decision inside an otherwise deterministic control loop. The model can assess relevance, progress, sufficiency, drift or other evidence while deterministic policy retains authority over consequential actions.
+
+The architectural pattern is:
+
+```text
+current state + evidence
+          |
+    bounded question
+          |
+   decision mechanism
+   rules / probabilistic / human
+          |
+     bounded decision
+          |
+   policy / authorization
+          |
+       execution
+          |
+     new state/evidence
+```
+
+This does **not** make probabilistic judgment a required EOKS component. Jev is a useful implementation example, not an EOKS dependency or ontology object.
+
+This separation is particularly useful for:
+
+- context selection and sufficiency decisions;
+- worker supervision and progress assessment;
+- semantic policy checks;
+- routing among otherwise bounded capabilities;
+- deciding whether evidence is sufficient to verify completion;
+- deciding whether to continue, retry, branch, stop or escalate.
+
+Deterministic mechanisms should remain preferred when they are sufficient. Probabilistic decisions that can affect consequential state transitions should preserve evidence/provenance and be calibrated against actual workload outcomes.
+
+See [Jev / semantic control prior art](../research/prior-art/probabilistic-decision-primitives-jev-2026.md).
+
 ### Authority and evidence boundary
 
 EOKS should distinguish **what happened**, **what evidence supports a claim**, and **what is authorized to change workload state**. An agent's self-report is an observation; it is not automatically authoritative acceptance evidence.
