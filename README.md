@@ -61,7 +61,7 @@ The repository separates **current architecture** from **exploratory research**.
 - [Agent workflows, orchestration and reasoning strategies](docs/agent-workflows.md)
 - [Memory](docs/memory.md) — semantic, episodic, project and procedural memory plus controlled behavioral learning.
 - [Control plane](docs/control-plane.md)
-- [Jev / semantic control prior art](research/prior-art/jev-semantic-control.md) — probabilistic decision mechanisms embedded in deterministic control loops.
+- [Probabilistic decision primitives / Jev](research/prior-art/probabilistic-decision-primitives-jev-2026.md) — Jev, System One and probabilistic decisions embedded in deterministic control loops.
 - [Evaluation](docs/evaluation.md)
 - [Software engineering](docs/software-engineering.md)
 - [Software analysis, dataflow and invariants](docs/software-analysis.md)
