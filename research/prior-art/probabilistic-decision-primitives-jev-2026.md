@@ -8,6 +8,34 @@ TypeSafe AI's Jev is a System One model that takes state plus typed questions an
 
 Source: https://typesafe.ai/blog/introducing-system-one-models-and-jev
 
+## Rosen / Foreman: the control-plane pattern
+
+Josh Rosen's recent Jev writing adds an important systems-level framing to this prior art. His examples treat Jev as a probabilistic decision primitive embedded inside deterministic software, rather than as the owner of an agent workflow.
+
+The recurring pattern is deterministic state/evidence -> bounded question -> probabilistic judgment -> deterministic policy/authorization -> execution -> new state/evidence.
+
+Rosen describes applications including routing, context filtering, semantic tool gating, worker supervision and fast bounded control loops. This is directly relevant to EOKS because it sharpens the existing Decision primitive without requiring another orchestration layer.
+
+Foreman is particularly useful software-engineering prior art: a coding worker performs implementation while a separate supervisor evaluates progress, completeness, tests, drift and verification. The important distinction is not simply that one agent watches another; it is that judgment and execution have different authority. A probabilistic assessment can contribute evidence for a control decision while deterministic policy retains authority over consequential actions.
+
+This gives EOKS a useful three-part conceptual decomposition:
+
+- Environment — intent, knowledge, state, capabilities, workflow and policy.
+- Decision — what should happen now given relevant state and evidence.
+- Execution — what actually changes the environment.
+
+These are conceptual roles, not proposals for three new runtime primitives. Jev is one possible provider for Decision; agents, tools, workflows and humans remain execution resources/modalities.
+
+Rosen's earlier work on execution lineage and intermediate artifacts is complementary: durable artifacts, evidence and dependencies make decisions reconstructable and allow a new controller or execution attempt to resume without relying on hidden agent memory.
+
+This also strengthens the existing EOKS treatment of context selection. Context is not merely retrieval; selecting whether evidence is relevant or sufficient is itself a potentially probabilistic decision over the current workload state.
+
+Sources:
+- Josh Rosen, "Jev in the Wild: Early Architecture Patterns for System One Models" (2026).
+- Josh Rosen, work on the Jev software-factory control plane and Foreman.
+- Josh Rosen, "From Agent Loops to Deterministic Graphs: Execution Lineage for Reproducible AI-Native Work" (2026).
+- Josh Rosen, "Intermediate Artifacts as First-Class Citizens" (2026).
+
 ## Why this matters to EOKS
 
 The existing EOKS model already treats Decision as a runtime primitive inside a larger reconciliation loop:
