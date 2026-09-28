@@ -131,7 +131,7 @@ This separation is particularly useful for:
 
 Deterministic mechanisms should remain preferred when they are sufficient. Probabilistic decisions that can affect consequential state transitions should preserve evidence/provenance and be calibrated against actual workload outcomes.
 
-See [Jev / semantic control prior art](../research/prior-art/jev-semantic-control.md).
+See [Jev / semantic control prior art](../research/prior-art/probabilistic-decision-primitives-jev-2026.md).
 
 ### Authority and evidence boundary
 
