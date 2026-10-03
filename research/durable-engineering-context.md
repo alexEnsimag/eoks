@@ -28,6 +28,49 @@ EOKS should distinguish artifacts by the role they play in the control loop rath
 
 These roles can share a storage substrate. A Markdown file can contain knowledge, state or policy; a graph can represent structural knowledge; a generated view can be a task-specific representation. The semantic role should not be inferred from the storage technology.
 
+## Representation is broader than text
+
+**Representation deserves to be explicit because durable engineering context is not necessarily textual.** The same underlying engineering information may have several representations optimized for different consumers and tasks:
+
+```text
+                        engineering information
+                                  |
+             +--------------------+--------------------+
+             |                    |                    |
+          prose/ADR          structured data       visual view
+             |                    |                    |
+          human + agent        machine/control      human inspection
+                                  |
+                           derived projections
+```
+
+Examples include architecture and sequence diagrams, dependency maps, state diagrams, generated code maps, tables, canvases and Excalidraw drawings.
+
+This does **not** imply that every representation should be fed directly to a model. Recent practitioner guidance on diagrams for coding agents makes a useful distinction: diagrams can make architecture and boundaries much easier for humans to inspect, while the textual/structured facts represented by the diagram are often a more reliable machine-facing context. The practical pattern is therefore often **shared source, multiple projections** rather than "give the agent the picture." citeturn0search0turn0search3
+
+For example:
+
+```text
+source code / decisions / evidence
+              |
+       canonical or derived
+       structured knowledge
+          /          \
+         v            v
+   agent-facing     human-facing
+   text/structure     diagram
+         |              |
+         +------ review-+
+                |
+             correction
+                |
+          updated source
+```
+
+This is particularly relevant to visual PKM tools. Obsidian's Excalidraw plugin stores drawings inside the vault, supports embedding them in documents, and allows links between drawings and documents. That makes an Obsidian + Excalidraw workspace a concrete example of a **representation and navigation layer for durable engineering context**, not necessarily a separate EOKS memory subsystem. Source: https://community.obsidian.md/plugins/obsidian-excalidraw-plugin
+
+The same artifact can also participate in different lifecycle roles. A manually maintained architecture diagram may be canonical or advisory knowledge; a code-generated dependency diagram is derived evidence/representation; a temporary investigation sketch may be task state or experience. **Format and tool do not determine semantic role.**
+
 ## The lifecycle
 
 Durable context should have an explicit lifecycle:
@@ -145,17 +188,30 @@ They should not automatically become canonical knowledge: completed plans can be
 
 ## Visual and generated artifacts
 
-The same model applies to visual artifacts such as architecture diagrams and Excalidraw drawings.
+Visual artifacts should therefore be treated as **representations with lifecycle**, not as a special memory category.
 
-Their value is not that they are "another memory format." They can provide a representation that makes relationships, boundaries and system state easier to inspect or communicate.
+Useful distinctions include:
 
-Generated artifacts should carry provenance and freshness where practical. A diagram derived from code is evidence-bearing derived context; a manually curated architecture decision is a different authority level.
+| Artifact | Typical role | Authority / freshness concern |
+|---|---|---|
+| curated architecture diagram | knowledge / representation | human ownership and review |
+| code-generated dependency map | evidence / representation | source revision and regeneration |
+| Excalidraw investigation canvas | state / experience / representation | task scope and closure |
+| sequence diagram for a design | intent / knowledge / representation | design revision and decision linkage |
+| generated context map | derived representation | reproducibility and invalidation |
 
-This distinction prevents EOKS from conflating:
+A generated artifact should preserve, where practical:
 
-- human-authored canonical knowledge;
-- machine-derived representations;
-- transient task context.
+- source revision or input set;
+- generation method/tool version;
+- timestamp;
+- scope;
+- owner;
+- whether it is canonical, derived or exploratory.
+
+This is important because **visual persistence can create the same context-rot problem as textual persistence**. A stale architecture diagram is still stale context, even if it is visually compelling.
+
+The relationship to agents should remain workload-specific. A diagram may be primarily a human review surface, while its underlying structured representation or accompanying text is what the agent consumes. Conversely, multimodal agents may make the visual artifact itself usable as context. EOKS should model the artifact and its representations/projections without assuming one delivery modality.
 
 ## What the evidence does not establish
 
@@ -168,9 +224,15 @@ In particular, EOKS should not assume:
 - summaries are equivalent to execution state;
 - graphs are necessary for durable context;
 - external memory stores are necessary;
+- visual artifacts are inherently better than textual/structured representations;
+- feeding rendered diagrams directly to agents is always useful;
 - persistent context necessarily improves correctness.
 
-A controlled 2026 study specifically found no measurable correctness improvement from context files in its tested setting, while another study found efficiency improvements. This is a reason to benchmark interventions by workload and outcome rather than to prescribe a universal architecture.
+A controlled 2026 study specifically found no measurable correctness improvement from context files in its tested setting, while another study found efficiency improvements. Recent work on automated software visualization also shows that useful visualizations can be generated through deterministic/structured intermediate representations rather than requiring the model to consume an entire repository directly. This is evidence for representation as a useful layer, not evidence for a universal visual-context strategy. https://arxiv.org/abs/2605.24453
+
+The appropriate question is therefore not "should EOKS use Obsidian, graphs or diagrams?" but:
+
+> **Which representation, for which consumer and workload, provides enough value to justify its creation and maintenance cost?**
 
 ## Research questions
 
@@ -181,10 +243,12 @@ The concept suggests a focused research agenda:
 3. **Freshness** — how quickly does persistent context become harmful as repositories evolve?
 4. **Lifecycle automation** — which hooks can safely detect, invalidate or promote artifacts?
 5. **State vs summary** — when does explicit execution state outperform transcript summarization?
-6. **Representation** — when do diagrams, graphs, generated maps or structured records provide value beyond source files?
-7. **Governance** — what provenance/authority model prevents learned experience from silently becoming project truth?
-8. **Cross-session continuity** — which durable state actually improves long-horizon work?
-9. **Cost** — when does maintaining/retrieving durable context cost more than the exploration it replaces?
+6. **Representation** — when do diagrams, graphs, generated maps, canvases or structured records provide value beyond source files?
+7. **Projection fidelity** — how should a visual or generated representation stay synchronized with its authoritative source?
+8. **Consumer-specific representation** — when should the human-facing and agent-facing projections differ?
+9. **Governance** — what provenance/authority model prevents learned experience from silently becoming project truth?
+10. **Cross-session continuity** — which durable state actually improves long-horizon work?
+11. **Cost** — when does maintaining/retrieving durable context cost more than the exploration it replaces?
 
 ## EOKS interpretation
 
