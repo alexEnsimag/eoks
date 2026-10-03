@@ -155,6 +155,99 @@ These are implementations of existing EOKS capabilities.
 
 The strongest direct matches are therefore **Superpowers + OpenWiki + agent-memory/learning systems + Conductor-style execution**, with Xirp/OpenWolf/GrapeRoot providing complementary mechanisms.
 
+## EOKS synthesis: primitives and MVP
+
+The strongest synthesis is not another EOKS dimension. It is a small set of mechanisms connecting execution experience to future context.
+
+### Semantics vs. mechanisms
+
+Keep the six EOKS dimensions as semantic dimensions:
+
+- INTENT — what/why
+- WORKFLOW — what can happen
+- CAPABILITIES — what can act
+- KNOWLEDGE — what is known
+- STATE — what is currently true/in progress
+- POLICY — what constrains or governs action
+
+Define operational primitives underneath them:
+
+| Primitive | Meaning |
+|---|---|
+| Experience | observed execution history: traces, outcomes, corrections, discoveries |
+| Learning | a candidate durable insight extracted from experience |
+| Resource | the durable representation selected for that learning: knowledge, procedure, policy, test, comment, etc. |
+| Evidence | provenance/grounds supporting a claim or resource |
+| Context | task-specific materialization of eligible resources for an agent |
+
+Dimensions describe what information means; primitives describe how information moves through EOKS.
+
+### Learning is not memory
+
+A Learning should pass an explicit admission gate rather than automatically preserving session history:
+
+Experience
+  -> Candidate Learning
+  -> admission
+     -> discard if recoverable/incidental
+     -> retain if durable, non-obvious, material and supported
+  -> Consolidation
+  -> Resource
+
+### Consolidation is a distinct primitive
+
+Consolidation decides how a candidate learning interacts with existing resources:
+
+CREATE | UPDATE | MERGE | REPLACE | INVALIDATE | DISCARD
+
+The goal is canonical knowledge rather than an ever-growing pile of memories.
+
+### Context is compilation, not storage
+
+A resource existing does not imply that it belongs in the current prompt. Context should be compiled from resources using relevance, authority, freshness, evidence, cost and task. Progressive disclosure means acquiring deeper context only when relevance or uncertainty justifies the cost.
+
+### The MVP
+
+The smallest meaningful EOKS experiment is:
+
+1. Capture an experience from an engineering episode.
+2. Extract candidate learnings.
+3. Admit or discard them using explicit criteria.
+4. Consolidate an admitted learning into a durable resource with provenance.
+5. Compile relevant resources into the next task's context.
+6. Measure whether the next episode improves.
+
+The core loop is:
+
+Experience -> Learning -> Admission -> Resource -> Context -> Outcome
+     ^                                               |
+     +-----------------------------------------------+
+
+The MVP does not require a new workflow engine, autonomous fleet, universal memory database, or seventh EOKS dimension. It needs a reliable feedback loop and instrumentation to compare it against simpler baselines such as raw session history or static repository instructions.
+
+Core hypothesis:
+
+> Can an AI engineering environment improve over repeated engineering episodes by selectively converting experience into validated reusable resources and compiling those resources into future work?
+
+### Resource authority and provenance
+
+A useful resource model should preserve:
+
+Resource
+  - content
+  - scope
+  - provenance
+  - evidence
+  - authority
+  - freshness
+  - lifecycle
+
+This supports a promotion path:
+
+experience -> candidate -> evidence -> knowledge -> procedure -> policy
+
+Promotion represents increasing authority, not merely changing a label. It also makes invalidation possible when source evidence or implementation changes.
+
 ## EOKS interpretation
 
 The combined prior art suggests a more explicit feedback path:
