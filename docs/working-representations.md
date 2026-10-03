@@ -145,6 +145,63 @@ Hooks can trigger this lifecycle, and learning-oriented hook systems can use hoo
 
 This distinction explains why Excalidraw belongs in the representation category rather than the learning category.
 
+## Representations as thinking and learning surfaces
+
+The Visual PKM work around Obsidian-Excalidraw adds an important refinement: a representation is not necessarily an output of reasoning. Constructing and manipulating the representation can itself be part of the reasoning process.
+
+Zsolt Viczián describes Excalidraw drawings as more than illustrations: they can become standalone, interlinked documents in the knowledge graph; he also uses them for brainstorming and problem-solving, arguing that the slower visual process creates room for reflection and internalization. His later Visual PKM material describes text and visuals as complementary thinking modes, spatial rather than purely linear connections, reusable visual vocabulary, and iterative construction of visual maps. citeturn0search0turn0search8
+
+This suggests several distinct roles for a representation:
+
+- **Capture** — externalize an idea, observation or hypothesis.
+- **Think** — manipulate, reorganize, connect and inspect the representation to understand the problem.
+- **Communicate** — use the representation to explain an understanding to another human or agent.
+- **Navigate** — use the representation as an index or map through related knowledge.
+- **Retain** — keep a useful representation as a durable knowledge object.
+- **Learn** — use representation construction, transformation or comparison as part of learning.
+
+These roles can occur in the same object. A sketch can begin as a temporary thinking surface, become a navigation map, and later be retained as a durable knowledge object. The transition is a lifecycle decision, not a change of primitive.
+
+### Representation transformation
+
+The Visual PKM examples also expose a useful operation that is easy to miss if representation is treated as formatting: **transforming information between representations can itself be a reasoning/learning operation**.
+
+For example:
+
+    source material
+          |
+       summarize
+          |
+     textual notes
+          |
+       visualize
+          |
+     multiple sketches
+          |
+       distill
+          |
+   compact visual model
+
+Zsolt's "Book on a Page" workflow follows this kind of progressive transformation from source material through textual summarization and section sketches into a distilled visual summary. citeturn0search11
+
+The EOKS implication is not that visual representations are inherently better. It is that **representation choice and transformation are potentially active operations in reasoning and learning**, with different representations exposing different structure.
+
+### Structured relationships, not only pictures
+
+ExcaliBrain provides a related example: relationships between notes can be inferred, explicitly declared, customized and eventually expressed semantically; the resulting visual interface is used to aggregate and contextualize a topic and to explore how it fits into the rest of the vault. citeturn0search1turn0search3
+
+This is important because a working representation need not be a free-form drawing. It can expose or manipulate an underlying relational model. Visual presentation is one interface to the representation; the semantic relationships are part of the represented structure.
+
+### Working representation and learning
+
+This strengthens the distinction between **representation** and **learning mechanism**:
+
+> A representation is not a learning mechanism, but constructing, transforming, navigating and revising representations can be part of a learning loop.
+
+That is compatible with the existing EOKS learning model. Hooks, feedback, evaluation and promotion mechanisms can operate around these changes, while the working representation provides an external surface on which understanding can be developed and made inspectable.
+
+The evidence here is primarily community/practice evidence rather than a controlled demonstration of engineering outcomes. EOKS should therefore treat the mechanism as a research hypothesis to test, not as a proven productivity or learning improvement.
+
 ## EOKS architectural status
 
 Current conclusion:
@@ -153,9 +210,11 @@ Current conclusion:
 - It is a specialization/role of existing Representation + Asset concepts, not a new runtime primitive.
 - It should not be confused with traces, execution state, context, computed artifacts or durable knowledge.
 - A working representation can be visual, textual, structured or code-based.
+- Representation construction and transformation can themselves participate in reasoning and learning; this does not make Representation a learning mechanism.
 - Human/agent shared manipulation is useful but not mandatory.
 - The implementation can be a file, canvas, graph editor, document, UI-backed resource or another structured surface.
 - MCP Apps, Excalidraw and Claude Artifacts demonstrate different parts of the pattern.
+- Visual PKM and ExcaliBrain provide community evidence for representations as thinking, navigation and knowledge-maintenance surfaces.
 
 This keeps the EOKS ontology small while making an important capability explicit.
 
@@ -187,4 +246,8 @@ The representation should remain subordinate to the workload: create it when it 
 - Excalidraw+ changelog (Public API and MCP): https://plus.excalidraw.com/changelog
 - Anthropic, “Collaborate with Claude on Projects”: https://www.anthropic.com/news/projects
 - MCP Apps: https://apps.extensions.modelcontextprotocol.io/
+- Zsolt Viczián, “Sketchnoting for PKM”: https://www.zsolt.blog/2021/07/sketchnoting-for-pkm.html
+- Zsolt Viczián, “Sketchnoting a Book in Obsidian”: https://www.zsolt.blog/2021/07/sketchnoting-book-in-obsidian.html
+- Zsolt Viczián, “Mind mapping with Excalidraw in Obsidian”: https://www.zsolt.blog/2021/09/mind-mapping-with-excalidraw-in-obsidian.html
+- Nicole van der Hoeven, “How to use the ExcaliBrain Obsidian plugin”: https://notes.nicolevanderhoeven.com/system/cards/How%2Bto%2Buse%2Bthe%2BExcaliBrain%2BObsidian%2Bplugin
 - MCP Apps overview and lifecycle: https://apps.extensions.modelcontextprotocol.io/api/documents/overview.html
