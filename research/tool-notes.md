@@ -20,6 +20,7 @@ For the canonical capability/selection model, see [Tool capability model](../doc
 | **TypeScript compiler / ESLint / ts-morph** | lightweight to targeted project-specific static analysis | verification/evidence provider |
 | **TrueCourse** | architecture and behavioral guards | assurance / policy enforcement |
 | **Superpowers** | structured development workflow and quality gates | execution policy |
+| **Compound Engineering** | engineering learning/consolidation loop: experience → durable knowledge → future context | execution + memory/knowledge lifecycle |
 | **modularity** | architecture-oriented analysis | architecture evidence/evaluation |
 | **Conductor-style systems** | task decomposition and cross-task orchestration | orchestration |
 | **LangGraph / CrewAI / Microsoft Agent Framework / Google ADK / OpenAI Agents SDK** | execution substrates for agent loops, graphs, coordination and durable lifecycle | Execution tile / orchestration substrate |
@@ -117,6 +118,7 @@ Promptfoo, Langfuse and similar systems can run experiments, store traces or com
 - [TencentDB Agent Memory](prior-art/tencent-agent-memory.md)
 - [Codebase Memory MCP](prior-art/codebase-memory-mcp.md)
 - [Learning from development sessions](session-learning.md)
+- [Compound Engineering](prior-art/compound-engineering.md)
 - [Xirp / Spotify](prior-art/xirp.md)
 - [LLM observability and reliability signals](llm-observability-and-reliability.md)
 - [Context evaluation and benchmarking](context-evaluation.md)
