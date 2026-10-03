@@ -28,6 +28,7 @@ The vocabulary is intentionally provisional. The definitions below are architect
 | Resource | A capability or reusable thing EOKS can select, invoke or make available, including models, tools, agents, knowledge sources, providers and durable assets. |
 | Asset | A generic lifecycle/governance abstraction for a reusable resource. Asset is not a semantic knowledge category; memory, Skills, documents, decisions and derived evidence can all be assets. |
 | Representation | A form optimized for a particular query or operation, such as a graph, index, document, timeline or runtime model. A representation is not automatically canonical knowledge. |
+| Working representation | An external, editable representation of a problem, system, plan, hypothesis or work product used to reason about, communicate or shape the work. It is a role of a Representation/Asset, not a new runtime primitive. |
 | Loadout | The workload-scoped set of assets an agent/task is allowed and expected to use. Loadout eligibility is distinct from final context selection. |
 | Agent | A runtime execution loop capable of performing one or more roles. |
 | Run | One attempt to execute a task or subtask under a particular context, policy and resource configuration. |
@@ -45,7 +46,7 @@ The vocabulary is intentionally provisional. The definitions below are architect
 | Context plane | The layer constructing task-specific model input. |
 | Execution plane | The layer performing workflows, runs, reasoning strategies, tool and agent actions. |
 
-For the detailed relationship between Resource, Asset, Provider, Representation, Loadout and Context, see [Resource model](resource-model.md). For the role taxonomy and its boundary with agents, resources and workflows, see [Agent roles](agent-roles.md). For continuous knowledge maintenance and its role composition, see [Continuous knowledge maintenance](continuous-knowledge-maintenance.md). The terminology table remains the compact glossary; those documents are the canonical homes for the detailed boundaries.
+For the detailed relationship between Resource, Asset, Provider, Representation, Working representation, Loadout and Context, see [Resource model](resource-model.md) and [Working representations](working-representations.md). For the role taxonomy and its boundary with agents, resources and workflows, see [Agent roles](agent-roles.md). For continuous knowledge maintenance and its role composition, see [Continuous knowledge maintenance](continuous-knowledge-maintenance.md). The terminology table remains the compact glossary; those documents are the canonical homes for the detailed boundaries.
 
 ## Agent roles
 
@@ -94,6 +95,12 @@ Likewise:
 
 YAML, JSON or another serialization can make these structures visible, but no particular serialization is itself the EOKS semantic model.
 
+Working representations add a related distinction:
+
+> **A representation can also be a working surface for reasoning.**
+
+A working representation may be visual, textual, structured or code-based. It is not synonymous with an execution trace, context, execution state or generic produced artifact.
+
 ## Resource, asset and provider
 
 These terms intentionally form different levels:
@@ -109,6 +116,8 @@ Provider
 
 Representation
   └── form optimized for a particular question/operation
+       └── Working representation
+            └── actively used external surface for reasoning/work
 
 Loadout
   └── workload-scoped eligibility/availability boundary
@@ -117,7 +126,7 @@ Context
   └── task-specific compiled projection
 ```
 
-A provider can produce evidence without producing a durable asset. A representation can be derived from canonical sources without itself being canonical knowledge. A loadout can contain assets without all of them entering the final context.
+A provider can produce evidence without producing a durable asset. A representation can be derived from canonical sources without itself being canonical knowledge. A working representation can be persistent and editable without being canonical knowledge. A loadout can contain assets without all of them entering the final context.
 
 ## Trust and confidence
 
