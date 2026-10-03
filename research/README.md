@@ -59,7 +59,7 @@ When a research conclusion becomes stable, its canonical statement should move i
 
 ### Probabilistic decisions and control
 
-- [`prior-art/probabilistic-decision-primitives-jev-2026.md`](prior-art/probabilistic-decision-primitives-jev-2026.md) — Jev / System One as prior art for typed probabilistic decisions inside agent harness/control loops; covers Choice, Score, Noul, calibration, composition limits and provider-neutral EOKS interpretation.
+- [`prior-art/probabilistic-decision-primitives-jev-2026.md`](prior-art/probabilistic-decision-primitives-jev-2026.md) — Jev / System One as prior art for typed probabilistic decisions inside agent harness/control loops; covers Choice, Score, Noul, calibration, composition limits and provider-neutral EOKS interpretation.\n- [`prior-art/laya-rlcd-decision-models-2026-10.md`](prior-art/laya-rlcd-decision-models-2026-10.md) — Laya as open implementation prior art for schema-conditioned non-autoregressive decisions, bounded choice, calibration, hooks and RLCD-based learning.
 
 ### Software engineering and tools
 
