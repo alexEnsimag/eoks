@@ -81,6 +81,7 @@ The repository separates **current architecture** from **exploratory research**.
 The [`research/`](research/) directory preserves exploratory reasoning, comparisons and experiments. It is intentionally less normative than `docs/`; research notes may contain competing hypotheses. See [`research/README.md`](research/) for its map.
 
 - [Knowledge, context and the EOKS control plane](research/knowledge-context-control-plane.md)
+- [Durable engineering context](research/durable-engineering-context.md) — durable artifacts, lifecycle, selection, freshness/context rot, learning, and visual/multi-representation context such as diagrams and Excalidraw.
 - [Knowledge, memory and context graphs — synthesis note](research/prior-art/knowledge-memory-context-graph.md) — maps knowledge, experience, context compilation, decision provenance and evaluation without introducing graph-specific runtime primitives.
 - [CodeSight](research/prior-art/codesight.md) — deterministic repository context and targeted evidence views.
 - [TencentDB Agent Memory](research/prior-art/tencent-agent-memory.md) — multi-resolution memory, Skills, Wiki, CodeGraph, governance/loadouts and hybrid context delivery.

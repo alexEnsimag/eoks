@@ -15,6 +15,7 @@ When a research conclusion becomes stable, its canonical statement should move i
 ### Core architecture and context
 
 - [`knowledge-context-control-plane.md`](knowledge-context-control-plane.md) — synthesis of knowledge, context, execution and control, including the boundaries between OKF, GrapeRoot-like context engines and structural graphs.
+- [`durable-engineering-context.md`](durable-engineering-context.md) — durable artifacts, lifecycle, selection, freshness/context rot, learning, and visual/multi-representation context such as diagrams and Excalidraw.
 - [`context-engineering.md`](context-engineering.md) — context as a managed resource.
 - [`context-quality-model.md`](context-quality-model.md) — dimensions and candidate metrics for context quality.
 - [`context-workbench.md`](context-workbench.md) — exploratory workbench model.
