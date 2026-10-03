@@ -409,3 +409,4 @@ DSec sharpens the execution boundary in this model. A Run may be realized by dif
 At production scale, DSec also shows that execution is not just "start a container": bursty creation, long-lived state, sparse CPU demand, image diversity, memory pressure, placement, lifecycle reclamation and network/isolation policy become first-class infrastructure concerns. These are provider/substrate concerns for EOKS, not new semantic dimensions.
 
 This is deliberately compositional. No single project needs to become EOKS.
+\n\nSee [Compound Engineering](../research/prior-art/compound-engineering.md) for the learning/consolidation comparison with existing EOKS prior art.
