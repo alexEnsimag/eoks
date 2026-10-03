@@ -150,7 +150,7 @@ These are implementations of existing EOKS capabilities.
 | **TencentDB Agent Memory** | memory + Skills + Wiki + CodeGraph + governed loadouts | reusable resource/memory infrastructure rather than a prescriptive engineering loop |
 | **CLAUDE.md management** | canonical local knowledge/policy exposed to future sessions | representation/policy substrate rather than learning extraction |
 | **Xirp / Spotify** | session continuity, institutional context, living documentation | broader system/organizational context and session surface |
-| **OpenWolf** | hooks, interaction-derived memory and automatic context updates | event-driven local context/memory around the agent |
+| **OpenWolf** | lifecycle hooks, experience capture, corrections/known-fixes memory and automatic context updates | **direct prior art for experience capture → learning/memory → future context**; less explicit about learning admission/validation |
 | **GrapeRoot** | proactive context optimization | context compilation/runtime integration rather than learning promotion |
 
 The strongest direct matches are therefore **Superpowers + OpenWiki + agent-memory/learning systems + Conductor-style execution**, with Xirp/OpenWolf/GrapeRoot providing complementary mechanisms.
@@ -248,6 +248,42 @@ experience -> candidate -> evidence -> knowledge -> procedure -> policy
 
 Promotion represents increasing authority, not merely changing a label. It also makes invalidation possible when source evidence or implementation changes.
 
+### OpenWolf changes the comparison
+
+OpenWolf should be treated as **direct learning-loop prior art**, not merely complementary context infrastructure. Its lifecycle hooks observe agent activity; its project memory separates session state from candidate conventions/corrections and known problems/fixes; and its saved context is reused by later sessions. The current implementation exposes this through files such as `cerebrum.md`, `buglog.json`, `memory.md`, `STATUS.md` and handoff state. This closely matches the EOKS transition from **Experience to reusable Resource to future Context**.
+
+The important remaining gap is that OpenWolf's learning is comparatively operational and harness-driven: it records/maintains useful project memory around observed work. It does not provide the same explicit **admission test + evidence-backed consolidation + outcome validation** that EOKS is proposing to study. OpenWolf is therefore strong prior art for the **capture/integration side** of the loop, while Compound Engineering is stronger prior art for the **reflection/admission/consolidation side**.
+
+This suggests a cleaner decomposition:
+
+```text
+agent hooks / runtime
+        |
+        v
+     Experience
+        |
+        +------ OpenWolf: capture + operational memory
+        |
+        v
+ Candidate Learning
+        |
+        +------ CE: admission + consolidation
+        |
+        v
+ Durable Resource
+        |
+        +------ context systems: retrieval / compilation
+        |
+        v
+      Context
+        |
+        v
+   next execution
+```
+
+Other current learning-oriented tools reinforce the same decomposition. Everything Claude Code demonstrates lifecycle hooks that persist session state and extract recurring patterns into reusable skills; Engram adds session-learning hooks for persistent memory; and LangMem provides explicit extraction/consolidation primitives across semantic, episodic and procedural memory. These are useful evidence that **learning is a cross-cutting mechanism spanning harness events, reflection, memory and context**, rather than a single storage category.
+
+`Learning` therefore remains a useful EOKS concept, but the MVP should distinguish three different operations: **capture experience**, **admit/consolidate learning**, and **compile resources into context**. Existing tools tend to cover one or two of these rather than the complete loop.
 ## EOKS interpretation
 
 The combined prior art suggests a more explicit feedback path:
