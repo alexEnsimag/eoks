@@ -420,6 +420,75 @@ outcome / evaluation
 
 This is a useful bridge between the Jev work and EOKS's broader learning research: **learning does not have to mean making the agent itself more generative. It can mean progressively compiling repeated semantic control decisions into cheaper, evaluated decision resources.**
 
+
+## New synthesis: Jev and Laya are converging on the same interface
+
+A current Laya comparison makes the relationship more explicit than the earlier prior-art pass: Laya implements the same `/v1/systemone` request/response protocol introduced by Jev, including `state`, typed `questions`, Choice/Score/Noul answers, probability distributions and zero generated output. A Jev client can therefore be pointed at Laya with the provider endpoint changed. This is stronger evidence that the important abstraction is the **typed decision protocol**, not either product name.
+
+The two should still not be treated as equivalent models. Jev remains a proprietary managed System One implementation, while Laya exposes an open model, weights, router and serving stack. The implementation details, benchmarks and deployment trade-offs differ.
+
+Source: https://laya.studio/glossary/systemone-protocol
+
+The resulting abstraction is now better represented as:
+
+```text
+System One / Decision protocol
+              |
+      +-------+-------+
+      |               |
+     Jev             Laya
+      |               |
+ proprietary       open implementation
+ managed           self-hostable
+```
+
+For EOKS, this is useful because it provides **protocol-level evidence** for a provider-neutral Decision capability.
+
+## New synthesis: RLCD is becoming provider-independent
+
+A new September 2026 paper, *OpenJev-RLCD*, independently implements an RLCD-style training recipe rather than merely consuming Laya's implementation. It applies strictly proper scoring to answer distributions produced by a reasoning model, and reports experiments comparing RLCD with SFT, RFT/STaR and GRPO.
+
+The important EOKS implication is not the paper's task-specific results. It is that **RLCD is becoming a transferable training pattern rather than a Laya-specific feature**.
+
+The paper also exposes an important boundary: when uncertainty is genuinely caused by annotator disagreement, a proper-scoring objective cannot create information that is not present in the labels. In other words, calibrated probabilities can represent uncertainty, but they cannot resolve irreducible ambiguity.
+
+Source: https://arxiv.org/abs/2609.38850
+
+This sharpens the learning abstraction:
+
+```text
+decision outcome
+      ↓
+proper scoring rule
+      ↓
+probabilistic decision provider
+      ↓
+calibration / selective policy
+```
+
+The provider may be an encoder decision model such as Laya, a proprietary System One model such as Jev, or a generative model trained to commit to a distribution.
+
+## New limitation: probability coherence across decompositions
+
+A September 2026 study evaluated Jev and Laya on hierarchical/decomposed questions and found substantial disagreement between direct fine-grained probabilities and probabilities reconstructed through broader categories. It also observed cases where reconstruction improved accuracy while worsening calibration.
+
+This is important for EOKS because our proposed pattern often decomposes one control problem into several semantic decisions. **Local calibration does not imply global probabilistic coherence.**
+
+Therefore EOKS should preserve the distinction:
+
+```text
+well-calibrated individual decision
+        ≠
+coherent joint model of a decomposed decision
+        ≠
+calibrated trajectory risk
+```
+
+This strengthens the existing recommendation to evaluate the **actual control workflow and its outcomes**, rather than composing step probabilities mathematically unless that composition has been validated for the specific decision structure.
+
+Source: https://arxiv.org/abs/2609.33971
+
+
 ## Sources
 
 - Laya repository: https://github.com/NandhaKishorM/laya
