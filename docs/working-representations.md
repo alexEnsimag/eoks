@@ -45,7 +45,7 @@ Its primary product use is visual thinking and communication: diagrams, sketches
 
 > A reasoning workspace can be an external structured representation that both humans and software can inspect and modify.
 
-Recent Excalidraw+ capabilities strengthen this signal: its public API/MCP integration supports programmatic scene management, while real-time edits and scene syncing make the representation a live collaborative object. These are implementation mechanisms around the working representation, not the representation itself.
+Recent Excalidraw+ capabilities strengthen this signal: its Public API/MCP integration supports programmatic scene management, while real-time edits, scene-content syncing and collaboration features make the representation a live, externally manipulable object. These are implementation mechanisms around the working representation, not the representation itself.
 
 ## Claude Artifacts
 
@@ -64,7 +64,7 @@ EOKS should therefore avoid treating artifact as the architectural answer. The n
 
 MCP Apps add an important interface-level observation.
 
-An MCP App links an MCP tool to a UI resource. The host renders the UI, passes tool results into it, and the UI can call tools back through the host. The same underlying capability can therefore have a model-facing interface and a human-facing interactive surface over shared governed state.
+An MCP App links an MCP tool to a UI resource. The host renders the UI, passes tool results into it, and the UI can call tools back through the host. The same capability can therefore expose a model-facing interface and a human-facing interactive surface, with the host mediating their interaction and tool/resource state.
 
 This is relevant when the working representation is interactive:
 
@@ -149,7 +149,7 @@ This distinction explains why Excalidraw belongs in the representation category 
 
 The Visual PKM work around Obsidian-Excalidraw adds an important refinement: a representation is not necessarily an output of reasoning. Constructing and manipulating the representation can itself be part of the reasoning process.
 
-Zsolt Viczián describes Excalidraw drawings as more than illustrations: they can become standalone, interlinked documents in the knowledge graph; he also uses them for brainstorming and problem-solving, arguing that the slower visual process creates room for reflection and internalization. His later Visual PKM material describes text and visuals as complementary thinking modes, spatial rather than purely linear connections, reusable visual vocabulary, and iterative construction of visual maps. citeturn0search0turn0search8
+Zsolt Viczián describes Excalidraw drawings as more than illustrations: they can become standalone, interlinked documents in the knowledge graph; he also uses them for brainstorming and problem-solving, arguing that the slower visual process creates room for reflection and internalization. His later Visual PKM material describes text and visuals as complementary thinking modes, spatial rather than purely linear connections, reusable visual vocabulary, and iterative construction of visual maps.
 
 This suggests several distinct roles for a representation:
 
@@ -182,13 +182,13 @@ For example:
           |
    compact visual model
 
-Zsolt's "Book on a Page" workflow follows this kind of progressive transformation from source material through textual summarization and section sketches into a distilled visual summary. citeturn0search11
+Zsolt's "Book on a Page" workflow follows this kind of progressive transformation from source material through textual summarization and section sketches into a distilled visual summary.
 
 The EOKS implication is not that visual representations are inherently better. It is that **representation choice and transformation are potentially active operations in reasoning and learning**, with different representations exposing different structure.
 
 ### Structured relationships, not only pictures
 
-ExcaliBrain provides a related example: relationships between notes can be inferred, explicitly declared, customized and eventually expressed semantically; the resulting visual interface is used to aggregate and contextualize a topic and to explore how it fits into the rest of the vault. citeturn0search1turn0search3
+ExcaliBrain provides a related example: relationships between notes can be inferred, explicitly declared, customized and eventually expressed semantically; the resulting visual interface is used to aggregate and contextualize a topic and to explore how it fits into the rest of the vault.
 
 This is important because a working representation need not be a free-form drawing. It can expose or manipulate an underlying relational model. Visual presentation is one interface to the representation; the semantic relationships are part of the represented structure.
 
@@ -243,7 +243,7 @@ The representation should remain subordinate to the workload: create it when it 
 
 - Excalidraw developer documentation: https://docs.excalidraw.com/
 - Excalidraw JSON schema: https://docs.excalidraw.com/docs/codebase/json-schema/
-- Excalidraw+ changelog (Public API and MCP): https://plus.excalidraw.com/changelog
+- Excalidraw+ changelog (Public API, MCP, real-time edits and scene syncing): https://plus.excalidraw.com/changelog
 - Anthropic, “Collaborate with Claude on Projects”: https://www.anthropic.com/news/projects
 - MCP Apps: https://apps.extensions.modelcontextprotocol.io/
 - Zsolt Viczián, “Sketchnoting for PKM”: https://www.zsolt.blog/2021/07/sketchnoting-for-pkm.html
