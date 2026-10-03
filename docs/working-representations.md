@@ -178,3 +178,13 @@ These are experiments, not reasons to add another runtime subsystem now.
 > **A useful agent environment can externalize reasoning into persistent, editable representations that humans and agents can revisit — not only into prompts, traces or final outputs.**
 
 The representation should remain subordinate to the workload: create it when it reduces reconstruction or communication cost, maintain it only when its value exceeds its staleness and maintenance cost, and compile only the needed portion into model context.
+
+
+## References
+
+- Excalidraw developer documentation: https://docs.excalidraw.com/
+- Excalidraw JSON schema: https://docs.excalidraw.com/docs/codebase/json-schema/
+- Excalidraw+ changelog (Public API and MCP): https://plus.excalidraw.com/changelog
+- Anthropic, “Collaborate with Claude on Projects”: https://www.anthropic.com/news/projects
+- MCP Apps: https://apps.extensions.modelcontextprotocol.io/
+- MCP Apps overview and lifecycle: https://apps.extensions.modelcontextprotocol.io/api/documents/overview.html
