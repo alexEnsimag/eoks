@@ -774,3 +774,41 @@ The important addition is the **trust boundary before Decision**. Semantic proba
 - How does uncertainty compose when multiple correlated decisions control one trajectory?
 
 These remain open questions rather than assumptions in EOKS.
+
+
+## Laya as open implementation prior art
+
+Laya provides an open implementation that makes several Jev-adjacent mechanisms inspectable. It uses an encoder-based architecture to evaluate a caller-supplied decision schema over explicit state, with Choice, Score and Noul question types. The runtime constructs option representations directly in the model input rather than requiring a fixed classifier vocabulary.
+
+See [Laya and RLCD: learned decision models as control primitives](laya-rlcd-decision-models-2026-10.md).
+
+The implementation adds useful evidence to the Jev synthesis:
+
+- **Schema-conditioned decisions:** the decision space is supplied at runtime, so one checkpoint can evaluate many bounded questions.
+- **Non-autoregressive inference:** the decision model scores supplied alternatives rather than generating an answer token-by-token.
+- **Parallel narrow decisions:** multiple questions can be evaluated in a batch, reinforcing the value of decomposing control into small semantic questions.
+- **Shortlist before choice:** the fixed option/head budget makes high-cardinality selection a two-stage problem, providing concrete prior art for candidate generation followed by bounded semantic selection.
+- **Robustness is empirical:** option order can affect the distribution, so typed/probabilistic output does not remove representation bias.
+- **Calibration remains workload-specific:** Laya's own benchmarks report substantial calibration improvement after temperature fitting, but do not justify a universal calibrated-confidence assumption.
+- **Hooks surround the decision provider:** lifecycle interception and caching are runtime mechanisms, not part of the semantic decision itself.
+- **RLCD is a learning mechanism:** proper scoring rules provide a way to optimize probability distributions directly, making decision outcomes a possible target for learning from agent trajectories.
+
+This strengthens the provider-neutral EOKS formulation:
+
+```
+state projection
+      ↓
+Decision provider
+      ↓
+typed result + probabilistic evidence
+      ↓
+policy / assurance
+      ↓
+execution
+      ↓
+outcome
+      ↓
+evaluation / learning
+```
+
+Laya therefore belongs beside Jev in the **Decision-provider** prior-art category, not as a new EOKS primitive. The interesting research question is whether repeated engineering decisions can be learned into cheap, calibrated-enough control resources without transferring authorization or assurance into the model itself.
