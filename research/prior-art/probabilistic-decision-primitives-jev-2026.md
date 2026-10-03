@@ -776,6 +776,55 @@ The important addition is the **trust boundary before Decision**. Semantic proba
 These remain open questions rather than assumptions in EOKS.
 
 
+
+### Jev/Laya now provide protocol-level convergence
+
+Laya's current documentation states that it implements the `/v1/systemone` protocol introduced by Jev: the same typed request shape (`state` plus Choice/Score/Noul questions) and typed probabilistic response shape. This is stronger than merely observing that the products solve similar tasks: it is evidence that the **Decision protocol itself is becoming a portable interface** across providers.
+
+That makes the EOKS provider-neutral formulation more concrete:
+
+```text
+Decision contract / protocol
+          |
+    +-----+-----+
+    |           |
+   Jev         Laya
+    |           |
+ managed     open/self-hosted
+ provider      provider
+```
+
+Source: https://laya.studio/glossary/systemone-protocol
+
+The distinction remains important: protocol compatibility does not imply model equivalence, identical calibration, identical robustness, or identical performance.
+
+### RLCD is no longer uniquely tied to Laya/Jev
+
+A September 2026 *OpenJev-RLCD* paper independently implements reinforcement learning for calibrated decisions on a reasoning model. Its contribution is evidence that proper-scoring-rule training can be applied beyond a dedicated non-autoregressive decision model. It also identifies a fundamental limit: when uncertainty reflects annotator disagreement, RLCD cannot recover information that is absent from the labels.
+
+This supports treating RLCD as a **training pattern for probabilistic decision providers**, not as part of the definition of Jev or Laya.
+
+Source: https://arxiv.org/abs/2609.38850
+
+### Decomposition does not guarantee probabilistic coherence
+
+A September 2026 study directly compares Jev and Laya under hierarchical/decomposed questions and finds substantial disagreement between direct fine-grained probabilities and probabilities reconstructed through broader categories. It also reports cases where reconstruction improves accuracy while worsening calibration.
+
+This is particularly relevant to EOKS because decomposing a control problem into narrow decisions is one of the main benefits of the Decision abstraction. The new evidence reinforces that:
+
+```text
+calibrated local decisions
+        ≠
+coherent joint probability model
+        ≠
+calibrated trajectory risk
+```
+
+Therefore EOKS should evaluate the actual decision decomposition and end-to-end outcomes rather than assume that probabilities can be composed mathematically.
+
+Source: https://arxiv.org/abs/2609.33971
+
+
 ## Laya as open implementation prior art
 
 Laya provides an open implementation that makes several Jev-adjacent mechanisms inspectable. It uses an encoder-based architecture to evaluate a caller-supplied decision schema over explicit state, with Choice, Score and Noul question types. The runtime constructs option representations directly in the model input rather than requiring a fixed classifier vocabulary.
