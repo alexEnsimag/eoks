@@ -122,6 +122,36 @@ source / canonical knowledge
 
 See [Engineering knowledge as a multi-representation system](knowledge-representations.md) for the canonical discussion of representation families and their trade-offs.
 
+### Working representations
+
+A **working representation** is a representation actively used as an external surface for reasoning, communication or shaping work. It may be visual, textual, structured or code-based.
+
+Examples include an architecture diagram, state machine, investigation map, design sketch or editable specification.
+
+It is a role of an existing Representation/Asset, not a new runtime primitive:
+
+```text
+representation / asset
+        |
+        +--> durable knowledge representation
+        +--> derived evidence representation
+        +--> working representation
+                  |
+             inspect / edit
+                  |
+          reasoning / review
+```
+
+A working representation should not be conflated with:
+
+- **Context** — the task-specific projection supplied to a reasoning step;
+- **Execution state** — what a workload has attempted, observed or verified;
+- **Trace/audit data** — records of execution;
+- **Computed artifact** — a reusable result of a computation;
+- **Canonical knowledge** — durable information accepted as authoritative.
+
+A working representation can become any of these only through an explicit lifecycle or promotion step. See [Working representations](working-representations.md).
+
 ## Loadout
 
 A **loadout** is the workload-scoped set of assets/resources that an agent/task is allowed and expected to use.
