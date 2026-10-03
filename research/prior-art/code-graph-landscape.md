@@ -182,6 +182,12 @@ evaluation / outcome
 
 This also clarifies why **Graphify, CodeGraph and GitNexus can all be useful simultaneously**. They overlap in the structural graph substrate, but differ in graph construction/resolution, precomputed analysis, provenance, query abstractions and agent integration. EOKS should treat them as alternative or complementary **providers**, not as competing EOKS layers.
 
+## Broader 2026 tool landscape
+
+The expanded [agent codebase-context and repository-intelligence landscape](agent-codebase-context-tool-landscape-2026-09.md) documents the wider family of context packers, repo maps, LSP tools, code graphs, project-memory systems, incremental indexes, compression layers and agent hooks. It also captures the September 2026 LLMDevs benchmark and its methodological implications.
+
+That broader landscape reinforces the boundary described here: structural graph providers are evidence resources, while EOKS coordinates provider selection, context compilation, provenance, freshness and evaluation.
+
 ## Research questions
 
 - Should EOKS standardize a provider contract rather than a graph schema?
