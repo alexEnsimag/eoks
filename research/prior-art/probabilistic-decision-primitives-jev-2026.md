@@ -559,3 +559,120 @@ The more precise model is therefore:
 Semantic decisions can participate in **context construction itself** (for example, deciding which evidence is relevant), while remaining distinct from the context/knowledge stores and from the policy that authorizes consequential actions.
 
 This is a stronger formulation of the Context → Decision boundary than treating Jev as simply "after context."
+
+
+## Third-pass community findings: late September–October 3, 2026
+
+A fresh community pass shows that Jev has moved beyond isolated RAG/reranking demos into a broader **decision-model pattern**. The evidence is still early and heterogeneous, so these findings are recorded as prior art and research leads rather than architectural conclusions.
+
+### The ecosystem is converging on a decision-model category
+
+By September 30, an independent catalog tracked roughly 230 Jev repositories across browser agents, coding agents, search/database, model routing, guardrails, research, robotics and real-time decision use cases. This is useful as an ecosystem signal, not as evidence that the projects are mature or effective; the catalog itself says it has reviewed descriptions/READMEs rather than installed or benchmarked every project.
+
+Source: https://jevforagents.com/repositories
+
+A newer synthesis explicitly frames Jev alongside emerging alternatives such as Kev, CLM, GLiNER2.5-Decide, Solar Decide and Laya as **structured decision models**: models intended to classify, score, rank, route or verify rather than generate open-ended text. This supports treating Jev as evidence for a broader provider-neutral Decision abstraction in EOKS.
+
+Source: https://medium.com/@adnanmasood/the-semantic-if-statement-structured-decision-models-as-a-new-primitive-for-ai-software-780bf71a1258
+
+### Agent evaluation is one of the strongest concrete use cases
+
+LangChain's independent Jev-as-a-Judge experiment evaluates fixed agent traces against human labels. In that small experiment, Jev was both inexpensive/fast and substantially less variable than the tested generative judges. The authors explicitly caution that the corpus is small and that repeatability does not establish correctness.
+
+Source: https://www.langchain.com/blog/jev-agent-evals-langsmith
+
+This is especially relevant to EOKS because evaluation can become an **inline control signal**, rather than only a post-run report:
+
+```
+agent state / trace
+        ↓
+typed semantic evaluation
+        ↓
+decision evidence
+        ↓
+continue / verify / escalate / stop
+```
+
+### Alignment and safety evaluation suggests the same primitive generalizes
+
+RLCDAlignBench evaluates Jev on ten alignment-failure categories across 44 benchmarks and five target models. The study reports a median AUROC of 0.886 zero-shot for a generic question and a 63x lower reported cost than LLM-judge scorers. More importantly for EOKS, it explicitly separates **what is asked** from **which fields of context are supplied**, and finds that context fields matter substantially.
+
+Source: https://arxiv.org/abs/2609.29429
+
+This is another reason to keep **context compilation** and **semantic decision** separate: the same decision model can evaluate different propositions over different projections of state.
+
+### Independent benchmarking is now large enough to expose boundaries
+
+A September 29 benchmark evaluates Jev 1.13.0 over 37 datasets and 346,009 requests spanning classification, routing, NLI, reading comprehension, commonsense reasoning, moderation, legal clauses and rubric scoring. It reports strong results on many conventional tasks, but also degradation on low-resource languages, fine-grained/noisy labels and rubric-based quality judgments. It additionally finds that binary probabilities can rank well while being poorly positioned around a universal 0.5 threshold; threshold tuning materially changes results.
+
+Source: https://arxiv.org/abs/2609.37647
+
+This strengthens the existing EOKS conclusion that **probability is evidence, not a universal confidence scalar**. Calibration and thresholding belong to the specific question, rubric, workload distribution and model version.
+
+### Robustness is now an explicit community research area
+
+An independent robustness catalog collected 132 tests by September 30, focused specifically on probability/calibration behavior under wording changes, option order, distractors, repeated calls, language changes, injected text and abstention. Most were conducted shortly after release and are explicitly described as evidence to inspect rather than settled results.
+
+Source: https://github.com/Yifan-Lan/awesome-jev-robustness
+
+This should become an EOKS experiment category in its own right: **decision stability under context perturbation**. It is different from ordinary model accuracy.
+
+### Production integration is starting to look like control infrastructure
+
+AWS released Strands Decider 2B, explicitly described as a small local decision model for giving agents a fast check before they act. This is important not because AWS validates Jev specifically, but because an independent implementation from another major ecosystem reinforces the architectural pattern: use a dedicated decision model between agent reasoning and execution.
+
+Source: https://thenewstack.io/aws-strands-decider-model/
+
+### Model versioning becomes part of the Decision evidence contract
+
+The emerging Jev ecosystem distinguishes pinned model builds from a rolling alias and exposes the exact model version in responses. This is directly relevant to reproducible EOKS evaluations: a decision distribution is not fully interpretable without the provider/model build, question/rubric semantics and relevant state distribution.
+
+Source: https://jev-ai.org/docs/models/
+
+### Updated EOKS hypothesis
+
+The evidence now supports a sharper abstraction:
+
+**Decision is a semantic computation over an explicit state projection.**
+
+It can produce:
+- a categorical choice;
+- an ordered score;
+- a proposition probability;
+- an evaluation result;
+- or an abstain/escalate signal.
+
+The control loop can then combine that signal with deterministic policy, authorization, execution and outcome evidence.
+
+The key EOKS boundary remains:
+
+```
+knowledge/resources
+       ↓
+context compilation
+       ↓
+decision state
+       ↓
+semantic decision provider
+       ↓
+decision evidence
+       ↓
+policy / authorization
+       ↓
+execution
+       ↓
+outcome / evaluation
+```
+
+The community evidence therefore does **not** justify adding a Jev-specific EOKS primitive. It does justify treating **semantic decision as an increasingly important provider-neutral capability of the existing Decision primitive**.
+
+### New research questions
+
+1. Which decision questions should be evaluated independently and in parallel, versus sequentially because later state depends on earlier decisions?
+2. When should a decision model abstain or escalate rather than return its highest-probability choice?
+3. How should context provenance and decision provenance be joined so an outcome can be traced back to the evidence that caused a branch?
+4. Can decision-model signals reduce frontier-model/tool calls without increasing end-to-end error?
+5. How stable are decision distributions under irrelevant-context, adversarial-context and option-order perturbations?
+6. How should decision evidence be versioned when the model, question semantics, rubric or context compiler changes?
+7. Can the same Decision interface accommodate Jev-like models, token-probability methods, conventional classifiers, deterministic validators and human judgments?
+
