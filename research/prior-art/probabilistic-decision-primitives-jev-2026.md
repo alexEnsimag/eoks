@@ -676,3 +676,101 @@ The community evidence therefore does **not** justify adding a Jev-specific EOKS
 6. How should decision evidence be versioned when the model, question semantics, rubric or context compiler changes?
 7. Can the same Decision interface accommodate Jev-like models, token-probability methods, conventional classifiers, deterministic validators and human judgments?
 
+
+
+## Fourth-pass findings: mechanism and limitations
+
+### What is actually known about the underlying mechanism
+
+TypeSafe publicly claims three distinct ingredients: a new model architecture, a parallel sampler, and Reinforcement Learning for Calibrated Decisions (RLCD). The observable API confirms that one request can contain multiple typed questions over shared state and that questions are evaluated in parallel, returning typed distributions rather than generated text.
+
+However, the low-level architecture is not public: parameter count, layer architecture, weights, and a complete training recipe have not been disclosed. EOKS should therefore not describe Jev as a particular classifier architecture, distillation system, transformer variant, or other guessed implementation.
+
+The defensible explanation for the cost/latency advantage is at the interface and serving level: Jev does not autoregressively generate an output string, computes bounded decision distributions, and can evaluate multiple narrow questions in one request. This removes output-token generation/parsing and makes parallelism possible. It does **not** establish that the underlying model requires proportionally less internal compute.
+
+Sources:
+- https://typesafe.ai/blog/introducing-system-one-models-and-jev
+- https://www.jevtypesafeai.com/jev/architecture
+- https://api.typesafe.ai/redoc
+
+### RLCD remains a black box
+
+TypeSafe describes RLCD as optimizing for calibrated decisions rather than human preference or verifiable text generation, but the public material does not provide enough detail to reconstruct the training algorithm or data pipeline independently.
+
+For EOKS, calibration should therefore be treated as an intended training objective and an empirical property to measure, not an architectural guarantee.
+
+### A potentially important hidden state: abstention / uncertainty
+
+Sys1Cal-v1 reports a statistical pattern in which Jev's binary Choice probabilities can be modeled substantially better by assuming an unreported third state representing uncertainty or “I don't know”. Recovering that latent mass improves the paper's soft-accuracy metric substantially.
+
+This is a hypothesis about the observed output behavior, not proof of Jev's internal representation. It nevertheless suggests an important EOKS design point: a two-option probability distribution should not automatically be interpreted as exhaustive belief over true/false, and explicit abstention/escalation can be preferable where uncertainty matters.
+
+Source: https://arxiv.org/abs/2609.35342
+
+### Adversarial state is a real control boundary
+
+JevAdvBench tests 812 typed questions and 9,744 single-edit variants against jev-1.13.0. Rewording was relatively stable, but appending an unverified opinion to the state flipped 12.1% of decisions in their test and pushed 38% of confident answers below a 0.8 review threshold.
+
+The engineering implication is important for EOKS: **state must be treated as untrusted input**. The decision probability describes the model's judgment of the supplied state; it does not establish that the evidence itself is trustworthy.
+
+Source: https://arxiv.org/abs/2609.31142
+
+### Type-safe does not mean semantically safe
+
+Typed output prevents malformed or out-of-schema answers, but it does not prevent wrong interpretations or confidently wrong decisions. TypeSafe's own jev-1.13 jaggedness documentation lists literal interpretation, arithmetic/counting, date comparison, indirection, large irrelevant state, adversarial content, contradictory criteria, and generation as known weaknesses.
+
+It also warns against assuming mathematical relationships between separately asked questions: a Choice is a relative selection, while separate Noul questions are absolute propositions. Their probabilities should not automatically be treated as interchangeable or forced to sum to one.
+
+Source: https://docs.typesafe.ai/model-jaggedness/jev-1.13
+
+### Complex reasoning is a boundary
+
+A medical benchmark published in September found Jev competitive with a frontier model on one research-abstract benchmark but substantially worse on diagnosis-heavy case benchmarks. This is useful counter-evidence to broad capability claims: strong bounded semantic judgment does not imply strong multi-step reasoning.
+
+Source: https://arxiv.org/abs/2609.34024
+
+### Workflow decomposition is part of the capability
+
+TypeSafe's own workflow evaluations decompose tasks into many narrow questions plus deterministic rules, then use the resulting probabilities to branch. Their published workflows report that this structured approach outperforms asking a model to execute the same policy as one prompt.
+
+Therefore the meaningful comparison is often **model + decision decomposition + deterministic policy**, rather than Jev versus an LLM as standalone question-answerers.
+
+Source: https://evals.typesafe.ai/
+
+### Refined EOKS model
+
+The strongest formulation after this pass is:
+
+```
+untrusted resources / observations
+            ↓
+provenance + eligibility
+            ↓
+context / state projection
+            ↓
+typed semantic decision
+            ↓
+probability + decision evidence
+            ↓
+deterministic policy / authorization
+            ↓
+execution
+            ↓
+outcome
+            ↓
+calibration / evaluation
+```
+
+The important addition is the **trust boundary before Decision**. Semantic probability answers “what does this state appear to imply?” It does not answer “is this state trustworthy?” or “may this action execute?”
+
+### Mechanism questions still open
+
+- What architecture produces the non-autoregressive decision distributions?
+- How does RLCD construct rewards and calibration targets?
+- What training data and synthetic-data generation pipeline are used?
+- How much of the speedup comes from architecture versus output-space restriction, parallelism and serving?
+- Does the apparent latent abstention state correspond to an internal representation or only a statistical property of the output mapping?
+- How does calibration transfer across question semantics, rubrics, domains and model versions?
+- How does uncertainty compose when multiple correlated decisions control one trajectory?
+
+These remain open questions rather than assumptions in EOKS.
