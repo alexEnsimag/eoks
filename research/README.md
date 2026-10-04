@@ -14,6 +14,8 @@ When a research conclusion becomes stable, its canonical statement should move i
 
 ### Core architecture and context
 
+- [`ai-development-environment.md`](ai-development-environment.md) — synthesizes EOKS as a programmable, observable and learning AI development environment; introduces tiles as a capability vocabulary without adding new runtime primitives.
+
 - [`knowledge-context-control-plane.md`](knowledge-context-control-plane.md) — synthesis of knowledge, context, execution and control, including the boundaries between OKF, GrapeRoot-like context engines and structural graphs.
 - [`durable-engineering-context.md`](durable-engineering-context.md) — durable artifacts, lifecycle, selection, freshness/context rot, learning, and visual/multi-representation context such as diagrams and Excalidraw.
 - [`context-engineering.md`](context-engineering.md) — context as a managed resource.
