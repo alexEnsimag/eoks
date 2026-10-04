@@ -5,7 +5,7 @@ The vocabulary is intentionally provisional. The definitions below are architect
 | Term | Working meaning |
 |---|---|
 | Task | A bounded unit of work with an intended outcome, constraints and required assurance. |
-| Context | Information intentionally made available to a particular reasoning step. |
+| Context | Information intentionally made available to a particular reasoning step, compiled from the workload's working set and authoritative evidence. Context is a task/step-specific projection, not a storage or memory category. |
 | Context engineering | The broader discipline of constructing task-specific model context. |
 | Context compilation | The concrete operation that selects, ranks, transforms, orders and assembles information for a reasoning step. |
 | Context compiler | The component performing context compilation. |
@@ -18,8 +18,8 @@ The vocabulary is intentionally provisional. The definitions below are architect
 | Structural graph | A graph representation of code/system relationships such as calls, imports and dependencies. |
 | Semantic index | A representation optimized for concept/meaning-based retrieval rather than exact structure. |
 | Synthetic knowledge | Information not otherwise present in an authoritative source, such as rationale, lessons and cross-cutting invariants. |
-| Memory | Information deliberately persisted for future use, including episodic and procedural memory. |
-| Skill | A reusable, governed procedure promoted from evidence and successful execution rather than merely repeated text. |
+| Memory | Information deliberately persisted for future use, including episodic and procedural memory. Memory is a persistence/lifecycle category; it becomes context only when selected and compiled for a workload. |
+| Skill | A reusable, governed procedure promoted from evidence and successful execution rather than merely repeated text. A Skill is a procedural resource/asset, not inherently context: it may be discovered, loaded, executed or referenced according to the workload. |
 | Workflow | An explicit sequence/graph of actions, decisions and validation steps for achieving a task outcome. |
 | Agent role | A responsibility performed within a workflow, such as conductor, retriever, planner, transformer, executor, reviewer or validator. A role is not necessarily a separate agent, model or service. |
 | Reasoning strategy | A reusable way of approaching a reasoning step, e.g. divergent exploration, adversarial review or hypothesis testing. |
@@ -29,14 +29,14 @@ The vocabulary is intentionally provisional. The definitions below are architect
 | Asset | A generic lifecycle/governance abstraction for a reusable resource. Asset is not a semantic knowledge category; memory, Skills, documents, decisions and derived evidence can all be assets. |
 | Representation | A form optimized for a particular query or operation, such as a graph, index, document, timeline or runtime model. A representation is not automatically canonical knowledge. |
 | Working representation | An external, editable representation of a problem, system, plan, hypothesis or work product used to reason about, communicate or shape the work. It is a role of a Representation/Asset, not a new runtime primitive. |
-| Loadout | The workload-scoped set of assets an agent/task is allowed and expected to use. Loadout eligibility is distinct from final context selection. |
+| Loadout | The workload-scoped set of assets an agent/task is allowed and expected to use. Loadout defines eligibility and availability, not the final model input. An eligible asset may remain out of the working set or compiled context because it is irrelevant, stale, inaccessible, too costly or unnecessary for the current step. |
 | Agent | A runtime execution loop capable of performing one or more roles. |
 | Run | One attempt to execute a task or subtask under a particular context, policy and resource configuration. |
 | Execution environment | The concrete runtime in which a Run is realized, such as a local process, container, microVM, VM or remote execution service; distinct from logical execution state. |
 | Environment loadout | The concrete execution environment selection/configuration for a Work, including environment layers, workspace, toolkits/dependencies, resource limits and relevant network/isolation policy. |
 | Execution state | Runtime/work state that must remain associated with a Work across execution-resource lifecycle events; distinct from the process or machine currently holding it. |
 | Decision | A control-plane choice about what happens next, such as retrieve, verify, retry, branch, stop or escalate. |
-| Policy | A constraint or requirement governing system behavior and decisions. |
+| Policy | A constraint or requirement governing system behavior and decisions, including which resources may be used, how context may be assembled, and what evidence is required to proceed or stop. |
 | Evaluation | Measurement of intermediate or final quality, evidence strength, assurance or task success. |
 | Outcome | What actually happened, including artifacts, verification results and delayed results when they become known. |
 | Confidence | A signal about uncertainty or evidence strength; should not be reduced to model self-reported confidence. |
@@ -92,6 +92,12 @@ A mature system may maintain several synchronized representations because each a
 Likewise:
 
 > **Context is not knowledge. Context is a task-specific compilation of knowledge and evidence.**
+
+A useful boundary is:
+
+> **Loadout defines what is eligible; the working set estimates what is useful; context compilation decides what is actually presented for a reasoning step.**
+
+Knowledge and memory can persist without entering context. Skills can remain available as procedural resources without being copied into every prompt. Policy constrains eligibility, selection and execution without becoming ordinary context content. This keeps static/persistent guidance and dynamic/on-demand materialization as delivery properties of resources and context, rather than introducing separate EOKS primitives for them.
 
 YAML, JSON or another serialization can make these structures visible, but no particular serialization is itself the EOKS semantic model.
 
