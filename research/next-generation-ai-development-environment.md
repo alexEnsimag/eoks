@@ -430,3 +430,159 @@ Before adding a new EOKS abstraction, ask:
 5. What evidence would cause us to reject the hypothesis?
 
 The purpose of this research is therefore to **move EOKS upward only where the ecosystem does not already provide a good lower layer**.
+
+
+## 4A. Execution substrates: OpenHands and the sandbox/runtime ecosystem
+
+OpenHands is a particularly useful reference because it makes the execution boundary explicit rather than treating an agent as only a model/tool loop. Its SDK separates agent behavior, sessions/events, workspaces and the runtime used to execute work. The workspace abstraction can target local or remote environments, while the Agent Server exposes a persistent API boundary around agent execution. OpenHands also supports external agents through ACP, making the runtime increasingly independent from one particular agent implementation.
+
+This is strong evidence for an EOKS distinction between:
+
+```
+semantic Work
+    |
+    +-- agent / harness
+    |
+    +-- session
+    |
+    +-- workspace
+    |
+    +-- execution runtime
+    |
+    +-- sandbox / infrastructure
+```
+
+The important lesson is not to copy OpenHands as an EOKS runtime. It is to treat this decomposition as a concrete example of an **execution substrate** that EOKS can select and control.
+
+### Similar systems occupy different points in the execution stack
+
+The ecosystem is converging, but the systems are not interchangeable:
+
+| System | Primary abstraction | Environment model | Persistence / lifecycle | EOKS relevance |
+|---|---|---|---|---|
+| OpenHands | coding-agent platform + SDK/runtime | local, Docker, remote/cloud and emerging K8s-oriented runtimes | stateful sessions, workspace/runtime lifecycle | **Direct execution-substrate reference** |
+| E2B | sandbox API | Firecracker microVM | pause/resume and persistent filesystem state | Strong low-level execution provider |
+| Modal Sandboxes | general compute sandbox | isolated cloud compute, including GPU workloads | programmatic lifecycle | Execution provider; broader compute model |
+| Daytona | agent/developer sandbox | persistent development workspaces | long-lived stateful environments | Strong workspace-oriented reference; project status should be checked before relying on open-source implementation |
+| AWS Bedrock AgentCore Runtime | managed agent runtime | per-session microVMs or managed EC2 instances | session isolation; instances can support persistent multi-day workloads | Strong control-plane + runtime reference |
+| Anthropic Agent/Environment APIs | agent + environment + session | provider-managed environments or self-hosted workers | explicit environment, session, work-item and event lifecycle | Strong evidence that environment/session are becoming API primitives |
+| OpenAI self-hosted environments | agent session + executor | application-selected sandbox provider or self-hosted executor | explicit environment connection and lifecycle | Strong evidence for separating agent session from execution environment |
+| Firecracker / gVisor / Agent Sandbox | infrastructure isolation | microVM or sandboxed container | infrastructure primitive rather than agent session | Lower-level building blocks |
+
+The useful boundary is therefore:
+
+```
+EOKS semantic workload
+        |
+        v
+execution selection / policy
+        |
+        +-----------------------------+
+        |                             |
+        v                             v
+agent/harness                    runtime/workspace
+        |                             |
+        +-----------------------------+
+                      |
+                      v
+                isolation layer
+             microVM / container / VM
+```
+
+EOKS should generally **select and govern this stack rather than implement it**.
+
+### OpenHands vs E2B / Daytona / AgentCore
+
+A useful distinction is lifecycle.
+
+- **E2B** is primarily an isolated execution primitive. It is particularly useful when an application already owns the agent loop and needs a secure environment for generated code. Its Firecracker-based sandbox gives a strong isolation boundary, and sandbox state can be preserved across pause/resume.
+- **Daytona** is closer to a persistent development computer/workspace: repository, dependencies, services and state can remain available across agent tasks. This makes it especially relevant to the idea of a durable development environment, although its open-source project status has changed and should not be treated as evidence of an actively maintained self-hosting layer without verification.
+- **AgentCore** is broader than a sandbox. Runtime combines agent hosting, session isolation, identity and protocol integration, while Code Interpreter provides isolated execution. This is a useful reference for how execution can become one component of a larger agent operations platform.
+- **Anthropic's newer agent/environment APIs** are especially interesting because they explicitly model an environment, agent and session separately, and provide a worker/control-plane model for self-hosted execution. This is very close to the semantic/runtime distinction EOKS needs to preserve.
+- **OpenHands** sits between these layers: it is both an agent platform and a concrete runtime/workspace architecture, which makes it particularly valuable for studying how a complete coding-agent environment composes the pieces.
+
+The comparison suggests that **"execution layer" is too broad to be one primitive**. At minimum, EOKS should distinguish:
+
+1. **Agent/harness** — the provider-specific reasoning/tool loop.
+2. **Session** — the active interaction and event lifecycle.
+3. **Workspace** — files, repository, dependencies and project-local services.
+4. **Runtime** — the process/VM/container/remote machine that hosts the work.
+5. **Isolation** — the security boundary around that runtime.
+6. **Execution policy** — network, credentials, filesystem, resource and approval constraints.
+
+These can be supplied by one product (for example OpenHands or AgentCore) or by several independent providers.
+
+### New evidence: execution is becoming a pluggable platform boundary
+
+Recent platform APIs make the boundary even clearer.
+
+Anthropic's current SDK exposes explicit **agents, environments and sessions**, while its self-hosted environment worker separates control-plane work claiming from the worker that executes tools in the environment. urlAnthropic SDK examples and self-hosted environment workerhttps://github.com/anthropics/anthropic-sdk-python/blob/main/helpers.md
+
+OpenAI's self-hosted environment flow similarly has an agent session waiting for an executor to connect, with environment lifecycle and connection state exposed separately from the agent itself. urlOpenAI self-hosted environmentshttps://developers.openai.com/api/docs/guides/agents-api/environments/self-hosted
+
+AWS AgentCore goes further toward an integrated operations layer: Runtime provides isolated agent sessions, while the broader AgentCore platform adds identity, gateway, memory, browser, code interpreter and observability. urlAmazon Bedrock AgentCore overviewhttps://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/
+
+E2B demonstrates the provider side of the same boundary: its sandbox is a Firecracker microVM with independently isolated kernel, filesystem and memory, with pause/resume preserving state. urlE2B security and sandbox isolationhttps://e2b.dev/security
+
+This is stronger evidence than simply having several agent frameworks: **execution environments are becoming explicit, replaceable resources with their own APIs, lifecycle and security semantics.**
+
+### What this changes for EOKS
+
+The earlier EOKS hypothesis that "execution state belongs to the runtime; semantic state belongs to EOKS" still holds, but it should be sharpened:
+
+> **EOKS should own the semantic requirements for execution, not the execution implementation.**
+
+For a workload, EOKS may need to express:
+
+```
+execution requirements
+  ├── capabilities
+  ├── workspace/loadout
+  ├── persistence
+  ├── isolation level
+  ├── network access
+  ├── credentials / identity
+  ├── resource budget
+  ├── lifecycle / recoverability
+  └── evidence requirements
+```
+
+A runtime provider then resolves those requirements into a concrete environment.
+
+This gives a cleaner architecture:
+
+```
+                     EOKS
+                      |
+              semantic workload
+                      |
+             execution requirements
+                      |
+             +--------+--------+
+             |                 |
+       agent/harness       runtime provider
+             |                 |
+       Claude/Codex/...   OpenHands/E2B/
+                          AgentCore/...
+             |                 |
+             +--------+--------+
+                      |
+              concrete environment
+```
+
+The key research question becomes **not "which runtime should EOKS build?" but "what execution semantics must survive when the runtime changes?"**
+
+That is directly relevant to cross-environment continuity, policy, assurance and learning.
+
+### Research implications
+
+The execution-substrate landscape strengthens several EOKS hypotheses:
+
+- **Local vs remote is an implementation detail.** The semantic workload should be able to request an execution capability without hard-coding where it runs.
+- **Workspace and runtime should remain distinct.** A repository/project state may survive replacement of the underlying compute resource.
+- **Security policy belongs at the execution boundary but is semantically selected above it.** Network, credentials, filesystem and resource constraints affect what an agent is allowed to do.
+- **Session state and semantic state are different.** Runtime/session events are not automatically durable project knowledge.
+- **Execution providers should be adapters.** OpenHands, E2B, AgentCore, Anthropic environments and future providers can expose different lifecycle and isolation models behind a common semantic requirement set.
+- **The strongest EOKS opportunity remains above execution.** Selecting, adapting, verifying and learning across heterogeneous execution substrates is more differentiated than implementing another sandbox.
+
+This also makes the "development environment" formulation stronger: an AI development environment is not necessarily one machine or one IDE. It can be a **semantic environment spanning agents, workspaces, runtimes, evidence and policy**, with the concrete execution substrate changing underneath it.
