@@ -225,6 +225,8 @@ These resources can share the generic governance/lifecycle abstraction described
 
 ## Asset universe, loadout and compiled context
 
+The distinction is also useful when comparing emerging coding-agent harness designs: persistent/static guidance and dynamically retrieved material are **delivery properties**, not separate semantic categories. A `CLAUDE.md` file, Skill, memory item, repository representation or evidence provider may have different persistence and delivery modes while retaining its underlying EOKS meaning.
+
 ```text
 all reusable resources
           |
@@ -243,7 +245,24 @@ all reusable resources
      compiled context
 ```
 
-A **loadout** is the workload-scoped set of assets an agent/task is allowed and expected to use. It is not the final prompt. Context compilation still decides what is useful for the current reasoning step.
+A **loadout** is the workload-scoped set of assets an agent/task is allowed and expected to use. It is not the final prompt and does not imply that every asset should be materialized. Context compilation still decides what is useful for the current reasoning step.
+
+This gives a useful three-stage boundary:
+
+```text
+loadout
+  = eligibility / availability
+        |
+        v
+working set
+  = currently useful candidates
+        |
+        v
+context
+  = materialized information for this reasoning step
+```
+
+A Skill may be in the loadout but only loaded when its procedure is relevant. Durable knowledge or memory may remain persistent and queryable without being injected wholesale. Conversely, policy may affect all three stages without being treated as ordinary task context. The static/dynamic distinction therefore describes **how an asset or context is delivered**, not what semantic category it belongs to.
 
 A resource can be relevant but inaccessible, out of scope, stale, contradictory, unverified or too expensive for the task.
 
@@ -380,6 +399,30 @@ OKF / CLAUDE.md / ADRs / other durable representations
                          v
                   context compiler
 ```
+
+## Skills and procedural resources
+
+Skills are reusable procedural resources. They should retain their own lifecycle and governance rather than being flattened into prompt text:
+
+```text
+execution evidence
+      |
+pattern / procedure candidate
+      |
+validation + provenance
+      |
+Skill / procedural memory
+      |
+loadout eligibility
+      |
+relevant-step selection
+      |
+execution / adaptation
+```
+
+This is compatible with progressive disclosure: a Skill can expose a compact description first and load deeper procedure/reference material only when the workload requires it. The key EOKS boundary is that the Skill remains a reusable procedural asset; the material actually supplied to a model is still context.
+
+See the memory/learning lifecycle in [Memory](memory.md) and the prior-art synthesis in [Prior art](prior-art.md).
 
 ## Context engines and lifecycle hooks
 
