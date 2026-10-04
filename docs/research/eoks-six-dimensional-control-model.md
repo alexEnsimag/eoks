@@ -95,6 +95,151 @@ Policy     = may it do this now, under these conditions?
 
 Deterministic enforcement should remain close to execution where possible; semantic control should determine which policy-relevant situation applies. Policy therefore connects risk and assurance to allowed autonomy rather than being only an access-control list.
 
+## Implementation mechanisms: what each dimension looks like in practice
+
+The six dimensions are semantic responsibilities, not six services. This pass maps each one to concrete mechanisms already appearing in the ecosystem. The goal is to identify what EOKS should coordinate versus what it should consume from existing infrastructure.
+
+| Dimension | Concrete mechanisms / prior art | Typical implementation technique | EOKS role |
+| --- | --- | --- | --- |
+| **Intent** | Work items, project/task objects, acceptance criteria, durable instructions | versioned structured state, human edits, links to artifacts/evidence | preserve intent across sessions/providers and evaluate outcomes against it |
+| **Knowledge** | Git/docs, OpenWolf, Hindsight, Mem0, GraphRAG, OKF | documents + metadata, temporal/entity memory, graph/index retrieval, provenance | manage promotion, freshness, contradiction, supersession and selection |
+| **Workflow** | Temporal, LangGraph, n8n, agent SDKs | durable state machines, checkpoints, events, retries, signals | represent semantic progression and choose next actions without owning execution |
+| **Capabilities** | MCP, IDE APIs, agent tools, Sourcegraph MCP | discoverable schemas, protocol adapters, provider-owned tools | select the minimum sufficient capability set under policy and cost |
+| **State** | runtime sessions, LangGraph checkpoints/stores, Git/CI/PR state | events + durable projections + checkpoints + external state adapters | maintain semantic work state across independent systems |
+| **Policy** | OPA, Cedar, guardrails, tool permissions, human approval | policy-as-code, authorization decisions, approval/admission gates | express work-level autonomy, risk and evidence requirements; leave enforcement to providers |
+| **Context** | Aider repo map, Sourcegraph, OpenWolf, RAG, memory systems | retrieval + ranking + structural lookup + token budgeting + compilation | compile a workload-specific working set from heterogeneous resources |
+| **Observability** | OpenTelemetry GenAI, Langfuse, Phoenix, LangSmith | traces/spans, events, metrics, structured model/tool telemetry | consume observations and interpret them semantically rather than replace telemetry |
+| **Evidence / evaluation** | tests, CI, static analysis, evaluators, trajectory evaluation | validators + evaluation events + provenance/lineage | determine what evidence is sufficient for a claim or transition |
+| **Learning** | Hindsight, OpenWolf, skills/hooks, agent-learning systems | retain/recall/reflect, extraction, candidate procedures, background processing | control promotion from experience into knowledge, skills, policy or context rules |
+| **Outcome** | tests, PR/review, deployment/runtime checks, benchmarks | acceptance predicates + linked artifacts + verification evidence | compare actual state with intent and retain the resulting evidence/lesson |
+
+### Intent: durable desired state
+
+Implementation usually starts with a durable Work object rather than a prompt: objective, acceptance criteria, constraints, non-goals, risk and desired outcome. Existing issue/project systems and agent platforms already provide much of this storage mechanism.
+
+EOKS does not need another task database. The interesting requirement is that intent survives agent/session/runtime changes and remains the reference point for evaluation.
+
+### Knowledge: storage plus lifecycle
+
+Current implementations use several mechanisms: Markdown/Git and portable knowledge bundles; structured memory; entity/temporal memory; graph representations; hybrid search indexes; and procedural knowledge such as Skills. Hindsight is especially relevant because it separates retain, recall and reflect instead of reducing memory to top-k retrieval. Mem0 provides another concrete pattern: extract and consolidate salient information, then retrieve it later rather than replaying the whole history. citeturn0academia8turn0academia7
+
+The EOKS mechanism is therefore a lifecycle:
+
+source/observation -> candidate knowledge -> provenance/validation -> promote/retain/reject -> retrieve -> observe outcome -> supersede/revise/invalidate.
+
+### Workflow: use durable execution, do not recreate it
+
+Temporal provides durable workflow state, timers, signals, retries and recovery. LangGraph provides graph execution with checkpoints and persistent stores. n8n provides integration-oriented deterministic workflows around AI agents. Agent SDKs provide provider-specific loops and tool orchestration.
+
+These mechanisms answer how to execute a known process reliably. EOKS should instead decide whether the current phase is complete, whether more evidence is needed, whether context should change, or whether work should continue, retry, delegate, wait or escalate. Those decisions can invoke an existing workflow engine.
+
+### Capabilities: provider plus protocol
+
+MCP demonstrates a general mechanism for exposing capabilities through schemas and a protocol. IDE APIs, cloud APIs, databases and code-intelligence services use similar provider boundaries.
+
+The EOKS-specific mechanism is selection: work + policy + state produce candidate capabilities, which can be filtered by availability, trust, cost and expected value. This is different from building another tool registry.
+
+### State: events plus durable projections
+
+A practical pattern is: events/observations -> state projection -> durable semantic state -> reconciliation -> new actions.
+
+LangGraph's separation of checkpoints from longer-lived stores is a useful implementation reference. Git, CI, PR and deployment systems provide additional external state sources. EOKS therefore needs semantic projections and adapters more than another generic database.
+
+### Policy: decision engine plus enforcement point
+
+OPA and Cedar demonstrate the established pattern: request + context -> policy engine -> decision -> enforcement point. OPA separates policy decisions from distributed enforcement and supports decision telemetry; Cedar separates authorization logic from application business logic. citeturn0search5turn0search6
+
+For EOKS, the higher-level extension is semantic policy: work + risk + state + evidence -> continue / verify / approve / restrict / stop. Enforcement should remain close to the action: runtime permissions, tool authorization, cloud IAM, GitHub permissions and CI gates.
+
+### Context: a compiler pipeline, not a database
+
+Current context systems make the implementation pattern increasingly clear: acquire candidates from knowledge, tools, history and evidence; rank/filter them; manage a token budget; build a task-specific working set; then compile it into the model/harness representation.
+
+Aider's repository map, Sourcegraph's code-aware retrieval and OpenWolf's lifecycle context mechanisms implement different parts of this pipeline. Sourcegraph is especially useful because its MCP surface combines semantic/keyword retrieval with deterministic symbol and dependency information, while its 2026 context-engineering work treats retrieval quality and token budgeting as explicit engineering concerns. citeturn0search4
+
+EOKS therefore does not need another retriever. Its potential role is deciding which context pipeline and working set the current Work requires.
+
+### Observability: standardized telemetry plus semantic interpretation
+
+OpenTelemetry is becoming a common representation layer for GenAI telemetry. Current conventions cover agent/workflow spans, model calls, tool execution, retrieval, memory operations and evaluation. citeturn0search0turn0search1turn0search2
+
+The implementation pattern is agent/tools/runtime -> traces, events and metrics -> OTel/backend. EOKS should consume these observations rather than replace the telemetry pipeline.
+
+The missing semantic step is interpretation: what does an observation imply for this Work? Repeated retrieval failures, for example, may indicate a context problem rather than an agent problem. That interpretation belongs above raw observability.
+
+### Evidence and evaluation: validators plus provenance
+
+Software engineering already has strong external evidence mechanisms: tests, type checks, static analysis, CI, review, deployment and runtime behavior. Agent evaluation adds trajectory, tool-call and context-level evaluation.
+
+Evidence should remain typed and provenance-linked rather than being immediately collapsed into one confidence score. EOKS can then ask: what claim are we establishing, what evidence is sufficient, which evidence is authoritative, and what is missing?
+
+### Learning: asynchronous extraction and controlled promotion
+
+A strong implementation pattern from OpenWolf, Hindsight and skills/hooks is: execution -> hooks/events -> trace; then, in background, trace -> episode/experience -> pattern/candidate learning -> validation -> promotion.
+
+Hindsight provides retain/recall/reflect as a concrete persistent-memory mechanism, while OpenWolf demonstrates lifecycle hooks and project state around an existing coding agent. The EOKS-specific mechanism is the promotion gate: observations and memories should not automatically become trusted project rules. citeturn0academia8
+
+A useful learning record contains situation, action/strategy, evidence, outcome, scope, confidence, provenance and validity. Promotion can require repetition, successful outcomes, absence of strong counterexamples, appropriate scope and/or human approval.
+
+### Outcome: predicates over real-world state
+
+An agent finishing a session is not an outcome. An outcome should be evaluated through predicates over observable state and evidence:
+
+intent -> acceptance criteria -> evidence providers -> predicate evaluation -> accepted / rejected / uncertain.
+
+For coding work, these predicates may include tests, static checks, review state, deployment health and downstream behavior. Where possible, outcome evaluation should be external to the agent's self-report.
+
+## Mechanism boundaries
+
+The resulting split is:
+
+```
+EOKS semantics
+  intent
+  knowledge lifecycle
+  context selection
+  semantic policy
+  evidence sufficiency
+  outcome interpretation
+  learning / promotion
+  cross-system work state
+
+Existing mechanisms
+  OTel / Langfuse / Phoenix
+  OPA / Cedar
+  MCP
+  Temporal / LangGraph / n8n
+  Hindsight / OpenWolf
+  Sourcegraph / Aider
+  Git / CI / validators
+  runtimes / agent SDKs
+```
+
+The architectural test is simple:
+
+> If a mature external mechanism already solves the mechanics, EOKS should integrate with it and own only the semantic decision that is missing across providers.
+
+## What this changes in the six-dimensional model
+
+The dimensions should not be interpreted as six EOKS services:
+
+- **Intent** -> durable desired state
+- **Knowledge** -> persistent representations plus lifecycle
+- **Workflow** -> semantic progression over execution mechanisms
+- **Capabilities** -> provider-exposed actions
+- **State** -> semantic projection over observed systems
+- **Policy** -> constraints plus autonomy decisions
+
+Cross-cutting lifecycle mechanisms are:
+
+- **Context** -> working-set compilation
+- **Observability** -> observations
+- **Evidence** -> validation and provenance
+- **Outcome** -> acceptance predicates
+- **Learning** -> promotion and change
+
+This is a mechanism map, not a proposed EOKS component diagram. It gives Phase A experiments concrete implementations to plug together and compare while preserving the hypothesis that EOKS is a semantic control layer rather than another collection of infrastructure services.
+
 ## Work as the common unit
 
 The six dimensions become operationally useful when attached to a common unit of **work** rather than to an IDE, agent, session, or dashboard.
