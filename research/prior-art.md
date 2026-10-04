@@ -2,6 +2,32 @@
 
 This is a research map, not a claim that the projects below implement EOKS. They are useful because each exposes part of the problem.
 
+## Google: The New SDLC With Vibe Coding
+
+Google's May 2026 *The New SDLC With Vibe Coding* independently validates several EOKS hypotheses around the boundary between a model and the surrounding execution environment. Its **model + harness** framing puts instructions, tools, context policies, sandboxes, orchestration, hooks and observability around the model rather than treating the model as the whole system. It also emphasizes context engineering, progressive context/skill loading, lifecycle hooks and evaluation/feedback. See [Google's paper](https://github.com/war851/SDLC/blob/main/_foundation/the-new-sdlc-with-vibe-coding/the-new-sdlc-with-vibe-coding.md).
+
+The mapping to EOKS is mostly refinement rather than a new architecture:
+
+| Google framing | EOKS boundary |
+|---|---|
+| Model | Resource/provider selected for a Run |
+| Harness | Existing runtime/harness mechanisms plus EOKS semantic control plane |
+| Context | Task/step-specific compiled projection |
+| Skills | Governed procedural resources / procedural memory |
+| Memory | Persistent information with an explicit lifecycle |
+| Hooks | Harness lifecycle/control mechanisms |
+| Guardrails | Policy and assurance |
+| Tests/evals | Evidence providers + Evaluation |
+| Feedback | Outcome -> memory/policy/learning updates |
+
+The important EOKS extension is the explicit separation of **Loadout, Working Set and Context**. Loadout defines what an agent/task may and should use; the working set represents currently useful candidates; context compilation materializes only the information needed for a reasoning step. Static versus dynamic delivery is therefore a property of an asset/context lifecycle, not another semantic primitive.
+
+This also preserves EOKS's distinction between **Skill and Context**. A Skill is a reusable procedure that can be discovered or loaded when relevant; only the procedure/reference material needed for a particular reasoning step becomes context. Likewise, persistent Knowledge and Memory do not become context merely because they exist, and Policy can constrain selection/execution without being ordinary prompt content.
+
+This prior art strengthens an existing EOKS direction rather than expanding the model: **do not build another agent runtime just to own the harness**. Consume existing workspace, agent, hook and execution primitives, while EOKS coordinates semantic resources, context, policy, assurance and learning across them.
+
+Google's DORA follow-up adds a complementary observation: faster generation can shift effort toward higher-scrutiny auditing and verification. That supports EOKS treating Evaluation and Outcome as first-class control signals rather than optimizing generation alone. See [Balancing AI tensions](https://research.google/pubs/balancing-ai-tensions-moving-from-ai-adoption-to-effective-sdlc-use/).
+
 ## GrapeRoot
 
 GrapeRoot was a recurring reference point for thinking about context and agent execution. The important question was whether a system around an agent can maintain richer project state and decide what the model should see rather than repeatedly handing the model raw history.
