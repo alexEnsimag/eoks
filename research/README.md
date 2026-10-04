@@ -14,6 +14,8 @@ When a research conclusion becomes stable, its canonical statement should move i
 
 ### Core architecture and context
 
+- [`prior-art/google-agentic-engineering-sdlc-2026.md`](prior-art/google-agentic-engineering-sdlc-2026.md) — deeper synthesis of Google's 2026 agentic engineering, context, skills, harness evaluation, proactivity and execution-state work.
+
 - [`ai-development-environment.md`](ai-development-environment.md) — synthesizes EOKS as a programmable, observable and learning AI development environment; introduces tiles as a capability vocabulary without adding new runtime primitives.
 
 - [`knowledge-context-control-plane.md`](knowledge-context-control-plane.md) — synthesis of knowledge, context, execution and control, including the boundaries between OKF, GrapeRoot-like context engines and structural graphs.

@@ -28,6 +28,14 @@ This prior art strengthens an existing EOKS direction rather than expanding the 
 
 Google's DORA follow-up adds a complementary observation: faster generation can shift effort toward higher-scrutiny auditing and verification. That supports EOKS treating Evaluation and Outcome as first-class control signals rather than optimizing generation alone. See [Balancing AI tensions](https://research.google/pubs/balancing-ai-tensions-moving-from-ai-adoption-to-effective-sdlc-use/).
 
+### Deeper synthesis
+
+The broader 2026 Google corpus deserves a dedicated synthesis because the same system boundary appears across several publications: the model is one component of an engineered environment, while harness, context, skills, policy, evaluation, execution state and feedback materially affect outcomes.
+
+See [Google agentic engineering and the emerging AI development environment](prior-art/google-agentic-engineering-sdlc-2026.md). The note maps CAFE(S), Google Agent Skills, behavioral harness evaluation, proactive coding and explicit execution state onto existing EOKS concepts.
+
+The main conclusion is not that Google has independently implemented EOKS. Rather, the work provides strong external convergence for the **AI development environment** thesis and strengthens existing EOKS boundaries without requiring new runtime primitives.
+
 ## GrapeRoot
 
 GrapeRoot was a recurring reference point for thinking about context and agent execution. The important question was whether a system around an agent can maintain richer project state and decide what the model should see rather than repeatedly handing the model raw history.
