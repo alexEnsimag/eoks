@@ -163,6 +163,14 @@ context materialization
 
 Graphs, indexes, timelines, source slices, summaries, memory records, procedural knowledge, runtime observations and computed semantic artifacts can all be useful representations. A graph is therefore a representation, not the ontology of EOKS.
 
+A useful refinement is to distinguish three layers that are often conflated in graph tooling:
+
+- **Representation** — builds a machine-queryable model of relationships or other structure.
+- **Analysis** — derives task-relevant evidence from that representation, such as flows, impact, communities or affected tests.
+- **Compilation** — selects and materializes the evidence needed for a particular workload, change or decision, subject to relevance, freshness, budget and provenance.
+
+These layers may live in the same product. For example, a graph can be the representation, impact analysis can operate on it, and a change-aware tool can then compile the result into bounded agent context. This distinction explains why graph tools should not be treated as competing definitions of an EOKS knowledge layer: they may occupy different stages of the same evidence pipeline.
+
 The compiler analogy is useful: several intermediate representations can coexist because different representations optimize different operations. The EOKS question is which transformations preserve provenance, freshness and meaning sufficiently for the intended use.
 
 ### 4.3 Computation
