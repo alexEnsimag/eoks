@@ -69,6 +69,43 @@ Graphify is another graph-first structural evidence system. Its code graph is bu
 
 Graphify is therefore especially interesting as a bridge between a deterministic repository map and a broader project knowledge graph, while still keeping the graph a derived representation rather than the canonical source of truth.
 
+
+## Code Review Graph (CRG)
+
+**Code Review Graph (CRG)** is a local-first structural code-intelligence system focused on turning a repository graph into compact, change-aware context for AI coding tools. It parses repositories with Tree-sitter, maintains the graph incrementally, and exposes graph/search/review capabilities through CLI and MCP. Its current integration also installs skills and hooks for supported coding agents.
+
+The important distinction from a generic code graph is its emphasis on **change-aware context compilation**. Given a diff, CRG can identify affected functions and dependencies, traverse a bounded blast radius, surface related tests and risk signals, and return a compact review context rather than requiring the agent to rediscover the repository structure through repeated file reads.
+
+CRG also makes context efficiency an explicit observable: review and impact responses carry estimated context-savings metadata, with an optional tokenizer verification path. Its public evaluation reports a median roughly 63x reduction in graph-query tokens versus a whole-corpus baseline across six repositories, while explicitly noting that the whole-corpus baseline is an upper bound and that small changes can have graph overhead. Its impact benchmark reports 0.69 average F1 against graph-derived ground truth; CRG correctly treats the resulting recall as a circular upper bound rather than independent evidence of impact accuracy. These limitations make the benchmark useful evidence about the mechanism, not a general end-to-end agent-quality claim.
+
+A particularly useful implementation detail for EOKS is CRG's explicit build/update state and incremental synchronization. A partial or interrupted update should not silently appear fully fresh, and the graph can be updated from changed files rather than rebuilt on every interaction. This connects **knowledge freshness and state** directly to context compilation.
+
+**EOKS placement:** **structural evidence + change/impact analysis + context compilation**.
+
+CRG therefore sits between the structural graph providers above and the context-delivery layer below:
+
+```text
+repository / git diff
+        |
+        v
+incremental structural graph
+        |
+        +--> search / flows / communities
+        +--> impact / blast radius
+        +--> tests / risk signals
+        |
+        v
+compact task-specific context
+        |
+        v
+      agent
+```
+
+The broader EOKS lesson is not that CRG should become an EOKS component. It is evidence that **Knowledge + State + Intent -> Context** is a useful abstraction: the graph provides structural knowledge, repository/change state determines what is current and affected, and the workload determines which evidence should be compiled for the agent.
+
+CRG also complements rather than replaces Graphify or GitNexus. Graphify emphasizes repository/project representation and provenance; GitNexus provides broader graph-powered search, process tracing and agent navigation; CRG concentrates more strongly on incremental change analysis and bounded review context. These boundaries overlap in implementation, but they are useful distinct evaluation targets for EOKS.
+
+
 ## CodeSight
 
 CodeSight belongs nearby but is not simply another graph implementation. Its emphasis is deterministic repository context and targeted evidence views: structure can be compiled into persistent, agent-readable maps, while knowledge sources can be indexed into compact views.
