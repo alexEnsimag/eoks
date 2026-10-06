@@ -236,7 +236,76 @@ That maps well onto EOKS's existing distinction between:
 
 The important conclusion is not to copy its information architecture, but to preserve the distinction between **durable information categories** and the **task-specific context actually delivered to a model**.
 
-## 6. Cross-implementation comparison
+## 6. Academic evidence and adjacent research
+
+The implementation landscape is increasingly backed by academic work, although the terminology is not yet standardized. The papers fall into three useful groups: **intelligent development environments**, **AI-native/agentic SDLC**, and **long-horizon agent evaluation**.
+
+### Intelligent development environments
+
+**Marron, "A New Generation of Intelligent Development Environments" (2024).**
+
+This is the closest direct academic precursor to the current ADE terminology. It argues that the IDE should evolve from a tool centered on human code editing into an environment where the developer directs AI agents and automated tools. The proposed environment coordinates communication with agents, organizes workflow from requirements through validation/deployment, and closes the loop with information from the running application.
+
+This is strong evidence for treating the development environment as more than a code editor or chat UI. It also supports the EOKS distinction between the environment/control surface and the underlying agent runtime. citeturn0academia6
+
+**Hassan et al., "Towards AI-Native Software Engineering (SE 3.0)" (2024/2026).**
+
+This vision describes AI-native software engineering as intent-centric and conversation-oriented, with separate concerns for the developer environment, AI teammates, synthesis and runtime. The proposed stack includes Teammate.next, IDE.next, Compiler.next and Runtime.next.
+
+The useful EOKS signal is the separation of the **development environment from execution/runtime capabilities**, rather than treating the IDE as the whole system. citeturn0search0
+
+**Hu, Kula & Treude, "The Future of Development Environments with AI Foundation Models" (2025).**
+
+A Shonan Meeting report bringing together 33 experts from software engineering, AI and HCI examines how foundation models change human-AI interaction in IDEs. It is useful as broader research-community evidence that the development-environment boundary itself is an active research problem, rather than only an industry product category. citeturn0search2
+
+### AI-native / agentic SDLC
+
+**Bhati, "Agentic AI in the Software Development Lifecycle" (2026).**
+
+This work explicitly frames the transition as a move from code-generation assistance toward delegated repository/feature-level execution under human supervision. It proposes a reference architecture and identifies evaluation, governance, technical debt and human attention as major open problems.
+
+This supports the existing EOKS distinction:
+
+> AI-native SDLC describes the lifecycle and operating model; ADE describes the environment in which the work is performed.
+
+It also strengthens the case for evaluation and governance as first-class parts of the system rather than post-hoc tooling. citeturn0academia8
+
+**Martin & Schwander, "A Lean and Spec-Driven AI-Assisted Software Development Lifecycle" (2026).**
+
+This work studies a lightweight, governed lifecycle using specifications, repository-local guidance, phase-specific skills, bounded autonomy and explicit review/test-oriented handoffs. It provides a concrete academic example of the emerging pattern of **durable engineering artifacts + bounded agent execution + human authority**. citeturn0academia16
+
+### Long-horizon execution and evaluation
+
+**Chen et al., "SWE-CI" (2026).**
+
+SWE-CI evaluates agents over repository histories spanning an average of 233 days and 71 commits, requiring repeated analysis and coding iterations rather than one-shot repair. Its central argument is that static functional-correctness benchmarks miss long-term maintainability.
+
+This is particularly relevant to EOKS's Work → Run → Evidence → Outcome model: the meaningful object of evaluation increasingly includes **sequences of runs and repository evolution**, not only the final response from one agent session. citeturn0academia9
+
+**Huang et al., "DeepSWE" (2026).**
+
+DeepSWE introduces original long-horizon engineering tasks across 91 repositories and uses independent hand-written verifiers rather than relying solely on tests associated with historical reference fixes. The work highlights weaknesses in benchmark setups where an agent can appear successful because the evaluation is too closely coupled to one expected implementation.
+
+This reinforces the distinction between **agent-reported completion, implementation artifacts and independent evidence of outcome**. citeturn0academia11
+
+**Hong et al., "SWE Refactor Bench" (2026).**
+
+This work separates migration completeness from behavioural correctness and adds independent agentic verification. Its results show that passing behavioural checks does not establish that the requested engineering transformation actually happened.
+
+This is a particularly clean example of the EOKS principle that **verification should establish the relevant obligation, not merely produce a passing test result**. citeturn0academia10
+
+### Academic synthesis
+
+Taken together, the literature strengthens three parts of the ADE/EOKS model:
+
+1. **The environment is becoming a distinct architectural layer.** The development environment increasingly coordinates agents, tools, workflows, validation and human interaction rather than merely editing files.
+2. **Agentic development is moving toward delegated, long-running work.** Evaluation therefore needs durable work/run identity, repository state and history across iterations.
+3. **Outcome evidence must be independent of agent claims.** Tests, audits, static analysis, traces and other evidence need to be related to the obligation being evaluated.
+
+The literature does **not** establish that a separate EOKS-like control plane is necessary. It does, however, provide independent research support for the problem decomposition already used by EOKS.
+
+
+## 7. Cross-implementation comparison
 
 | Concept | Emdash | OpenADE | Warp | EOKS interpretation |
 |---|---|---|---|---|
@@ -253,7 +322,7 @@ The important conclusion is not to copy its information architecture, but to pre
 
 The mapping is not exact. That is useful: EOKS should remain a semantic model rather than trying to force every implementation into identical objects.
 
-## 7. What ADE implementations add to EOKS
+## 8. What ADE implementations add to EOKS
 
 Most of the required concepts already exist in EOKS.
 
@@ -303,7 +372,7 @@ ADEs make approval, steering, review, takeover and inspection part of the execut
 
 As multiple runs execute concurrently, the ADE becomes an operational surface for inspecting status, diffs, failures and evidence. Observability therefore serves both debugging and active human control.
 
-## 8. ADE is not AI-native SDLC
+## 9. ADE is not AI-native SDLC
 
 The distinction should remain explicit.
 
@@ -358,7 +427,7 @@ context knowledge policy execution
 
 This is a useful conceptual stack, not a mandatory deployment architecture.
 
-## 9. Updated EOKS hypothesis
+## 10. Updated EOKS hypothesis
 
 The implementation evidence strengthens the existing EOKS model without requiring an ADE subsystem.
 
@@ -382,7 +451,7 @@ semantic work
      +-- outcome
 ```
 
-## 10. What remains unproven
+## 11. What remains unproven
 
 These implementations provide architecture evidence, not outcome evidence.
 
