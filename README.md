@@ -52,6 +52,7 @@ The repository separates **current architecture** from **exploratory research**.
 
 - [Vision](docs/vision.md)
 - [Architecture](docs/architecture.md)
+- [Domain model and architecture diagrams](docs/domain-model.md) — canonical relationship diagrams and zoom-ins for the EOKS primitives.
 - [Engineering outcomes and graduated autonomy](docs/engineering-outcomes.md) — measurable outcomes, assurance, autonomy levels and experiment metrics.
 - [Resource model](docs/resource-model.md) — canonical vocabulary for reusable resources, Asset, Provider, Representation, Loadout and Context.
 - [Context engineering](docs/context.md)
