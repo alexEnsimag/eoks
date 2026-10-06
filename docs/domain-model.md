@@ -16,7 +16,7 @@ The diagrams deliberately use different zoom levels. They are not competing arch
 
 EOKS is not the ADE/IDE, agent runtime, model provider or sandbox. Those are replaceable surfaces/resources that EOKS can coordinate.
 
-~~~mermaid
+```mermaid
 flowchart TB
     H["Human / developer"]
     ADE["ADE / IDE / CLI / API<br/>work surface"]
@@ -55,7 +55,7 @@ flowchart TB
     E --> W
     E --> K
     E --> P
-~~~
+```
 
 **Boundary:** EOKS coordinates these things; it does not need to own their implementation.
 
@@ -63,7 +63,7 @@ flowchart TB
 
 The six dimensions remain useful as architectural lenses, not six separate services.
 
-~~~mermaid
+```mermaid
 flowchart LR
     INT["INTENT<br/>What outcome is wanted?"] --> TASK["Task"]
     WF["WORKFLOW<br/>How does work progress?"] --> WORK["Workflow / roles"]
@@ -85,7 +85,7 @@ This preserves the useful six-dimensional vocabulary while keeping the runtime s
 
 This is the most important diagram. It makes ownership and cardinality explicit.
 
-~~~mermaid
+```mermaid
 classDiagram
     direction TB
 
@@ -253,7 +253,7 @@ classDiagram
     Provider --> Evidence : produces
     Tool --> Evidence : produces
     Workspace --> Artifact : contains
-~~~
+```
 
 ### The key relationship
 
@@ -274,7 +274,7 @@ Context is deliberately still one of the seven primitives. A **context snapshot*
 
 A Run is where the otherwise separate EOKS concerns meet.
 
-~~~mermaid
+```mermaid
 flowchart TB
     TASK["Task<br/>objective + acceptance criteria"]
     POLICY["Policy<br/>constraints + required assurance"]
@@ -305,7 +305,7 @@ flowchart TB
     EVID --> EVAL
     ART --> EVAL
     EVAL --> RUN
-~~~
+```
 
 The important distinction is:
 
@@ -323,7 +323,7 @@ A provider session, container or VM can disappear and be replaced while the logi
 
 This is the resource-management side of EOKS.
 
-~~~mermaid
+```mermaid
 flowchart LR
     U["Resource universe"]
 
@@ -346,7 +346,7 @@ flowchart LR
     THRASH["Context pressure / thrashing"]
     WS -.-> THRASH
     THRASH -.-> CC
-~~~
+```
 
 The distinctions are intentional:
 
@@ -354,7 +354,7 @@ The distinctions are intentional:
 Loadout    = what is eligible
 Working set = what is currently useful
 Context    = what is actually materialized for a reasoning step
-~~~
+```
 
 A context snapshot should preserve enough identity/provenance to reconstruct **what was presented and from which resource revisions**, without requiring a giant copy of every underlying source.
 
@@ -362,7 +362,7 @@ A context snapshot should preserve enough identity/provenance to reconstruct **w
 
 The control plane is best understood as reconciliation rather than as a collection of scheduler/router/orchestrator boxes.
 
-~~~mermaid
+```mermaid
 flowchart TB
     D["Desired state<br/>Task objective + Policy"]
     O["Observed state<br/>Run state + Workspace + Evidence"]
@@ -389,7 +389,7 @@ flowchart TB
     ESC["Escalation / human gate"]
     EVAL --> STOP
     EVAL --> ESC
-~~~
+```
 
 The same pattern works for context selection, resource/provider selection, execution, verification, retry/repair, model selection and workspace provisioning.
 
@@ -399,7 +399,7 @@ The **conductor is a responsibility**, not necessarily a separate agent or servi
 
 The fast execution loop and slower improvement loop should be distinguished.
 
-~~~mermaid
+```mermaid
 flowchart LR
     RUN["Run"]
     OBS["Observations"]
@@ -415,7 +415,7 @@ flowchart LR
     VALID --> PROM["Promote / update / supersede"]
     PROM --> RES["Durable resources / policy"]
     RES --> RUN
-~~~
+```
 
 Promotion is deliberately explicit. A run should not silently rewrite canonical knowledge or policy merely because an agent produced a plausible suggestion.
 
@@ -425,7 +425,7 @@ This gives EOKS three useful timescales:
 step loop       act → observe → evaluate
 work loop       reconcile until acceptance / escalation
 system loop     aggregate outcomes → evaluate interventions → update resources/policy
-~~~
+```
 
 These are control-loop views, not three separate EOKS subsystems.
 
@@ -433,7 +433,7 @@ These are control-loop views, not three separate EOKS subsystems.
 
 A final architectural zoom-in is useful because it explains why EOKS does not equate agent completion with success.
 
-~~~mermaid
+```mermaid
 flowchart TB
     CLAIM["Agent claim / proposed result"]
 
@@ -459,7 +459,7 @@ flowchart TB
     E6 --> EV
 
     EV --> EVAL --> POL --> DEC --> OUT
-~~~
+```
 
 The principle is:
 
@@ -549,7 +549,7 @@ When the whole architecture needs to fit in one picture:
 
           slower feedback:
        outcomes → learning → governed resource/policy updates
-~~~
+```
 
 This is the **canonical relationship view**. The other diagrams are zoom-ins of it.
 
