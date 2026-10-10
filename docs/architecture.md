@@ -11,41 +11,7 @@ EOKS uses two complementary systems lenses:
 
 These are **reference architectures, not implementation prescriptions**. The OS lens describes the resource-management problems; the Kubernetes lens describes how EOKS continuously controls the workload.
 
-```text
-                         INTENT
-                            |
-                    desired outcome/state
-                            |
-                       POLICY
-                            |
-                            v
-                 +---------------------+
-                 |      CONDUCTOR      |
-                 | reconciler/controller|
-                 +----------+----------+
-                            |
-          +-----------------+-----------------+
-          |                 |                 |
-      RESOURCES          WORKLOAD         EXECUTION
-  knowledge/evidence   working set/       workflows/runs
-  providers/represent. context            models/tools/agents
-          |                 |                 |
-          +-----------------+-----------------+
-                            |
-                           RUN
-                            |
-                    OBSERVE / VERIFY
-                            |
-                         OUTCOME
-                            |
-                        EVALUATION
-                            |
-                   ACTUAL WORKLOAD STATE
-                            |
-                       RECONCILIATION
-                            |
-                  next decision / action
-```
+For the canonical visual model, see **[EOKS domain model and architecture diagrams](domain-model.md)**. It contains the system map, six-dimensional mapping, UML domain model, Run/context/resource zoom-ins, control loop, and learning/evidence views.
 
 ## Architectural layers
 
