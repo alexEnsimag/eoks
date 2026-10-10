@@ -480,3 +480,60 @@ Model routing chooses **which model** to use; context compilation chooses **what
 ## Evaluation boundary
 
 Context interventions must be evaluated on end-to-end task outcomes, not only retrieval, cache or token metrics. The canonical methodology and benchmark matrix live in [Context evaluation and benchmarking](../research/context-evaluation.md).
+
+## Semantic representation and model-facing realization
+
+EOKS should distinguish **what information means** from **how a particular model or harness receives it**.
+
+The semantic layer describes task intent, constraints, policy, knowledge, evidence, expected outcomes and execution state. Context compilation selects and transforms the relevant information for a reasoning step; a model/harness adapter realizes that compiled context in the target interface.
+
+```text
+semantic intent / constraints / knowledge / evidence
+                         |
+                         v
+                 context compilation
+          select / order / transform / budget
+                         |
+                         v
+                 model/harness adapter
+      instructions / messages / examples / schemas /
+                     tool interfaces
+                         |
+                         v
+                    model execution
+                         |
+                         v
+             observations / outcome / evidence
+                         |
+                         +----> evaluation and feedback
+```
+
+This is a **separation of responsibilities**, not a new EOKS semantic dimension or canonical runtime primitive:
+
+- **Semantic representation** preserves meaning, authority, scope, constraints and provenance independently of a prompt format.
+- **Context compilation** decides which information is needed for the current reasoning step and how it should be composed.
+- **Model/harness realization** adapts the compiled representation to provider-specific message structures, instruction conventions, examples, output schemas and tool interfaces.
+- **Evaluation** tests whether the realization preserves required information and improves end-to-end task outcomes.
+
+A prompt is one possible model-facing realization of compiled context, not the canonical representation of the underlying work. Skills, policies, evidence and acceptance criteria should retain their own semantics rather than being flattened prematurely into undifferentiated prompt text.
+
+### Representation invariants
+
+When compiling or adapting context, preserve:
+
+- **Meaning and authority:** a transformation must not silently turn a hypothesis, summary or untrusted input into an authoritative instruction or fact.
+- **Constraints and acceptance criteria:** required conditions must remain explicit and discoverable in the resulting representation.
+- **Provenance and freshness:** transformed evidence should retain enough source and validity information to be inspected and checked.
+- **Uncertainty and incompleteness:** summarization must not present missing evidence or unresolved questions as established facts.
+- **Output and interaction contracts:** when a workflow requires a particular artifact, schema, tool interaction or verification step, the model-facing representation must communicate that requirement.
+
+These are design goals to test, not guarantees that a prompt alone can enforce. Authorization and safety-critical restrictions should use harness/tool controls where available, with independent verification for consequential outcomes.
+
+### Model-specific adaptation and evaluation
+
+Different models and harnesses may require different realizations of the same semantic requirements. Keep these adaptations at the model/harness boundary rather than duplicating the underlying task meaning across provider-specific prompts.
+
+Compare alternative realizations on end-to-end task success, required-evidence coverage, constraint violations, unsupported claims, verification/rework, latency and total cost. Token reduction or stylistic prompt quality alone is not sufficient evidence of improvement. Where practical, record the compiled-context manifest, adapter/model version and relevant evaluation results so a run can be inspected and compared.
+
+This extends the existing context-compilation model; it does not establish a separate prompting subsystem. Prompting techniques are implementation strategies or hypotheses to evaluate against the semantic and workload requirements they serve.
+
