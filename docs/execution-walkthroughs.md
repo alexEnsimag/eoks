@@ -10,10 +10,22 @@ Example task: add an optional timeout to a Go HTTP client, preserving the curren
 
 ### 1. One agent: make the change
 
-~~~text
-Add an optional timeout to this HTTP client. Preserve existing behavior by
-default. Inspect the current implementation and tests, make the smallest
-change, add tests, and report what you ran and what remains uncertain.
+~~~yaml
+role: implementer
+goal: Add an optional timeout to the Go HTTP client.
+context:
+  - Inspect the existing client, callers, and tests before editing.
+constraints:
+  - Preserve current behavior when the timeout is unset.
+  - Make the smallest maintainable change.
+steps:
+  - Implement the change and add focused tests.
+  - Run relevant checks.
+return:
+  - Summary of the change
+  - Checks run and their results
+  - Remaining uncertainty or follow-up
+done_when: Required tests pass, or a concrete blocker is reported.
 ~~~
 
 **Mechanism:** one agent inspects, edits and checks its work.
@@ -26,11 +38,20 @@ change, add tests, and report what you ran and what remains uncertain.
 
 Keep the implementation prompt above. Give a second run the patch and the original task:
 
-~~~text
-Review this patch against the task. Try to find a concrete failure case,
-especially around default behavior, edge cases and compatibility. Do not
-rewrite it. Report only actionable findings with evidence; distinguish
-confirmed defects from questions.
+~~~yaml
+role: independent reviewer
+goal: Find defects in the patch relative to the original task.
+inputs: Original task, diff, relevant code and test results.
+focus:
+  - Default behavior and compatibility
+  - Edge cases and failure paths
+constraints:
+  - Do not edit or rewrite the patch.
+  - Report actionable findings only.
+return:
+  - Finding, evidence, and impact for each confirmed defect
+  - Open questions separately
+done_when: The patch has been reviewed; findings are evidence-backed.
 ~~~
 
 **What changed:** not a longer implementer prompt, but a second perspective with a different job and fresh context.
@@ -43,10 +64,19 @@ confirmed defects from questions.
 
 Instead of asking several agents to implement the same feature, give them separate, bounded questions:
 
-~~~text
-Trace how request timeouts and cancellation currently work. Do not edit.
-Return the relevant files/call path, what the code establishes, and any
-uncertainty that would affect the proposed change.
+~~~yaml
+role: investigator
+question: How do request timeouts and cancellation work today?
+scope:
+  - Trace the relevant call path and inspect related tests/callers.
+constraints:
+  - Do not edit files.
+  - Separate observed facts from assumptions.
+return:
+  - Relevant files and call path
+  - Evidence for current behavior
+  - Uncertainties that could change the implementation
+done_when: The question is answered with references to evidence, or the remaining gap is explicit.
 ~~~
 
 Another investigator might inspect tests and callers. A conductor combines the findings, resolves contradictions, then gives the implementation run a short evidence-backed brief.
@@ -59,12 +89,22 @@ Another investigator might inspect tests and callers. A conductor combines the f
 
 A task can span multiple turns, CI runs or background jobs. A final-sounding progress message must not be confused with a verified outcome.
 
-~~~text
-Continue until the acceptance criteria are met, you are blocked, or a
-defined limit is reached. Track unfinished items in the task checklist.
-After each check, update the checklist from the observed result. If work
-remains, continue; if blocked, state the blocker. Do not claim completion
-without the required evidence.
+~~~yaml
+role: unattended execution agent
+goal: Complete the task against its acceptance criteria.
+state:
+  - Read the persisted checklist before acting.
+  - Update each item from observed tool or check results.
+continue_while:
+  - Required criteria remain unmet.
+  - No blocking dependency or configured limit has been reached.
+stop_when:
+  - All required criteria have evidence, or
+  - A blocker, approval requirement, or limit prevents progress.
+return:
+  - Checklist with status and evidence
+  - Blocker and next required action, if blocked
+constraint: Do not report completion based only on a progress message or turn ending.
 ~~~
 
 This prompt helps communicate desired behavior, but it does **not** enforce it by itself. The harness must preserve task state, inspect tool/job results, apply retry and time limits, and decide whether completion criteria are satisfied.
@@ -75,10 +115,17 @@ This prompt helps communicate desired behavior, but it does **not** enforce it b
 
 A prompt can state the boundary, but permissions should enforce it:
 
-~~~text
-Inspect and propose the change, but do not modify files or run commands
-that change external state. Return the proposed patch and the evidence
-needed for someone else to decide.
+~~~yaml
+role: read-only investigator
+goal: Propose a change and gather evidence for a human decision.
+authority:
+  allowed: Read files and run non-mutating inspection commands.
+  forbidden: Modify files or perform external side effects.
+return:
+  - Proposed patch or concrete change outline
+  - Supporting evidence
+  - Decisions a human must make
+enforcement: Use read-only tools or a sandbox that prevents writes.
 ~~~
 
 **Mechanism:** pair the instruction with read-only tools or sandbox permissions. Do not rely on the model remembering a sentence when the tool itself can enforce the restriction.
