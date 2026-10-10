@@ -1,397 +1,178 @@
-# Execution walkthroughs: concrete flows and prompt blocks
+# Execution walkthroughs: small examples of who does what
 
-This is an implementation-oriented companion to [Agent workflows](agent-workflows.md), [Agent roles](agent-roles.md), and the [EOKS domain model](domain-model.md).
+This is a practical companion to [Agent workflows](agent-workflows.md), [Agent roles](agent-roles.md), and [EOKS architecture](architecture.md). It shows how the same task changes when we change the execution mechanism.
 
-Those documents explain the concepts. This one walks through **what a system could actually do**, which role or mechanism does each part, what gets passed between steps, and when to keep work in one agent versus splitting it across roles or runs.
+The examples are intentionally small. They are **prompt fragments**, not universal templates: use only the instruction that solves a real problem. The workflow, policy, tools and evidence around a prompt matter just as much as its wording.
 
-The prompt blocks below are examples to adapt, not canonical EOKS prompts or a requirement to use a particular agent framework. EOKS models responsibilities and control semantics; existing agents, tools, hooks, CI and workflow engines can implement them.
+## One task, several execution designs
 
-## Start with one concrete task
+Example task: add an optional timeout to a Go HTTP client, preserving the current default behavior.
 
-Suppose the task is:
+### 1. One agent: make the change
 
-> Add an optional request timeout to a Go HTTP client, preserve current behavior by default, and add tests.
+~~~text
+Add an optional timeout to this HTTP client. Preserve existing behavior by
+default. Inspect the current implementation and tests, make the smallest
+change, add tests, and report what you ran and what remains uncertain.
+~~~
 
-The system needs to answer five practical questions:
+**Mechanism:** one agent inspects, edits and checks its work.
 
-1. Who decides what work is needed?
-2. Who changes the repository?
-3. Who checks whether the change is correct?
-4. Who decides whether the evidence is sufficient to finish?
-5. What happens if something fails?
+**Use when:** the task is clear, bounded and easy to verify.
 
-These are separate responsibilities. They do not automatically require five agents.
+**Limitation:** the agent may miss an assumption it made while implementing.
 
-## Flow 1 — One agent, one run
+### 2. Add an independent reviewer
 
-Use this for small, well-scoped work when the same context can support implementation and self-checking.
+Keep the implementation prompt above. Give a second run the patch and the original task:
+
+~~~text
+Review this patch against the task. Try to find a concrete failure case,
+especially around default behavior, edge cases and compatibility. Do not
+rewrite it. Report only actionable findings with evidence; distinguish
+confirmed defects from questions.
+~~~
+
+**What changed:** not a longer implementer prompt, but a second perspective with a different job and fresh context.
+
+**Use when:** missed defects are costly enough to justify another run.
+
+**Important:** a reviewer is not a validator. A reviewer reasons about possible defects; tests and other checks produce evidence about the properties they cover.
+
+### 3. Investigate before implementing
+
+Instead of asking several agents to implement the same feature, give them separate, bounded questions:
+
+~~~text
+Trace how request timeouts and cancellation currently work. Do not edit.
+Return the relevant files/call path, what the code establishes, and any
+uncertainty that would affect the proposed change.
+~~~
+
+Another investigator might inspect tests and callers. A conductor combines the findings, resolves contradictions, then gives the implementation run a short evidence-backed brief.
+
+**Use when:** the main uncertainty is *what is true about the system*, not how to write the code.
+
+**Why not always parallelize?** Parallel work costs time and tokens and creates a synthesis task. Split only when questions can genuinely be investigated independently.
+
+### 4. Make completion explicit for unattended work
+
+A task can span multiple turns, CI runs or background jobs. A final-sounding progress message must not be confused with a verified outcome.
+
+~~~text
+Continue until the acceptance criteria are met, you are blocked, or a
+defined limit is reached. Track unfinished items in the task checklist.
+After each check, update the checklist from the observed result. If work
+remains, continue; if blocked, state the blocker. Do not claim completion
+without the required evidence.
+~~~
+
+This prompt helps communicate desired behavior, but it does **not** enforce it by itself. The harness must preserve task state, inspect tool/job results, apply retry and time limits, and decide whether completion criteria are satisfied.
+
+**Use when:** the system must continue without a person prompting each next step.
+
+### 5. Add a hard boundary around actions
+
+A prompt can state the boundary, but permissions should enforce it:
+
+~~~text
+Inspect and propose the change, but do not modify files or run commands
+that change external state. Return the proposed patch and the evidence
+needed for someone else to decide.
+~~~
+
+**Mechanism:** pair the instruction with read-only tools or sandbox permissions. Do not rely on the model remembering a sentence when the tool itself can enforce the restriction.
+
+**Use when:** a step should investigate, review or propose without performing side effects.
+
+## The flow is more than the prompt
 
 ~~~mermaid
 flowchart TD
-    T[Task + acceptance criteria] --> A[One coding agent]
-    A --> C[Inspect code and plan]
-    C --> I[Implement]
-    I --> V[Run tests and checks]
-    V --> E{Acceptance criteria met?}
-    E -- Yes --> O[Record artifacts and outcome]
-    E -- No --> R[Repair within budget]
-    R --> V
-    R -- Budget exhausted / ambiguity --> H[Escalate]
+    T[Task + success conditions] --> C[Context assembly]
+    C --> P[Prompt / role instructions]
+    P --> A[Agent proposes or performs action]
+    A --> X[Tools / CI / external system]
+    X --> E[Artifacts and observed evidence]
+    E --> D{Controller evaluates state and policy}
+    D -- Continue / repair / re-plan --> C
+    D -- Accepted --> O[Record outcome]
+    D -- Blocked / limit / approval needed --> H[Escalate]
 ~~~
 
-**Who does what**
+The prompt influences the agent's behavior, but the surrounding system decides what information it sees, what it can do, what counts as evidence, and what happens next.
 
-- The control logic supplies the objective, constraints, permissions and stopping conditions.
-- The agent plans, edits and runs available checks.
-- Deterministic tools (tests, formatter, type checker, static analysis) produce evidence.
-- The controller records the changed files, check results and final status; it does not treat the agent's claim of success as sufficient evidence.
+A role name alone is not a handoff contract. At minimum, the next step needs:
 
-**Example prompt block**
+- **Goal:** what question or result is this step responsible for?
+- **Inputs:** which task, artifacts and revisions are authoritative?
+- **Authority:** what may it inspect or change?
+- **Output:** what artifact or evidence must it return?
+- **Exit condition:** what observable result means this step is finished?
+- **Failure path:** what happens if it cannot finish?
 
-~~~text
-ROLE: Implementer
+For a small workflow, these can be a few lines in a prompt. For a durable system, keep the task state, permissions, artifacts and completion decision outside the prompt.
 
-OBJECTIVE
-Add an optional request timeout to the Go HTTP client. Preserve existing
-behavior when the option is unset.
+## What the Opus 5.5 prompting guidance adds
 
-ACCEPTANCE CRITERIA
-- The timeout is configurable through the existing public API style.
-- The default preserves current behavior.
-- Tests cover configured and default behavior.
-- Existing relevant tests pass.
+Anthropic's [Opus 5.5 prompting guide](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5) reinforces several useful lessons for EOKS. These are model-specific observations, not universal laws.
 
-OPERATING RULES
-- Inspect the existing client and nearby tests before editing.
-- Make the smallest coherent change.
-- Do not change unrelated files or public behavior.
-- Run the relevant tests and report the exact commands and results.
-- If requirements conflict with the existing design, stop and explain the conflict.
+### Use fewer instructions, but make the important ones precise
 
-RETURN
-- Summary of changes
-- Files changed
-- Tests/checks run and their observed results
-- Remaining uncertainty or known gaps
-~~~
+Anthropic reports that newer models can need less scaffolding, and recommends testing whether older instructions are still useful. Conflicting, repeated rules can make intent harder to interpret.
 
-This is the cheapest topology. Its weakness is correlated error: the same agent that made an assumption may fail to notice that assumption is wrong. Self-review can still help, but it is not independent assurance.
+**EOKS implication:** do not make every role prompt a mini policy manual. Put stable knowledge in the context system, permissions in policy/tool configuration, and task-specific instructions in the prompt. Keep instructions that address observed failure modes; remove redundant rules only after testing.
 
-## Flow 2 — Implementer, independent reviewer, deterministic validator
+### Express intent once; compile it for the model and task
 
-Use this when correctness matters enough to separate construction from challenge and verification.
-
-~~~mermaid
-flowchart TD
-    T[Task + policy] --> C[Conductor / workflow]
-    C --> I[Implementer run]
-    I --> A[Patch + implementation report]
-    A --> R[Reviewer with fresh context]
-    A --> V[Deterministic validation]
-    R --> F[Review findings]
-    V --> E[Test / analysis evidence]
-    F --> D{Action decision}
-    E --> D
-    D -- Findings or failed checks --> P[Repair run]
-    P --> V
-    P --> R
-    D -- Evidence sufficient --> O[Accept outcome]
-    D -- Ambiguous / unsafe --> H[Human escalation]
-~~~
-
-The reviewer and validator have different jobs:
-
-- **Implementer:** makes the change.
-- **Reviewer:** tries to find defects, missing requirements, compatibility problems and unjustified assumptions.
-- **Validator:** runs checks that establish specific properties.
-- **Conductor:** correlates the findings, applies policy and decides whether to repair, accept or escalate.
-
-The reviewer can be another agent/session or a human. The validator may be ordinary shell commands and CI; it does not need to be an LLM.
-
-### Prompt block: independent reviewer
-
-Give the reviewer the task, acceptance criteria, patch, and relevant source/tests. Do not require it to trust the implementer's summary. Provide the summary only as optional navigation.
-
-~~~text
-ROLE: Independent reviewer
-
-GOAL
-Find concrete reasons this patch may be incorrect or incomplete.
-
-INPUTS
-- Original task and acceptance criteria
-- Patch and changed files
-- Relevant source, tests, and project conventions
-- Available validation results (if already run)
-
-CHECK
-- Requirement coverage and default/backward-compatible behavior
-- Edge cases and error handling
-- Concurrency/resource lifecycle where relevant
-- API and data compatibility
-- Missing, weak, or misleading tests
-- Unintended scope expansion
-
-RULES
-- Do not rewrite the patch.
-- Do not report style preferences as correctness defects.
-- For each finding, identify the affected code and explain the failure condition.
-- Distinguish confirmed defects from risks or unanswered questions.
-- If no actionable finding is supported by evidence, say so.
-
-RETURN
-- Findings ordered by severity, with file/line references where possible
-- Evidence or a minimal scenario that demonstrates each finding
-- Unresolved questions
-- Review status: findings / no actionable findings / unable to assess
-~~~
-
-### Prompt block: validator (when an LLM is involved at all)
-
-Usually this block is an executable check manifest, not a model prompt.
+A durable task definition might say:
 
 ~~~yaml
-checks:
-  - id: unit-tests
-    command: go test ./path/to/client/...
-    establishes: relevant client behavior passes the unit tests
-    required: true
-  - id: formatting
-    command: gofmt -w <changed-go-files>
-    establishes: changed Go files are formatted
-    required: true
-  - id: broader-tests
-    command: go test ./...
-    establishes: broader repository tests pass
-    required: policy-dependent
+goal: "Add an optional HTTP request timeout"
+must_preserve:
+  - "Unset timeout preserves existing behavior"
+evidence_required:
+  - "Tests cover configured and default behavior"
+completion: "Required checks pass; remaining limitations are recorded"
 ~~~
 
-The commands are illustrative; substitute the repository's real packages and check policy. A successful test run is evidence for the behavior covered by those tests, not proof that every acceptance criterion is satisfied.
+A prompt turns that intent into model-facing language. The controller and validator turn it into executable checks and a completion decision. These representations should agree, but they serve different purposes.
 
-### How the controller decides
+**EOKS implication:** prompting is one *realization* of intent and context, not a new architectural dimension. Keep task meaning and evidence requirements independent of any one model's preferred prompt style.
 
-| Observation | Next action |
+### Completion is a state decision, not a phrase
+
+Anthropic warns that an unattended agent can finish a turn with a progress update while work remains. A harness must distinguish a turn ending from the task being complete, preserve a checklist or equivalent durable state, and limit automatic continuations.
+
+**EOKS implication:** model output is an event or observation. The controller evaluates it against durable task state and completion criteria. A prompt can ask the agent to continue, but cannot replace that control logic.
+
+### Calibrate effort and time budgets separately
+
+The guide recommends measuring effort settings against your own tasks, and describes elapsed-time signals as a way to help agent teams pace work. A time budget is advisory unless the harness enforces a hard timeout.
+
+**EOKS implication:** model effort, run budget, wall-clock deadline, retry limit and quality threshold are distinct controls. Don't encode them all as prose in a prompt.
+
+### Context selection is part of execution design
+
+For multi-tool workflows, the guide recommends looking across relevant sources before acting when task information may live in places the request did not explicitly name.
+
+**EOKS implication:** an agent cannot use information it was never given or could not retrieve. Context compilation should select relevant sources, preserve provenance and mark untrusted content; a generic instruction to “be thorough” is not a substitute for those mechanisms.
+
+## A simple rule for choosing what to add
+
+| Observed problem | First mechanism to consider |
 |---|---|
-| Required check failed | Repair or diagnose; then rerun affected checks |
-| Reviewer reports a substantiated defect | Send the finding and evidence to repair |
-| Reviewer offers an unsupported preference | Ask for evidence or disregard under the review policy |
-| Checks pass but a requirement is untested | Add a check, gather other evidence, or escalate |
-| Evidence conflicts | Resolve the conflict; do not average away the disagreement |
-| Required evidence is present and policy permits completion | Record outcome and stop |
-| Retry/budget limit reached, or a consequential ambiguity remains | Escalate |
+| Agent misunderstands the goal | Clarify intent and acceptance criteria |
+| Agent lacks necessary facts | Improve retrieval and compiled context |
+| Agent repeatedly misses one failure mode | Add a targeted instruction and test it |
+| Agent claims success too early | Durable checklist + controller-side completion check |
+| Agent takes an unauthorized action | Tool permissions / sandbox, not just stronger wording |
+| Agent repeats expensive work | Persist state and artifacts; inspect the control loop |
+| Parallel agents disagree | Evidence-based synthesis and explicit adjudication |
+| Runs are too slow or costly | Measure effort, context size, delegation and budgets |
 
-The controller owns the decision. Neither the implementer nor reviewer should be able to silently declare the workflow complete.
+## What to test
 
-## Flow 3 — Parallel investigation, one implementation
+Treat prompt changes as hypotheses. Compare a small baseline against one targeted change on representative tasks. Measure outcome quality, missed defects, unnecessary actions, latency and cost—not just whether the answer sounds better. Keep a rule when it fixes a repeatable problem without creating a larger one.
 
-Use this when there are genuinely independent questions, such as tracing a bug through separate subsystems or comparing multiple plausible causes. Do not parallelize merely because subagents are available.
-
-~~~mermaid
-flowchart TD
-    T[Task / question] --> C[Conductor defines bounded investigations]
-    C --> A[Investigator A: call path]
-    C --> B[Investigator B: tests and history]
-    C --> D[Investigator C: competing hypothesis]
-    A --> M[Reduce and reconcile evidence]
-    B --> M
-    D --> M
-    M --> Q{Enough evidence to choose?}
-    Q -- No --> X[Targeted follow-up or escalate]
-    Q -- Yes --> I[One implementation run]
-    I --> V[Validate and review]
-    V --> O[Outcome]
-~~~
-
-### Prompt block: bounded investigator
-
-~~~text
-ROLE: Investigator
-
-QUESTION
-Determine whether the HTTP client timeout can be added without changing
-the default request lifecycle.
-
-SCOPE
-Inspect the client implementation, its callers, tests, and relevant history.
-Do not edit files.
-
-DELIVER
-- Findings backed by file paths, code references, tests, or commits
-- A concrete answer to the question
-- Alternative explanations and contradictory evidence
-- What you did not inspect
-- The next smallest investigation if the answer remains uncertain
-
-BOUNDARY
-Do not propose a broad redesign unless the evidence shows the existing design
-cannot satisfy the requirement.
-~~~
-
-The conductor should combine the evidence, preserve disagreements and provenance, then decide whether another investigation is worth its cost. Investigators should return findings, not long transcripts. The implementation run should receive the reduced evidence set and authoritative source references, not every worker's raw conversation.
-
-## Flow 4 — Plan, execute, observe, re-plan
-
-Use this when the task is long-running, has uncertain intermediate results, or depends on external activities such as CI, a deployment, a remote job or a human response.
-
-~~~mermaid
-flowchart TD
-    S[Current durable state + policy] --> P[Planner proposes next steps]
-    P --> G[Controller checks permissions, preconditions and budget]
-    G --> X[Execute one action / start activity]
-    X --> O[Observe result or progress]
-    O --> U[Update durable run state and evidence]
-    U --> E{Progress and evidence sufficient?}
-    E -- Continue as planned --> P
-    E -- Assumptions invalidated --> R[Re-plan]
-    R --> G
-    E -- Retryable failure --> F[Retry / alternate mechanism]
-    F --> G
-    E -- Accepted --> D[Record outcome]
-    E -- Unsafe, blocked, or budget exhausted --> H[Escalate]
-~~~
-
-Here the planner and controller are explicitly different:
-
-- **Planner:** proposes a plan from the current information.
-- **Planner/conductor boundary:** the controller decides whether the proposed action is allowed and appropriate now.
-- **Executor:** performs the action.
-- **Observer:** obtains the actual result (often a tool, CI system, or event).
-- **Evaluator:** checks whether the result meets the required condition.
-
-The plan is disposable. If a test failure invalidates the next planned step, the controller updates state and asks for a new plan rather than continuing from stale assumptions.
-
-A durable run record needs only enough information to reconstruct control: current step, inputs/revisions, decisions, started/completed activities, artifacts, observations, retries, approvals, budget and outstanding conditions. Provider session memory is not the source of truth.
-
-## Flow 5 — Construct, attack, verify, decide
-
-Use this for high-consequence changes, architecture decisions or security-sensitive work where a normal review may share too many assumptions with the implementation.
-
-~~~mermaid
-flowchart TD
-    A[Artifact + claims + acceptance criteria] --> S[Support path: construct solution]
-    A --> C[Challenge path: try to falsify claims]
-    S --> V[Adjudicate concrete claims]
-    C --> V
-    V --> D[Deterministic / authoritative verification]
-    D --> E[Evaluate evidence against policy]
-    E --> R{Sufficient assurance?}
-    R -- Yes --> O[Accept]
-    R -- No, repairable --> P[Revise artifact and repeat relevant checks]
-    P --> A
-    R -- No, consequential uncertainty --> H[Human / stronger authority]
-~~~
-
-The challenge path should search for counterexamples, missing invariants, failure conditions and contradictions. It should not simply be asked whether it agrees. Whenever possible, validate the challenge with tests, static analysis, authoritative sources or a reproducible scenario.
-
-**Important:** two agents are not automatically two independent evidence paths. Shared prompts, context, assumptions and models can correlate their errors. The system should evaluate whether the added challenge improves outcomes enough to justify its cost.
-
-## Choosing a flow
-
-| Work characteristics | Start with | Add separation when… |
-|---|---|---|
-| Small, clear, reversible | One agent + checks | Failures repeatedly escape self-checks |
-| Moderate change with meaningful correctness risk | Implementer + reviewer + validator | Existing review is insufficient or risks are more consequential |
-| Independent unknowns | Parallel investigation, then one implementation | Evidence tasks can truly proceed independently |
-| Long-running / external side effects | Durable plan-execute-observe loop | Progress cannot be reconstructed from a single session |
-| High-consequence or hard-to-test claims | Construct + challenge + authoritative verification | The cost of a missed defect justifies extra assurance |
-
-Start simple. Add a role, run, checkpoint, approval gate or parallel branch only when it changes who can decide, what evidence is available, what can safely happen, or how recovery works.
-
-## The handoff contract
-
-A role name alone is not enough to make a workflow executable. Every handoff should define a compact contract. This can be structured data, a task card, a message or a prompt section; EOKS does not require one format.
-
-~~~yaml
-handoff:
-  task: "Add optional request timeout"
-  role: "reviewer"
-  objective: "Find correctness and compatibility defects"
-  inputs:
-    - artifact: "git diff"
-      revision: "working-tree revision or commit"
-    - artifact: "acceptance criteria"
-  scope:
-    inspect:
-      - client implementation
-      - callers
-      - relevant tests
-    may_edit: false
-  constraints:
-    - "Do not trust implementer claims without checking evidence"
-  output:
-    - "actionable findings with evidence"
-    - "unresolved questions"
-  completion_condition: "review findings or explicit unable-to-assess result"
-~~~
-
-A useful handoff answers:
-
-- **Objective:** what question or result belongs to this step?
-- **Inputs:** which artifacts, revisions and evidence are authoritative?
-- **Scope:** what should be inspected or changed?
-- **Authority:** which tools and side effects are allowed?
-- **Output:** what artifact, evidence or decision must be returned?
-- **Completion:** what observable condition means this step is finished?
-- **Failure:** what happens if it cannot finish or its assumptions are false?
-
-This makes the flow portable across different agents and execution providers. A framework can translate the contract into system prompts, tool permissions, job payloads, CI steps or workflow state.
-
-## What should be recorded between steps?
-
-Avoid copying the whole transcript from one agent to the next. Preserve the information needed for the next decision and for later reconstruction.
-
-| Record | Example | Why it matters |
-|---|---|---|
-| Work identity and acceptance criteria | Task ID, required behavior | Keeps all runs aimed at the same outcome |
-| Run/step state | Started, blocked, failed, complete | Enables resume and control decisions |
-| Context manifest | Selected sources and revisions | Explains what the agent could know |
-| Artifact | Patch, report, test output | Gives the next role something concrete to inspect |
-| Evidence | Exact check result, reproduction, source reference | Supports evaluation beyond self-report |
-| Decision | Retry, repair, accept, escalate + rationale | Makes control choices inspectable |
-| Policy/budget | Allowed commands, retry and cost limits | Constrains autonomy |
-| Outcome | Accepted, incomplete, rejected, escalated | Enables end-to-end evaluation and learning |
-
-A summary can be useful, but it is a derived navigation aid, not a substitute for source artifacts and evidence when those are available.
-
-## The implementation boundary
-
-A minimal implementation does not need a new agent platform. It can be assembled from an existing coding agent, prompts or role contracts, shell/CI checks, a small durable run record, and a controller that interprets results.
-
-~~~text
-Task + Policy
-     |
-     v
-Controller / workflow state
-     |
-     +--> assemble role-specific context
-     |
-     +--> invoke existing agent or deterministic tool
-     |
-     +--> collect artifact + evidence
-     |
-     +--> evaluate against acceptance criteria
-     |
-     +--> continue / repair / re-plan / stop / escalate
-~~~
-
-The implementation can begin as a script or lightweight workflow. Introduce durable workflow infrastructure, multiple concurrent agents, sandbox orchestration or learned topology selection only when the workload needs those capabilities.
-
-## How this fits the EOKS model
-
-These walkthroughs instantiate existing concepts rather than add new primitives:
-
-- **Task:** durable identity and objective of the work.
-- **Run:** one attempt or bounded execution of a task/step.
-- **Context:** the task-specific information supplied to a reasoning step.
-- **Workflow and roles:** sequence/dependencies and responsibilities.
-- **Resources/capabilities:** agents, models, tools, CI and evidence providers.
-- **Policy:** permissions, constraints, required assurance and budgets.
-- **Decision:** continue, retry, branch, re-plan, accept or escalate.
-- **Evaluation and evidence:** whether the result meets the required conditions.
-- **Outcome:** what happened, including artifacts and unresolved gaps.
-
-The practical design question is therefore not “Which agent framework should EOKS copy?” It is:
-
-> Given a task, what is the smallest execution flow that assigns each responsibility, passes the right artifacts and evidence between steps, enforces authority, and knows when to continue, recover, stop or ask for help?
-
-That is the point at which EOKS's conceptual model becomes an executable design.
+This document is an execution walkthrough, not a new EOKS primitive. It uses existing concepts—intent, context, roles, workflow, capabilities, policy, state, evaluation and evidence—to show how different mechanisms produce different execution flows.
