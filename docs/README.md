@@ -15,6 +15,7 @@
 - [`memory.md`](memory.md) — memory and behavioral learning.
 - [`agent-roles.md`](agent-roles.md) — workflow responsibilities.
 - [`agent-workflows.md`](agent-workflows.md) — workflows and reasoning strategies.
+- [`execution-walkthroughs.md`](execution-walkthroughs.md) — concrete prompt blocks and step-by-step execution flows, showing who does what, handoffs, evidence and recovery.
 - [`evaluation.md`](evaluation.md) — evaluation, reliability evidence and calibration.
 - [`tool-capability-model.md`](tool-capability-model.md) — provider capabilities, evidence requirements and selection semantics.
 - [`continuous-knowledge-maintenance.md`](continuous-knowledge-maintenance.md) — incremental maintenance, promotion and invalidation.
