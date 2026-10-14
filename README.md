@@ -102,7 +102,6 @@ The repository separates **current architecture and decisions** from **explorato
 - [Evaluation](docs/evaluation.md)
 - [Software engineering](docs/software-engineering.md)
 - [Software analysis, dataflow and invariants](docs/software-analysis.md)
-- [Execution walkthroughs](docs/execution-walkthroughs.md) — concrete execution topologies, handoffs, durable run records and verification patterns.
 
 ### Governance and research management
 
@@ -134,7 +133,7 @@ Selected syntheses and prior art:
 - [LLM context caching](research/prior-art/llm-context-caching.md) — computational cache reuse versus semantic result reuse, identity, scope and validity.
 - [Enforceable architecture, ADRs, fitness functions and SDD](research/prior-art/enforceable-architecture.md)
 - [Probabilistic decision primitives / Jev](research/prior-art/probabilistic-decision-primitives-jev-2026.md) — bounded semantic decisions inside deterministic control loops.
-- [Spotify Portal / Shunt](research/prior-art/spotify-portal-shunt.md) — harness-mediated context transformation before information reaches the frontier model.
+- [Spotify Portal / Shunt](docs/prior-art/spotify-portal-shunt.md) — harness-mediated context transformation before information reaches the frontier model.
 - [TencentDB Agent Memory](research/prior-art/tencent-agent-memory.md) — multi-resolution memory, Skills, Wiki, CodeGraph and governed context delivery.
 - [Code graph and repository-context tooling](research/prior-art/code-graph-landscape.md) — structural evidence providers and their relationship to context compilation.
 
