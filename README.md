@@ -1,75 +1,111 @@
 # EOKS
 
-> An experimental operating/control layer for reliable AI workloads.
+> An experimental, programmable control layer for reliable AI engineering.
 
-EOKS explores what an **AI operating system / control plane** could look like if context, memory, models, tools, tasks, execution, evaluation and observability were treated as coordinated resources.
+EOKS explores what an **AI development environment** could look like if context, knowledge, memory, tools, execution, policy, evaluation and learning were coordinated as parts of one system.
 
-The project grew out of a recurring question: **why does giving models more context not necessarily give them better understanding?** The working answer is that AI systems need infrastructure for selecting, structuring, persisting, evaluating and routing information—not simply larger prompts.
+The central question is not simply how to give AI agents more context or better tools. It is how to build an environment in which agents can access the right information and capabilities, operate within explicit constraints, produce verifiable outcomes, and improve from experience.
+
+The working architectural hypothesis is an **operating/control layer around existing agents, harnesses and execution providers**. EOKS does not need to replace an IDE, agent runtime, workflow engine, memory system or analyzer. It explores how their capabilities can be composed, observed, governed and improved as one environment.
 
 ## The current thesis
 
-EOKS is not a prompt framework, vector database, memory store, agent framework or model router. Those are potential components. The proposed abstraction is the layer that coordinates them around a workload and continuously learns from outcomes.
+The practical goal is **trustable automated software-engineering workflows with AI agents**. An agent does not need to be perfect; the surrounding system needs to make failures detectable, consequential actions appropriately gated, and increasing autonomy justified by evidence.
 
-The practical goal is **trustable automated software-engineering workflows with AI agents**. The agent does not need to be perfect; the system needs to make failures detectable, consequential actions appropriately gated, and increasing autonomy justified by evidence.
+The four primary engineering outcomes are **velocity, quality, trust/autonomy, and cost/scale**. Risk, cognitive load, explainability, traceability, consistency, maintainability and reproducibility are useful diagnostics supporting those outcomes. See [Engineering outcomes and graduated autonomy](docs/engineering-outcomes.md).
 
-The four primary engineering outcomes are **velocity, quality, trust/autonomy, and cost/scale**. Other dimensions—risk, cognitive load, explainability, traceability, consistency, maintainability and reproducibility—are useful diagnostics supporting those outcomes. See [Engineering outcomes and graduated autonomy](docs/engineering-outcomes.md).
+EOKS is not simply a prompt framework, vector database, memory store, agent framework, workflow engine, observability dashboard, model router or code-search tool. These may be components or providers within an EOKS environment; none alone defines the system.
 
-A recent refinement is important: **knowledge is not a graph, and context engineering is not the knowledge layer**. EOKS should maintain multiple representations of engineering reality and compile task-specific context from them.
+Several distinctions shape the architecture:
 
-A second refinement is equally important: **observability is not confidence, and confidence is not control**. Tracing and monitoring systems provide execution evidence; EOKS can combine that evidence with model-level uncertainty, deterministic checks and outcomes to estimate workload-specific reliability and decide what to do next.
+- **Knowledge is not context.** Knowledge is governed, reusable meaning; context is the task-specific information materialized for a reasoning step. A larger context window does not guarantee better understanding.
+- **The working set is not model context.** A workload's working set is the useful subset of eligible resources and evidence. Context compilation selects, transforms, orders and budgets a representation of that working set for a particular step.
+- **Memory is not one flat store.** Knowledge, experience, reusable procedures, documentation and structural representations have different meanings, authority and update lifecycles, even when they share governance mechanisms.
+- **Observability is not confidence, and confidence is not control.** Traces and metrics provide evidence. Reliability estimates must be calibrated against outcomes, and consequential actions remain governed by policy and assurance.
+- **Execution is a capability, not the whole environment.** A local agent session, workflow runtime, remote worker, sandbox or fleet can realize work. EOKS coordinates the surrounding resources, constraints, evidence and lifecycle without requiring one execution substrate.
+- **Learning is governed, not silent mutation.** Run experience can suggest improvements, but promotion into reusable knowledge, procedures or policy should preserve provenance and be validated.
 
-A third refinement is that **memory is not one flat store**. Agent systems increasingly separate experience-derived memory, reusable procedures, documentation/knowledge and structural code representations. EOKS should preserve those semantic distinctions while giving them a common lifecycle boundary for provenance, scope, freshness, access, versioning and evaluation.
+The architecture combines two complementary lenses: operating systems/computer architecture for resource hierarchy, locality, caching, capacity and isolation; and Kubernetes-style reconciliation for desired state, observed evidence, lifecycle and feedback. These are reference architectures, not implementation prescriptions.
 
-The current architectural hypothesis is deliberately compositional: OKF can provide durable structured knowledge; Graphify-like systems can provide structural evidence; **CodeSight-like systems can provide deterministic repository context and targeted evidence views**; GrapeRoot-like systems can provide proactive context optimization around existing coding agents; TencentDB Agent Memory demonstrates multi-resolution memory, Skills, Wiki and CodeGraph as governed reusable resources; specialized analyzers and tests can provide deterministic evidence; and EOKS can coordinate these resources through task, context, run, decision, policy, evaluation and outcome primitives. The canonical vocabulary for how these resources relate is in [Resource model](docs/resource-model.md).
+## A compact model of the environment
 
-The latest synthesis sharpens this further: **knowledge, experience, context and evaluation are different roles in the control loop**. Knowledge is governed/reusable meaning; experience records what happened; context is the task-specific projection selected for a run; evaluation determines whether the resulting loop worked. Knowledge graphs, memory graphs and context graphs are therefore optional representations/roles rather than mandatory EOKS subsystems. See [Knowledge, memory and context graphs — synthesis note](research/prior-art/knowledge-memory-context-graph.md).
+EOKS organizes the problem across six dimensions:
+
+| Dimension | Question |
+|---|---|
+| **INTENT** | What outcome is wanted, and what constraints apply? |
+| **WORKFLOW** | How is work organized, sequenced and resumed? |
+| **CAPABILITIES** | Which tools, models and execution capabilities are available? |
+| **KNOWLEDGE** | What durable information and evidence can be reused? |
+| **STATE** | What persists across steps and executions? |
+| **POLICY** | What is allowed, required, gated or subject to escalation? |
+
+These are conceptual dimensions, not six required services. A workload draws on resources and capabilities through a control loop:
 
 ```text
-                         EOKS CONTROL PLANE
-              scheduling · policies · resource selection
-                                  |
-        +-------------------------+-------------------------+
-        |                         |                         |
-       RESOURCES             CONTEXT PLANE            EXECUTION PLANE
-  memory · skills · docs    selection · assembly      workflows · agents
-  graphs · decisions        ranking · compression     reasoning strategies
-  evidence                  progressive disclosure    tools · artifacts
-        |                         |                         |
-        +-------------------------+-------------------------+
-                                  |
-                         EVALUATION / FEEDBACK
-                evidence · quality · reliability · outcomes
-                                  |
-                           OBSERVABILITY
-          traces · cost · latency · provenance · uncertainty
+ intent + policy + current state
+              |
+       reconcile / decide
+              |
+ select eligible resources and capabilities
+              |
+     acquire + compile context
+              |
+       execute a bounded run
+              |
+       observe + evaluate
+              |
+ update state / verify outcome / escalate
+              |
+    govern candidate learning for future runs
+              +---------------------------> reconcile again
 ```
+
+A useful environment-level vocabulary is **tiles**: bounded capabilities such as execution, context, knowledge/memory, policy, evaluation, observability, learning, representation and human interaction. Tiles help describe how an environment is composed; they are not new runtime primitives. A tile may be implemented by several resources, and one resource may support several tiles.
+
+The core loop remains deliberately small: **Task → Context → Run → Decision → Evaluation → Outcome**, with Memory and Policy updated only through their appropriate lifecycles. The environment provides the resources, mechanisms and evidence around that loop.
+
+## Architectural principles
+
+1. **Treat context as a managed resource.** Select and compile information for the reasoning step; do not equate storage, working set and model context.
+2. **Prefer transformation before accumulation.** First use existing harness boundaries—hooks, skills, tools and scripts—to select, summarize or route authoritative evidence. Add persistent representations when they preserve valuable information or make recurring work materially cheaper or more reliable.
+3. **Keep representations plural and traceable.** Graphs, indexes, documents, diagrams, tests and runtime observations serve different queries. Derived representations should retain provenance, freshness and links to authoritative sources; no single graph or memory substrate is mandatory.
+4. **Separate deterministic evidence from semantic judgment.** Prefer the cheapest reliable analyzer that answers the question. Use probabilistic judgment for bounded questions when it adds value, and calibrate it before it drives consequential transitions.
+5. **Make execution replaceable and state explicit.** Separate logical work and durable execution state from the process, workspace, sandbox, VM or remote resource currently realizing it.
+6. **Evaluate the whole outcome.** Token reduction, cache hit rate, model confidence and agent self-reported success are not sufficient objectives. Measure verified task quality, rework, latency, cost and failure modes.
+7. **Learn through controlled promotion.** Extract candidate improvements from traces and outcomes; validate, scope and version them before changing reusable behavior or canonical knowledge.
+8. **Graduate autonomy according to assurance.** Use tests, independent review, deterministic analysis, policy gates and human escalation according to risk and ambiguity.
+9. **Recompute only what has become invalid.** Treat freshness, dependencies, cache identity and invalidation as first-class concerns for derived context and reusable computation.
+10. **Keep the semantic model small.** Adopt a new primitive only when observed workloads demonstrate a real gap that cannot be expressed cleanly with existing concepts.
+11. **Keep the system model- and provider-agnostic.** Integrate existing agents, harnesses, execution backends, analyzers and knowledge providers before replacing them.
+12. **Make experiments reproducible and falsifiable.** Compare interventions against baselines and measure end-to-end outcomes, not attractive proxy metrics alone.
 
 ## Documentation
 
-The repository separates **current architecture** from **exploratory research**. See [`docs/README.md`](docs/README.md) for the document map and ownership rules.
+The repository separates **current architecture and decisions** from **exploratory research**. See [the documentation map](docs/README.md) for canonical document ownership and terminology.
 
 ### Architecture and design
 
 - [Vision](docs/vision.md)
 - [Architecture](docs/architecture.md)
-- [Domain model and architecture diagrams](docs/domain-model.md) — canonical relationship diagrams and zoom-ins for the EOKS primitives.
-- [Engineering outcomes and graduated autonomy](docs/engineering-outcomes.md) — measurable outcomes, assurance, autonomy levels and experiment metrics.
-- [Resource model](docs/resource-model.md) — canonical vocabulary for reusable resources, Asset, Provider, Representation, Loadout and Context.
-- [Context engineering](docs/context.md)
+- [Domain model and architecture diagrams](docs/domain-model.md) — canonical system map, dimensions, domain model and control-loop views.
+- [Engineering outcomes and graduated autonomy](docs/engineering-outcomes.md) — outcomes, assurance, autonomy levels and experiment metrics.
+- [Resource model](docs/resource-model.md) — resources, Asset, Provider, Representation, Loadout and Context.
+- [Context engineering](docs/context.md) — working set, context acquisition/compilation, harness-mediated transformation and derived computation.
 - [Context Workbench architecture](docs/context-workbench.md)
 - [Knowledge base](docs/knowledge-base.md)
 - [Knowledge as a multi-representation system](docs/knowledge-representations.md)
+- [Working representations](docs/working-representations.md)
 - [Agent workflows, orchestration and reasoning strategies](docs/agent-workflows.md)
 - [Memory](docs/memory.md) — semantic, episodic, project and procedural memory plus controlled behavioral learning.
 - [Control plane](docs/control-plane.md)
-- [Probabilistic decision primitives / Jev](research/prior-art/probabilistic-decision-primitives-jev-2026.md) — Jev, System One and probabilistic decisions embedded in deterministic control loops.
 - [Evaluation](docs/evaluation.md)
 - [Software engineering](docs/software-engineering.md)
 - [Software analysis, dataflow and invariants](docs/software-analysis.md)
 
 ### Governance and research management
 
-- [Research and synthesis methodology](docs/methodology.md) — how EOKS combines formal research, community/practitioner evidence, existing systems and experiments into testable engineering knowledge.
+- [Research and synthesis methodology](docs/methodology.md) — how formal research, community evidence, existing systems and experiments become testable engineering knowledge.
 - [Architectural decisions](docs/decisions.md)
 - [Research agenda](docs/research-agenda.md)
 - [Open questions](docs/open-questions.md)
@@ -79,59 +115,46 @@ The repository separates **current architecture** from **exploratory research**.
 
 ## Research
 
-The [`research/`](research/) directory preserves exploratory reasoning, comparisons and experiments. It is intentionally less normative than `docs/`; research notes may contain competing hypotheses. See [`research/README.md`](research/) for its map.
+The [research corpus](research/) preserves exploratory reasoning, comparisons, evidence and experiments. It is intentionally less normative than `docs/`; a research note does not automatically constitute an architectural decision. See the [research index](research/README.md) for the full map.
 
+Selected syntheses and prior art:
+
+- [AI development environment](research/ai-development-environment.md) — the environment/control-layer framing, tiles and boundaries between harness, SDLC and execution.
+- [Agentic development environments](research/prior-art/agentic-development-environments-2026.md) — current ADE implementations and the distinction between Work, Run, Workspace, Agent, provider session and Outcome.
+- [Google's agentic engineering SDLC](research/prior-art/google-agentic-engineering-sdlc-2026.md) — context, skills, harness evaluation, proactivity and execution state.
 - [Knowledge, context and the EOKS control plane](research/knowledge-context-control-plane.md)
-- [Durable engineering context](research/durable-engineering-context.md) — durable artifacts, lifecycle, selection, freshness/context rot, learning, and visual/multi-representation context such as diagrams and Excalidraw.
-- [Knowledge, memory and context graphs — synthesis note](research/prior-art/knowledge-memory-context-graph.md) — maps knowledge, experience, context compilation, decision provenance and evaluation without introducing graph-specific runtime primitives.
-- [CodeSight](research/prior-art/codesight.md) — deterministic repository context and targeted evidence views.
-- [TencentDB Agent Memory](research/prior-art/tencent-agent-memory.md) — multi-resolution memory, Skills, Wiki, CodeGraph, governance/loadouts and hybrid context delivery.
-- [OpenWiki](research/prior-art/openwiki.md) — versioned generated repository knowledge, lightweight discovery and freshness/review lifecycle.
-- [Code graph and repository-context tooling](research/prior-art/code-graph-landscape.md) — CodeGraph, GitNexus, Graphify and their relationship to CodeSight, OKF, OpenWiki, analyzers and EOKS context compilation.
-- [Enforceable architecture, ADRs, fitness functions and SDD](research/prior-art/enforceable-architecture.md) — research on connecting architectural intent and specifications to executable conformance, policy-as-code and calibrated agentic judgment.
-- [Agent code understanding and architecture tooling](research/agent-code-understanding-and-architecture.md)
-- [Context engineering](research/context-engineering.md)
-- [Context quality model](research/context-quality-model.md)
-- [Context workbench](research/context-workbench.md)
-- [Evaluation and model switching](research/evaluation-and-model-switching.md)
-- [LLM observability and reliability signals](research/llm-observability-and-reliability.md)
-- [Control loop](research/control-loop.md)
-- [Learning from development sessions](research/session-learning.md)
-- [Agent memory and continuous-learning prior art](research/prior-art/agent-memory.md)
-- [Claude Code learning stack](research/claude-learning-okf-hindsight.md)
-- [Hindsight and OKF](research/prior-art/hindsight-and-okf.md)
-- [Xirp / Spotify](research/prior-art/xirp.md)
-- [Tool notes](research/tool-notes.md)
+- [Knowledge, memory and context graphs](research/prior-art/knowledge-memory-context-graph.md) — semantic boundaries and decision provenance without graph-specific runtime primitives.
+- [Durable engineering context](research/durable-engineering-context.md) — lifecycle, freshness, context rot, learning and visual/multi-representation context.
+- [Context acquisition comparison](research/context-acquisition-comparison.md) — raw exploration, retrieval, graphs, delegated exploration and persistent structure.
+- [Context evaluation](research/context-evaluation.md) — controlled methodology for evaluating context interventions and durable knowledge.
+- [Community evidence and bottlenecks](research/community-evidence-bottlenecks.md) — academic evidence, practitioner signals, conflicting results and prioritized experiments.
+- [Validated and reusable computation](research/validated-reusable-computation.md) — provenance, evaluation, dependency-aware reuse and incremental recomputation.
+- [Incremental context maintenance](research/prior-art/incremental-context-maintenance.md)
+- [LLM context caching](research/prior-art/llm-context-caching.md) — computational cache reuse versus semantic result reuse, identity, scope and validity.
+- [Enforceable architecture, ADRs, fitness functions and SDD](research/prior-art/enforceable-architecture.md)
+- [Probabilistic decision primitives / Jev](research/prior-art/probabilistic-decision-primitives-jev-2026.md) — bounded semantic decisions inside deterministic control loops.
+- [Spotify Portal / Shunt](docs/prior-art/spotify-portal-shunt.md) — harness-mediated context transformation before information reaches the frontier model.
+- [TencentDB Agent Memory](research/prior-art/tencent-agent-memory.md) — multi-resolution memory, Skills, Wiki, CodeGraph and governed context delivery.
+- [Code graph and repository-context tooling](research/prior-art/code-graph-landscape.md) — structural evidence providers and their relationship to context compilation.
 
-## Practical coding-agent direction
+## Practical direction
 
-The current practical hypothesis is intentionally conservative:
+The current implementation hypothesis is conservative and evidence-led:
 
-1. Use hierarchical `CLAUDE.md` files as human-reviewable, canonical package/project knowledge and policy where appropriate.
-2. Keep cross-cutting architectural rationale in a small number of Markdown/ADR documents.
-3. Derive structural information automatically with deterministic analysis and optional graphs; CodeSight is useful prior art for compiling repository structure into persistent, targeted, agent-readable evidence.
-4. Treat organizational/system context—such as ownership, service boundaries and architectural rationale—as another evidence source when the task requires it; do not assume repository-local context is sufficient.
-5. Maintain reusable memory, Skills and knowledge resources with explicit provenance, scope, freshness, ownership/access and lifecycle rather than treating them as one undifferentiated memory store.
-6. Use an agent/task loadout to constrain which resources are eligible for a workload before context relevance is optimized.
-7. Use context compilation to select only task-relevant evidence from the eligible resource/evidence set.
-8. Treat context as an inspectable, budgeted artifact; the proposed Context Workbench provides blocks, provenance, selection rationale, context diffs and a graph view without requiring manual curation for every task.
-9. Treat agent workflows, orchestration and reasoning strategies as execution-layer resources.
-10. Learn continuously through candidate extraction and controlled promotion rather than silently rewriting canonical knowledge.
-11. Update representations incrementally; do not rebuild the entire knowledge base after every change. Derived repository maps should carry source revision/freshness information.
-12. For software engineering, prefer the cheapest reliable deterministic evidence source that answers the question: types before custom analysis, lightweight rules before deep dataflow, and deeper analyzers only when the invariant requires it.
-13. Treat observability traces as sensors for the control loop. Combine operational metrics, model uncertainty, evidence agreement, deterministic checks and outcomes rather than trusting a single model confidence number.
-14. Calibrate reliability signals against actual task outcomes before allowing them to drive automatic stop/verify/branch/model-switch decisions.
-15. Prefer an integration/sidecar model around existing coding agents before building a new agent runtime; the GrapeRoot launcher architecture is useful prior art for this approach.
-16. Compare proactive, reactive and hybrid context delivery rather than assuming that pre-injection or tool-driven exploration is universally better.
-17. Keep the EOKS semantic model small until real run traces demonstrate that additional primitives are necessary.
-18. Start autonomous software-engineering workflows with a small topology—**conductor, executor and independent reviewer as logical roles**—rather than an agent swarm. Use native subagents or isolated sessions when they provide a concrete context/isolation benefit; add a dedicated conductor layer when persistent workflow state, lifecycle policy or cross-session coordination is actually needed.
-19. Treat validation as a first-class workflow stage. Tests, static analysis, deployment checks and observed behavior should provide evidence for completion; an agent's self-reported success is not sufficient.
-20. Move humans toward objectives, policy exceptions, risky/ambiguous decisions and accountability as workflow reliability improves.
-21. Connect consequential architectural intent to executable conformance where practical: ADRs explain why, specifications/contracts describe what, invariants/policies state what must remain true, and deterministic or calibrated fitness functions provide evidence. Keep agentic governance advisory until it is calibrated, and promote repeated findings into deterministic rules where justified.
-22. Treat **graduated autonomy** as an outcome of assurance: increase delegation only when workload-specific evidence supports it, and keep human escalation for risk or ambiguity that current assurance cannot bound.
-23. Treat execution environments as replaceable, stateful resources: separate logical Work/execution state from the process, container, VM or remote resource currently realizing it; model environment/loadout composition and substrate-level enforcement without making a particular sandbox technology part of the EOKS ontology.
+- **Start at existing harness boundaries.** Use hooks, skills, scripts and tools to acquire, filter, summarize and route information before introducing new stores or a replacement agent runtime.
+- **Keep canonical knowledge reviewable.** Use hierarchical `CLAUDE.md` files and a small number of Markdown/ADR documents where they fit; preserve ownership, scope, provenance, freshness and lifecycle for reusable knowledge and procedures.
+- **Compose evidence providers.** Prefer deterministic source, type, test and analysis evidence when sufficient; use structural graphs, repository maps, organizational context or deeper analyzers only when the workload benefits from them.
+- **Make context inspectable.** Track what was selected, why it was selected, its source and freshness, and how context changes across reasoning steps. Compare reactive retrieval, proactive delivery and hybrid approaches.
+- **Keep execution topology small.** Start with logical conductor, executor and independent reviewer roles where useful. Use native subagents or isolated sessions when they offer a concrete benefit; add persistent orchestration only when lifecycle, policy or cross-session coordination requires it.
+- **Make verification part of the workflow.** Tests, static analysis, independent review and observed behavior provide completion evidence. An agent's own claim is not enough.
+- **Treat learning as a governed pipeline.** Extract candidate improvements from traces and outcomes, then validate and promote them explicitly rather than silently rewriting canonical knowledge.
+- **Measure real outcomes.** Compare interventions using verified quality, rework, velocity, cost, latency and failure modes. Calibrate reliability signals before they control stopping, branching, retries or model selection.
+- **Keep derived artifacts fresh efficiently.** Track source revisions and dependencies, reuse valid computations and invalidate or recompute affected results instead of rebuilding everything after each change.
+- **Separate work from its substrate.** Keep logical Work and execution state distinct from the process, workspace, toolkit, container, VM or remote backend that realizes it; enforce isolation and resource constraints at the appropriate layer.
+- **Promote autonomy only with assurance.** Use policy gates and human escalation for consequential, risky or ambiguous actions that current evidence cannot bound.
+- **Keep the ontology small.** The environment can be broad and composable without turning every provider, representation, tile or technique into an EOKS primitive.
 
-This gives EOKS a path from a simple Git repository to richer knowledge infrastructure without requiring a graph database or a new canonical format on day one.
+This gives EOKS a path from a repository-level workflow to a richer AI development environment without requiring a graph database, a new canonical format or a new agent runtime on day one.
 
 ## Status
 
