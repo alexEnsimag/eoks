@@ -2,7 +2,7 @@
 
 **Reviewed:** 2026-10-24  
 **Repository:** [openchoreo/openchoreo](https://github.com/openchoreo/openchoreo)  
-**Primary docs:** [Architecture](https://openchoreo.dev/docs/overview/architecture/), [Working with AI](https://openchoreo.dev/docs/ai/overview/), [MCP servers](https://openchoreo.dev/docs/reference/mcp-servers/), [v1.3 release](https://openchoreo.dev/blog/openchoreo-v1-3-release/)
+**Primary docs:** [Architecture](https://openchoreo.dev/docs/overview/architecture/), [Working with AI](https://openchoreo.dev/docs/ai/overview/), [MCP servers](https://openchoreo.dev/docs/reference/mcp-servers/), [v1.3 release](https://openchoreo.dev/blog/openchoreo-v1.3-release/)
 
 ## Why this matters to EOKS
 
@@ -72,7 +72,7 @@ OpenChoreo exposes consistent APIs/MCPs under platform authorization. Its docume
 
 **Caveat:** the current audit-log documentation marks the feature beta and states that not every read or unauthenticated request is audited. Do not assume complete action/trajectory provenance from audit logs alone.
 
-Sources: [ABAC in v1.1](https://openchoreo.dev/blog/openchoreo-v1-1-release/), [Audit logging](https://openchoreo.dev/docs/platform-engineer-guide/audit-logging/), [v1.3 release](https://openchoreo.dev/blog/openchoreo-v1-3-release/).
+Sources: [ABAC in v1.1](https://openchoreo.dev/blog/openchoreo-v1-1-release/), [Audit logging](https://openchoreo.dev/docs/platform-engineer-guide/audit-logging/), [v1.3 release](https://openchoreo.dev/blog/openchoreo-v1.3-release/).
 
 ### 6. Operational feedback includes cost and delivery outcomes
 
@@ -82,7 +82,7 @@ The v1.3 release adds cost insights (OpenCost/Prometheus-backed) and DORA delive
 
 **Experiment idea:** correlate agent-assisted changes with verified outcomes, rework, deployment lead time, failure rate, recovery time, and infrastructure cost. Avoid attributing changes causally to agents without a suitable baseline.
 
-Source: [OpenChoreo v1.3 release](https://openchoreo.dev/blog/openchoreo-v1-3-release/).
+Source: [OpenChoreo v1.3 release](https://openchoreo.dev/blog/openchoreo-v1.3-release/).
 
 ### 7. Execution topology, isolation, and lifecycle are platform concerns
 
@@ -92,7 +92,7 @@ Separate planes have their own deployment/scaling/security boundaries. Workflow 
 
 **What not to infer:** a multi-plane Kubernetes platform is not itself a durable agent execution substrate. Durable suspend/resume, checkpointing, replay safety, and portable execution state need to be verified in the specific execution backend.
 
-Sources: [Architecture](https://openchoreo.dev/docs/overview/architecture/), [v1.1 release](https://openchoreo.dev/blog/openchoreo-v1-1-release/), [v1.3 release](https://openchoreo.dev/blog/openchoreo-v1-3-release/).
+Sources: [Architecture](https://openchoreo.dev/docs/overview/architecture/), [v1.1 release](https://openchoreo.dev/blog/openchoreo-v1-1-release/), [v1.3 release](https://openchoreo.dev/blog/openchoreo-v1.3-release/).
 
 ## EOKS mapping summary
 
@@ -137,7 +137,7 @@ These are candidate experiments, not current architecture changes. Use EOKS's ex
 - [AI overview](https://openchoreo.dev/docs/ai/overview/)
 - [MCP servers](https://openchoreo.dev/docs/reference/mcp-servers/)
 - [v1.1 release: ABAC, skills, FinOps, agent sandbox](https://openchoreo.dev/blog/openchoreo-v1-1-release/)
-- [v1.3 release: cost insights, DORA, audit/platform logs, local dependency tunnel](https://openchoreo.dev/blog/openchoreo-v1-3-release/)
+- [v1.3 release: cost insights, DORA, audit/platform logs, local dependency tunnel](https://openchoreo.dev/blog/openchoreo-v1.3-release/)
 - [Audit logging](https://openchoreo.dev/docs/platform-engineer-guide/audit-logging/)
 - [Crossplane resource provisioning](https://openchoreo.dev/blog/provisioning-resources-with-crossplane/)
 - [FinOps Agent](https://openchoreo.dev/docs/ai/finops-agent/)
