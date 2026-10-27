@@ -27,7 +27,9 @@ For the canonical capability/selection model, see [Tool capability model](../doc
 | **AutoGen** | conversational multi-agent execution | Execution tile / orchestration prior art |
 | **`CLAUDE.md` management** | human-reviewed project policy/knowledge | canonical local knowledge |
 | **memsearch / LangMem / Mem0 / Zep** | persistent semantic/episodic/procedural memory patterns | memory |
-| **Xirp / Spotify** | shared system/organizational context and session continuity | context + execution boundary |
+| **Xirp / Spotify** | vendor-neutral multi-session agent environment; cross-harness continuity, worktrees, shared workspace and organizational context | context + execution boundary |
+| **Spotify Honk / Fleetshift / Chirp** | background coding agent + fleet-scale targeting/scheduling/progress + emerging shared-agent collaboration; public status differs by component | execution / fleet control / orchestration prior art |
+| **Spotify Confidence** | product experimentation and evidence-backed product decisions | product outcome feedback; distinct from agent trace/evaluation tooling |
 | **LangSmith / Langfuse-style systems** | traces, experiments, evaluation and observability | observability/evaluation infrastructure |
 | **Langroid** | multi-agent execution | execution/orchestration |
 | **Plano** | operational routing/governance infrastructure | runtime operations |
