@@ -329,6 +329,23 @@ The motivating source→barrier→sink case belongs to the last three layers, bu
 
 See [Software analysis, dataflow and invariants](software-analysis.md).
 
+## OpenChoreo
+
+[OpenChoreo](https://github.com/openchoreo/openchoreo) is useful prior art beyond developer portals: it combines declarative platform APIs, continuous reconciliation, multi-plane execution, domain-enriched observability, MCP/context acquisition, built-in SRE/FinOps agents, policy enforcement, and audit trails. It demonstrates how a single semantic platform model can serve humans, CLI/GitOps, APIs and agents while keeping the actual runtime and evidence paths modular.
+
+For EOKS, the strongest mappings are:
+- **Control loop:** separate developer intent, platform realization, observed runtime state, and corrective action.
+- **Context/evidence:** discover resources through the control API, then query scoped logs, metrics, traces, alerts, audit records, and cost data using domain identifiers.
+- **Authority and assurance:** distinguish read-only diagnosis, structured action proposals, authorization, execution, and verification; a prompt is not an enforcement boundary.
+- **Provider-agnostic composition:** ComponentTypes, Traits, Workflows, ResourceTypes and modules show how stable abstractions can hide replaceable implementations.
+- **Outcome feedback:** cost and DORA metrics add downstream operational signals, though they are not direct measures of agent correctness.
+
+OpenChoreo's Portal Assistant has concrete tool filtering, prompt/context construction, existing-evidence reuse, and middleware guards; its SRE and FinOps agents produce structured operational reports and recommendations. These are implementation patterns, not evidence of a general-purpose EOKS context compiler or complete assurance protocol. Audit logging is documented as beta and does not cover every read, so its records alone are not a complete trajectory ledger.
+
+**EOKS implication:** strengthen the existing resource, context, control-loop, policy, execution, evidence, evaluation and assurance models; do not add a new dimension or runtime primitive. Candidate experiments include domain-enriched evidence bundles, task-specific tool/skill selection, read/act separation with independent verification, audit completeness, and correlations between agent-supported changes and verified operational outcomes.
+
+See the [detailed OpenChoreo review](../research/prior-art/openchoreo.md) for code paths, limitations, source register and experiment designs.
+
 ## Evidence-provider abstraction
 
 The tooling landscape suggests a useful EOKS abstraction: an **evidence provider** answers a bounded question and returns evidence with provenance, scope/revision, validation/confidence and cost/latency characteristics.
