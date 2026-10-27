@@ -32,6 +32,12 @@ This is a lightweight decision record. Detailed ADRs can be split out as impleme
 
 **Reason:** The EOKS research question is coordination and feedback, not whether EOKS can reproduce an agent's internal reasoning loop. GrapeRoot is useful prior art for this sidecar/integration pattern.
 
+## Coordinate across neighboring systems without absorbing them
+
+**Decision:** Treat AI-SDLC, ADEs, agent harnesses, workflow runtimes and sandbox/execution providers as overlapping collaborators that EOKS can coordinate, not as mutually exclusive categories or subsystems EOKS must reimplement.
+
+**Reason:** These systems address related problems from different perspectives: lifecycle, developer work surface, execution mechanics and runtime isolation. Products can span several perspectives. EOKS's differentiator should be the explicit coordination of logical work, resources, policy, state and evidence across those boundaries.
+
 ## Evaluation belongs in the architecture
 
 **Decision:** Treat evaluation and feedback as a runtime subsystem.
@@ -43,6 +49,12 @@ This is a lightweight decision record. Detailed ADRs can be split out as impleme
 **Decision:** Keep observability, model uncertainty, evidence strength, context quality and outcome quality as distinguishable signals. Calibrate any derived reliability signal against actual workload outcomes before using it for automatic control.
 
 **Reason:** Traces and self-reported confidence are useful evidence, but neither is ground truth. A control policy needs workload- and decision-specific evidence.
+
+## Policy intent is not proof of enforcement
+
+**Decision:** Distinguish policy that is requested, authorized, applied by an execution provider, and supported by observed or independently verified evidence.
+
+**Reason:** Configuration and provider claims do not automatically establish that a constraint held across all relevant action paths. EOKS must preserve enforcement gaps as unknown rather than implying a guarantee it cannot verify.
 
 ## Minimal semantic model first
 
