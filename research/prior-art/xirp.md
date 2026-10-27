@@ -320,6 +320,33 @@ Xirp suggests several concrete EOKS experiments:
 
 These experiments directly extend EOKS's existing context-quality, memory-lifecycle and control-plane research.
 
+## Spotify's broader agentic engineering system
+
+Xirp is only one part of Spotify's increasingly connected developer-tooling portfolio. Spotify's 2026 public material describes a broader system spanning organizational context, agentic development, fleet-wide code changes and product experimentation. This is useful prior art for EOKS, but the components solve different problems and should not be collapsed into one category.
+
+| System | What public material says it does | EOKS-relevant boundary |
+|---|---|---|
+| **Portal** | Software catalog and organizational context: services, ownership, dependencies, standards and engineering knowledge; also the product surface for fleet-scale changes | Context source and developer-platform surface, not the EOKS semantic controller |
+| **Xirp** | Vendor-neutral agentic development environment for parallel sessions across harnesses, isolated worktrees, context continuity and shared workspaces | Session/environment coordination and context continuity; not a fleet-wide controller |
+| **Honk** | Background coding agent, deployed in Kubernetes, that performs changes and can run builds/tests through trusted tools | Agent execution mechanism; its output still needs verification and outcome tracking |
+| **Fleetshift** | Orchestrates changes across selected repositories/components: target selection, scheduling, PR creation and progress tracking; can use deterministic transformations or Honk for complex migrations | Fleet-level work targeting and progress control, built on existing Portal/Fleet Management infrastructure |
+| **Chirp** | Spotify's June 2026 engineering post describes Honk v2 as adding shared agent sessions, team projects and agent orchestration through Chirp | Emerging multi-person/agent coordination; treat as described direction, not a separately verified standalone product |
+| **Confidence** | Experimentation platform used to measure product changes and inform what to build next | Product-level outcome evidence and prioritization; not equivalent to agent-run tracing or coding-task evaluation |
+
+Sources: [Spotify's Xirp announcement (Aug 2026)](https://portal.spotify.com/blog/introducing-xirp), [Spotify Engineering on Honk, Fleetshift and Chirp (June 2026)](https://engineering.atspotify.com/2026/6/code-with-claude-coding-is-no-longer-the-constraint), [Spotify Technology launch (Oct 2026)](https://technology.spotify.com/blog/introducing-spotify-technology), and [Fleetshift product page](https://backstage.spotify.com/fleetshift).
+
+### Why this matters to EOKS
+
+The notable pattern is the combination of **organizational context → agent session/execution → fleet-wide change management → verification/progress → product experimentation feedback**. No single component is the whole loop, and Confidence's product experimentation should not be mistaken for evaluation of individual coding-agent trajectories.
+
+This suggests three distinct comparison points:
+
+1. **Xirp vs EOKS environment/context boundary:** session continuity and cross-harness work are now explicit, including parallel sessions and worktrees.
+2. **Honk + Fleetshift vs EOKS Work/fleet control:** Fleetshift owns targeting and progress tracking while Honk performs repository-specific changes; verification and review remain important parts of the path.
+3. **Confidence vs EOKS evaluation:** Confidence informs product decisions using experiments. EOKS's agent evaluation asks whether a particular execution achieved its intended outcome safely and reliably. The two can eventually inform one another, but they measure different things.
+
+For tool-landscape purposes, record Honk/Fleetshift/Chirp as **Spotify-described systems** and distinguish what is publicly offered: Fleetshift is presented as a Portal plugin, while Chirp is described as part of the Honk v2 direction rather than a standalone product with independently documented availability.
+
 ## Bottom line
 
 Xirp strengthens an EOKS hypothesis that was already emerging from several other tools:

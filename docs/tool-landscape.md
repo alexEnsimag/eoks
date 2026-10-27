@@ -14,7 +14,9 @@ The old map forced each tool into one EOKS layer. That is misleading. Examples:
 
 - **GrapeRoot** = repository graph + proactive context compilation + runtime/agent integration.
 - **Understand Anything** = deterministic parsing + LLM semantic analysis + knowledge graph + impact exploration.
-- **Xirp / Spotify** = system/organizational context + session continuity + context assembly + execution integration.
+- **Xirp / Spotify** = system/organizational context + cross-harness session continuity + parallel agent work; it complements rather than replaces fleet-wide execution control.
+- **Honk / Fleetshift / Chirp** = background coding + fleet-scale change orchestration + emerging shared-agent collaboration.
+- **Confidence** = product experimentation and decision feedback, not agent-run evaluation infrastructure.
 - **Hindsight** = persistent memory + retrieval + reflection + evolving beliefs.
 - **Opik** = tracing + observability + evaluation + experiments + optimization.
 - **TencentDB Agent Memory** = memory + Skills + Wiki + CodeGraph + governance/loadouts.
@@ -105,8 +107,10 @@ The analogy is useful for orientation; the capability matrix and source notes re
 | **Understand Anything** | code/domain knowledge graph | parsing, LLM semantic analysis, tours, impact/change analysis | ★★☆☆☆ | ★★★☆☆ | ★★★☆☆ | ★★★★★ | ★★★★☆ |
 | **Codebase Memory MCP** | persistent repository graph/context | MCP queries, structural repository memory | ★★☆☆☆ | ★★★☆☆ | ★★☆☆☆ | ★★★★☆ | ★★★★☆ |
 | **CodeSight** | repository understanding/context | structured codebase context/navigation | ★★☆☆☆ | ★★★☆☆ | ★★☆☆☆ | ★★★★☆ | ★★★☆☆ |
-| **Spotify Portal / Shunt** | harness-level context/I/O transformation | caching, transformation, deduplication, tool mediation | ★★★★☆ | ★★★★☆ | ★★★★★ | ★★★★★ | ★★★★★ |
-| **Xirp / Spotify** | system/organizational context | ownership, dependencies, docs, architecture decisions, session continuity | ★★★☆☆ | ★★★☆☆ | ★★★★☆ | ★★★★★ | ★★★★☆ |
+| **Spotify Portal / Shunt** | organizational context + harness-level context/I/O transformation | software catalog, context delivery, caching/transformation, tool mediation and I/O optimization | ★★★★☆ | ★★★★☆ | ★★★★★ | ★★★★★ | ★★★★★ |
+| **Xirp / Spotify** | vendor-neutral agentic development environment | parallel sessions across harnesses, isolated worktrees, context/session handoff, organizational context, shared workspace | ★★★☆☆ | ★★★☆☆ | ★★★★☆ | ★★★★★ | ★★★★★ |
+| **Spotify Honk / Fleetshift / Chirp** | background coding and fleet-scale change orchestration | Kubernetes-hosted concurrent agent sessions, target selection, scheduling, PR/progress tracking, CI verification; Chirp is described as an emerging collaboration/orchestration layer | ★★★☆☆ | ★★★★☆ | ★★★★★ | ★★★★★ | ★★★★★ |
+| **Spotify Confidence** | product experimentation and decision feedback | experiment design/analysis, evidence for product decisions and what to build next | ★★★★☆ | ★★★★★ | ★★★★★ | ★★★☆☆ | ★★☆☆☆ |
 | **OKF** | portable durable knowledge representation | Markdown/YAML structure, provenance/lifecycle concepts | ★☆☆☆☆ | ★★☆☆☆ | ★★☆☆☆ | ★★★★★ | ★★★★☆ |
 | **CLAUDE.md / project instructions** | canonical local policy/knowledge | scope hierarchy, human review, Git-native lifecycle | ★★★★★ | ★★★★★ | ★★★★★ | ★★★★★ | ★★★★★ |
 | **TencentDB Agent Memory** | reusable resource/memory system | multi-resolution memory, Skills, Wiki, CodeGraph, loadouts/governance | ★★★☆☆ | ★★★☆☆ | ★★★★☆ | ★★★★☆ | ★★★★☆ |
@@ -195,13 +199,14 @@ The first useful experiment is a small provider-contract test suite: attempt for
 | **Semantic/dataflow evidence** | CodeQL, Semgrep | Understand Anything |
 | **Local deterministic invariants** | TypeScript, ESLint, ts-morph | Semgrep |
 | **Architecture evidence/assurance** | TrueCourse, modularity | Superpowers |
-| **Agent execution** | Claude Code, OpenHands, Aider | Cody, CodeRabbit |
+| **Agent execution** | Claude Code, OpenHands, Aider | Cody, CodeRabbit, Spotify Honk |
+| **Fleet-scale engineering changes** | Spotify Fleetshift + Honk | deterministic fleet transforms, CI-verified agentic migrations |
 | **Execution isolation / sandboxing** | OpenShell, Strands Box, MXC, ACE | OpenSandbox, OpenAI sandbox environments, Docker Sandboxes |
 | **Durable execution substrate** | Google AX, ACE | OpenAI sessions, provider-specific sandbox lifecycle |
 | **Orchestration** | Conductor-style systems, Langroid | OpenHands workflows |
 | **Observability** | Opik, LangSmith/Langfuse | agent-native traces |
 | **Evaluation** | Opik, Promptfoo, benchmark suites | LangSmith/Langfuse, OpenAI Evals |
-| **Outcome feedback/optimization** | Opik, agentic eval systems | benchmark harnesses |
+| **Outcome feedback/optimization** | Opik, agentic eval systems | benchmark harnesses; Spotify Confidence covers product experimentation, a different outcome domain |
 | **Reasoning strategies** | ADHD-style strategies | Superpowers, reviewer workflows |
 
 This many-to-many view is the intended replacement for the old one-tool/one-layer categorization.
@@ -348,6 +353,10 @@ Representative relationships:
 
 ```text
 GrapeRoot ──compiles──> Graphify-like structural evidence
+Xirp ──complements──> Portal organizational context + session continuity
+Honk ──executes──> Fleetshift-targeted code changes; CI/build checks feed verification back
+Chirp ──coordinates──> shared agent sessions / team projects (public product status unclear)
+Confidence ──feeds back──> product experiment evidence and prioritization, not per-run agent correctness
 GrapeRoot ──alternative──> native agent retrieval
 Portal/Shunt ──complements──> GrapeRoot
 Graphify ──complements──> Semgrep/CodeQL
