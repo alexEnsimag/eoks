@@ -16,6 +16,16 @@ The diagrams deliberately use different zoom levels. They are not competing arch
 
 EOKS is not the ADE/IDE, agent runtime, model provider or sandbox. Those are replaceable surfaces/resources that EOKS can coordinate.
 
+Read this map alongside the neighboring concepts:
+
+- **AI-SDLC** describes the lifecycle and operating model through which engineering work progresses.
+- **ADE** describes the developer-facing environment for creating, managing and inspecting work.
+- **Harnesses, agents and workflow runtimes** perform or orchestrate execution.
+- **Sandboxes and execution backends** provide concrete runtime boundaries and may enforce filesystem, network, credential and resource constraints.
+- **EOKS** coordinates logical work across these systems, connecting intent and policy to resource selection, execution, evidence, evaluation and reconciliation.
+
+These are overlapping responsibilities, not exclusive product categories. A product may span several. The canonical durable work identity in the current runtime model is **Task**; “Work” is useful as an informal umbrella for the engineering effort, not an additional primitive.
+
 ```mermaid
 flowchart TB
     H["Human / developer"]
@@ -58,6 +68,8 @@ flowchart TB
 ```
 
 **Boundary:** EOKS coordinates these things; it does not need to own their implementation.
+
+The boundary also separates **coordination from enforcement**. EOKS may select or request a policy, but the execution provider is responsible for applying the relevant runtime restrictions. A policy request, an authorization decision, a provider's report that policy was applied, and independent evidence that it held are different claims. Where enforcement evidence is unavailable or incomplete, the guarantee must remain unknown rather than being inferred from configuration alone.
 
 ## 2. Six dimensions mapped to the runtime model
 
