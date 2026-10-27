@@ -13,6 +13,22 @@ These are **reference architectures, not implementation prescriptions**. The OS 
 
 For the canonical visual model, see **[EOKS domain model and architecture diagrams](domain-model.md)**. It contains the system map, six-dimensional mapping, UML domain model, Run/context/resource zoom-ins, control loop, and learning/evidence views.
 
+## Relationship to neighboring systems
+
+Several ecosystem categories address overlapping parts of the same engineering problem, but they describe different **perspectives**, not mutually exclusive architectural layers:
+
+| Perspective | Main question | Typical responsibility |
+|---|---|---|
+| **AI-SDLC / AI-DLC** | How does engineering work move from request to release and feedback? | Lifecycle stages, handoffs, acceptance and organizational operating model |
+| **ADE / developer work surface** | Where do people and agents initiate, inspect and manage work? | Tasks, sessions, workspaces, parallelism, review and integrations |
+| **Harness / agent runtime / workflow engine** | How is a particular step or run performed? | Model/tool interaction, session lifecycle, orchestration, retries and checkpoints |
+| **Execution environment / sandbox** | Where does execution occur, and what is isolated or constrained? | Processes, filesystem/network access, credentials, resource limits and runtime isolation |
+| **EOKS control layer** | How should work be represented, coordinated, constrained, verified and reconciled? | Logical work state, resource/capability selection, context, policy, evidence and outcome-driven decisions |
+
+These categories overlap in real products. An ADE may include a harness and workflow orchestration; an agent runtime may create sandboxes; an SDLC product may manage tasks and review. Classify a product by the responsibilities and contracts it actually provides, not by its marketing category.
+
+EOKS's boundary is **coordination, not ownership**: it should be able to work with replaceable environments, execution mechanisms and lifecycle systems rather than reproduce them. The six dimensions below are conceptual lenses; they are not six required services or a second runtime ontology. The current runtime vocabulary remains the small set documented in [the domain model](domain-model.md).
+
 ## Architectural layers
 
 ### Resource layer
@@ -177,7 +193,7 @@ This leads to three architectural constraints:
 
 1. **Execution state should be separable from allocated compute.** Checkpoint/suspend/resume is therefore an execution/state semantic, not only a workflow convenience.
 2. **Capabilities are semantic; environments are realizations.** A capability such as "run repository tests" should not imply a particular container, VM or runtime.
-3. **Policy has an enforcement boundary.** The control plane can reason about policy, but filesystem, network, credential, resource and isolation constraints may need substrate-level enforcement.
+3. **Policy has an enforcement boundary.** The control plane can reason about policy, but filesystem, network, credential, resource and isolation constraints may need substrate-level enforcement. Keep four claims distinct: **requested** policy is configuration/intention; **authorized** means the responsible policy or approval mechanism permits it; **applied** means the target runtime reports that it installed the policy; **observed/verified** means available evidence supports that the intended constraint actually held over the relevant actions and paths. These states are not interchangeable, and the evidence may be incomplete.
 
 These are interface hypotheses, not requirements that EOKS implement a sandbox platform. Existing agents and execution providers should remain replaceable resources.
 
