@@ -2,7 +2,7 @@
 
 This is the **current research map of tools and mechanisms relevant to EOKS**. It is broader than a product shortlist: a project may belong to several categories because many systems combine representation, retrieval, context compilation, execution, memory, evaluation or governance.
 
-This is a research snapshot, not a benchmark. Ratings reflect current public documentation, repository inspection, EOKS research notes, and recent ecosystem evidence through September 2026. They are not measured EOKS scores unless explicitly stated.
+This is a research snapshot, not a benchmark. Ratings reflect current public documentation, repository inspection, EOKS research notes, and recent ecosystem evidence through October 2026. They are not measured EOKS scores unless explicitly stated.
 
 For the formal selection model, see [Tool capability model](tool-capability-model.md) and [Tool selection](tool-selection.md). For detailed source notes, see [`research/tool-notes.md`](../research/tool-notes.md).
 
@@ -147,6 +147,35 @@ The analogy is useful for orientation; the capability matrix and source notes re
 
 The stars are intentionally **not a global ranking**.
 
+### Execution isolation and sandbox-provider submatrix
+
+The master matrix above is useful for discovery, but its qualitative stars are not enough to choose an execution environment for a workload with security or portability requirements. Use this focused comparison for the execution boundary. It complements—not replaces—the detailed [agent execution and sandbox landscape research](../research/prior-art/agent-execution-sandbox-landscape-2026.md).
+
+| Project / approach | Layer | Isolation boundary | Policy enforcement and action visibility | Credentials | Lifecycle / portability | Evidence caveat |
+|---|---|---|---|---|---|---|
+| **Google ACE** | Compute substrate | Hardware-isolated microVMs | Compute isolation; workload access policy must be assessed separately | Not the defining abstraction | Agent-oriented start/pause/resume lifecycle; provider-specific | MicroVM isolation alone does not prove that a Work's requested policy was applied |
+| **Google AX** | Execution runtime / orchestration | Sandboxed execution substrate; backend details matter | Task, Workspace and Gateway provide runtime-level composition and access boundaries | Depends on gateway/provider setup | Durable task/workspace state and suspend/resume | Keep AX's execution API distinct from ACE's compute substrate |
+| **NVIDIA OpenShell** | Trusted runtime / policy boundary | Sandboxed runtime with gateway and supervisor | Policy checks at documented enforcement points; policy prover checks supported policy changes | Credential mediation is a first-class concern | Runtime and policy lifecycle; provider-specific | Prover coverage is bounded; verification is not authorization or proof of total enforcement |
+| **AWS Strands Box / Dogwood** | Containment + action policy | OS-level containment plus supported gateways/interpreters | History-aware semantic checks for operations routed through supported enforcement points | Evaluate separately for each access path | Sandbox lifecycle with shared policy/event context | Direct OS access may not have the same visibility as gateway-mediated operations |
+| **Microsoft MXC** | Portable containment SDK | Multiple OS- and VM-based backends | Typed policy/configuration mapped to backend capabilities | Backend/integration dependent | Common API across backends | A common schema does not imply equivalent enforcement; unsupported controls must remain visible |
+| **OpenSandbox** | Sandbox API / platform | Depends on selected backend | Provides lifecycle/API integration; policy guarantees depend on backend and surrounding controls | Integration dependent | Common API/SDK across supported providers | API compatibility is not a security-equivalence contract |
+| **OpenAI Agents API** | Managed agent harness / sessions | Depends on managed or self-hosted execution setup | Harness guardrails and environment enforcement are distinct concerns | Deployment/integration dependent | Managed sessions and orchestration; ownership varies | Do not assume the harness owns or enforces every property of the execution environment |
+| **OpenAI Sandbox Agents** | Application-owned execution environment | Container-like sandbox environment | Environment controls depend on configured sandbox and application policy | Application/integration dependent | Filesystem, commands, packages, ports and resumable state | Keep this environment abstraction distinct from the managed Agents API |
+| **Anthropic Claude / Cowork** | Product-specific local or cloud execution | Depends on execution mode; cloud isolation and local protections differ | Egress and connector controls vary by mode and integration | Some cloud paths use server-side connectors and short-lived credentials | Temporary cloud environment or local execution | Never transfer a security claim from one execution mode to another without checking its boundary |
+| **Docker Sandboxes** | Developer / agent sandbox implementation | Depends on the Docker sandbox runtime and configuration | Isolation is provided by the sandbox; additional policy coverage depends on configured controls | Depends on integration | Familiar workspace and agent workflows | Do not infer identical guarantees from the generic term “sandbox” |
+| **Cloudflare Sandbox SDK** | Container-backed execution API | Container-backed execution controlled through Workers | SDK provides execution/lifecycle APIs; authorization and policy guarantees need separate evaluation | Assess credential handling separately from sandbox APIs | Worker-controlled sandbox lifecycle | Do not infer credential brokering or workload-wide policy enforcement from the sandbox API alone |
+
+#### How to use this submatrix
+
+- **Start with the guarantee, not the product.** Specify required filesystem, network, process, identity and credential constraints for the Work.
+- **Separate requested, supported, applied and observed.** A configuration accepted by an API is not proof that the backend enforced it.
+- **Record enforcement coverage.** Identify which actions pass through the policy engine and which can use another path (shell, Python, HTTP, MCP, child processes or direct OS access).
+- **Preserve backend differences.** If a provider cannot enforce a required control, mark it unsupported or weaker; do not silently normalize it into success.
+- **Treat lifecycle as a security transition.** On resume, replacement or migration, re-check runtime identity, effective policy and credential scope rather than assuming continuity.
+- **Treat evidence gaps as results.** Missing telemetry or unverifiable enforcement should be reported as unknown, not as a successful check.
+
+The first useful experiment is a small provider-contract test suite: attempt forbidden filesystem/network/process actions, inspect credential exposure, exercise child-process and alternate-tool paths, then suspend/resume or replace the backend. Record **requested policy, effective policy, enforcement point, verification coverage, telemetry gaps, task outcome, latency/cost and human interventions**. This is an evaluation protocol, not a new EOKS primitive.
+
 ---
 
 ## 4. Capability families and overlap
@@ -167,6 +196,8 @@ The stars are intentionally **not a global ranking**.
 | **Local deterministic invariants** | TypeScript, ESLint, ts-morph | Semgrep |
 | **Architecture evidence/assurance** | TrueCourse, modularity | Superpowers |
 | **Agent execution** | Claude Code, OpenHands, Aider | Cody, CodeRabbit |
+| **Execution isolation / sandboxing** | OpenShell, Strands Box, MXC, ACE | OpenSandbox, OpenAI sandbox environments, Docker Sandboxes |
+| **Durable execution substrate** | Google AX, ACE | OpenAI sessions, provider-specific sandbox lifecycle |
 | **Orchestration** | Conductor-style systems, Langroid | OpenHands workflows |
 | **Observability** | Opik, LangSmith/Langfuse | agent-native traces |
 | **Evaluation** | Opik, Promptfoo, benchmark suites | LangSmith/Langfuse, OpenAI Evals |
