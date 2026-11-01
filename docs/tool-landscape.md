@@ -130,12 +130,12 @@ The analogy is useful for orientation; the capability matrix and source notes re
 | **TrueCourse** | architecture/specification assurance | deterministic rules, LLM review, executable behavior guards | ★☆☆☆☆ | ★★☆☆☆ | ★★★☆☆ | ★★★★★ | ★★★★★ |
 | **modularity** | architecture analysis | dependency/architecture evidence and constraints | ★★☆☆☆ | ★★★☆☆ | ★★★☆☆ | ★★★★☆ | ★★★★☆ |
 | **Superpowers** | structured development workflow | planning, review/quality gates, execution discipline | ★★★☆☆ | ★★★☆☆ | ★★★☆☆ | ★★★★☆ | ★★★★☆ |
-| **Opik** | agent observability/evaluation | traces, datasets, experiments, judges, optimization, monitoring | ★★★★☆ | ★★★★☆ | ★★★★★ | ★★★★★ | ★★★★★ |
-| **LangSmith / Langfuse-style systems** | tracing/evaluation infrastructure | traces, experiments, datasets, observability | ★★★★★ | ★★★★★ | ★★★★★ | ★★★★☆ | ★★★★☆ |
-| **Promptfoo** | repeatable eval/experiment harness | prompt/model comparison, assertions, red-team/eval workflows | ★★★★☆ | ★★★★☆ | ★★★★★ | ★★★★☆ | ★★★★☆ |
+| **Opik** | agent observability + evaluation platform | Claude Code traces, datasets, experiments, judges, optimization, monitoring | ★★★★☆ | ★★★★☆ | ★★★★★ | ★★★★★ | ★★★★★ |
+| **Langfuse / LangSmith** | tracing/evaluation infrastructure | traces, experiments, datasets, observability; Langfuse has a Claude Code hook/plugin | ★★★★★ | ★★★★★ | ★★★★★ | ★★★★☆ | ★★★★☆ |
+| **Promptfoo** | repeatable eval/experiment + red-team harness | prompt/model/agent comparison, assertions, trace-aware checks, coding-agent security tests | ★★★★☆ | ★★★★☆ | ★★★★★ | ★★★★☆ | ★★★★☆ |
 | **TransformerLab** | model experimentation/evaluation | local experimentation and model/eval workflows | ★★☆☆☆ | ★★★☆☆ | ★★★☆☆ | ★★★☆☆ | ★★★☆☆ |
 | **Aider benchmarks** | coding-agent outcome benchmark | repeatable software-engineering tasks | ★★★★☆ | ★★★★☆ | ★★★★★ | ★★★★☆ | ★★★★☆ |
-| **OpenHands benchmarks** | coding-agent benchmark infrastructure | SWE tasks and agent evaluation | ★★★★☆ | ★★★★☆ | ★★★★★ | ★★★★☆ | ★★★★☆ |
+| **OpenHands benchmarks** | coding-agent benchmark infrastructure | repository tasks, reproducible agent runs and outcome evaluation | ★★★★☆ | ★★★★☆ | ★★★★★ | ★★★★☆ | ★★★★☆ |
 | **OpenAI Evals-style frameworks** | reusable evaluation harness | private/workload-specific evals | ★★★★★ | ★★★★★ | ★★★★★ | ★★★★☆ | ★★★★☆ |
 | **Conductor-style systems** | task decomposition/orchestration | multi-agent/task topology, coordination | ★★★☆☆ | ★★★☆☆ | ★★★☆☆ | ★★★★☆ | ★★★★☆ |
 | **LangGraph** | stateful execution-graph runtime | explicit graphs, state, durable lifecycle, interrupts/resume, human gates | ★★★★★ | ★★★★☆ | ★★★★★ | ★★★★★ | ★★★★★ |
@@ -180,6 +180,52 @@ The master matrix above is useful for discovery, but its qualitative stars are n
 
 The first useful experiment is a small provider-contract test suite: attempt forbidden filesystem/network/process actions, inspect credential exposure, exercise child-process and alternate-tool paths, then suspend/resume or replace the backend. Record **requested policy, effective policy, enforcement point, verification coverage, telemetry gaps, task outcome, latency/cost and human interventions**. This is an evaluation protocol, not a new EOKS primitive.
 
+
+### Evaluation and observability provider submatrix
+
+The master matrix identifies the major candidates, but evaluation tools solve different problems. **Trace capture is not task evaluation; task evaluation is not a production feedback loop.** Compare providers by the evidence they can produce and the execution path they can actually observe.
+
+| Tool / family | Primary role | Execution path / integration | Strongest EOKS use | Important boundary or gap |
+|---|---|---|---|---|
+| **Opik** | Agent tracing, experiments and evaluation | Dedicated Claude Code plugin; separate native OTel path | First low-friction trace experiment; tool/subagent spans, datasets, scoring and monitoring | Plugin content capture has privacy implications; traces do not provide a complete EOKS context/configuration manifest |
+| **Langfuse** | Tracing, datasets and evaluation | Dedicated Claude Code hooks/plugin; SDK and OTel paths | Direct alternative to Opik for CLI session capture and trace-to-dataset workflows | Hook capture is telemetry, not enforcement; assembled context such as instructions/skills is not necessarily represented as effective model context; self-hosting has operational dependencies |
+| **Inspect AI + Inspect SWE** | Task/agent evaluation and benchmark execution | Inspect SWE can run actual Claude Code CLI, Codex CLI and Gemini CLI in a sandbox | Reproducible repository-task evaluation of the real CLI harness, with task datasets, solvers and scorers | Evaluation harness, not an always-on trace backend; CLI integration is a separate package and needs compatibility checks |
+| **Promptfoo** | Evaluation, regression assertions and red teaming | Local-first CLI; documented Claude Agent SDK provider and other agent providers | CI-style task assertions, repeated runs, trace-aware checks and coding-agent security tests | Claude Agent SDK provider is not automatically equivalent to evaluating standalone Claude Code CLI; use Inspect SWE for that path unless an adapter is verified |
+| **DeepEval** | Programmatic / pytest-oriented evaluation | Python instrumentation and agent trajectory traces | Task-completion, step-efficiency and plan-adherence metrics for code-owned agents | Not a turnkey standalone Claude Code CLI recorder; quality depends on complete trajectory instrumentation and validated judges |
+| **Braintrust** | Tracing, scoring, datasets and production feedback | SDK / OTel integrations; managed-platform orientation | Turning production traces and failures into scored regression datasets | No dedicated Claude Code CLI capture path established in this review; assess data governance and managed-service trade-offs |
+| **MLflow GenAI** | Trace storage and evaluation | SDK / OTel instrumentation within the MLflow ecosystem | Scoring stored production traces, including intermediate spans/tool trajectories | Broad platform; actual CLI harness still needs instrumentation; most compelling when MLflow is already in use |
+| **Arize Phoenix** | OTel/OpenInference tracing and evaluation | Generic OTel / OpenInference instrumentation; local or self-hosted | Portable, open-source trace backend and evaluation alternative | No dedicated Claude Code CLI hook verified; only sees the events the harness/instrumentation emits |
+| **Aider / OpenHands benchmark suites** | Coding-agent outcome benchmarks | Project-specific task runners and benchmark environments | Established software-engineering task sets and outcome comparisons | Benchmark compatibility and task setup differ; not interchangeable with a harness-level trace store |
+| **OpenAI Evals-style frameworks** | Custom evaluation harnesses | Workload-specific adapters and evaluators | Useful patterns for defining repeatable private task suites | A framework pattern rather than one directly comparable, turnkey Claude Code observability product |
+
+This is a capability comparison, not a measured ranking. “Not established” means no first-party path was verified in the current review; custom adapters may still be possible. See the detailed [agent evaluation and observability platform review](../research/prior-art/agent-evaluation-observability-platforms-2026.md) for sources, integration caveats and the proposed experiments.
+
+#### Keep five evaluation capabilities distinct
+
+| Capability | What it answers | Representative tools | Evidence to retain |
+|---|---|---|---|
+| **Trace capture / observability** | What happened during the run? | Opik, Langfuse, Phoenix, Braintrust, MLflow | Session/trace IDs, model/tool/subagent events, timestamps, tokens/cost, redacted inputs/outputs |
+| **Task and trajectory evaluation** | Did the agent succeed, and was its path sound? | Inspect SWE, DeepEval, Opik, Langfuse | Task contract, scorer/rubric version, intermediate steps, deterministic checks, judge outputs |
+| **Coding-agent benchmark execution** | How does a harness perform across repeatable repository tasks? | Inspect SWE, Aider benchmarks, OpenHands benchmarks | Dataset/task version, repo revision, sandbox identity, run distribution, artifacts and test results |
+| **Regression and red-team testing** | Does a change break behavior or weaken security boundaries? | Promptfoo, custom deterministic suites, Inspect SWE | Assertions, attack scenario, protected invariants, verifier integrity, failures and reproducible traces |
+| **Trace-to-dataset feedback** | Can real failures become governed future tests? | Braintrust, Langfuse, Opik, MLflow | Source trace, curated example, label/rubric provenance, dataset version, promotion decision |
+
+A useful EOKS loop is:
+
+```text
+run
+  → trace / telemetry
+  → task + trajectory evaluation
+  → diagnose failure or success
+  → curate a regression example
+  → rerun after an intervention
+  → promote only validated learning
+```
+
+Do not collapse this into a single “evaluation score.” Preserve deterministic outcomes (tests, file diffs, protected-file hashes, policy checks) separately from model-graded judgments. Record evaluator/rubric versions and validate LLM judges against labelled examples. Treat traces as evidence, not as proof of policy enforcement: hooks can be disabled, and instrumentation can miss events.
+
+**Practical shortlist:** Opik or Langfuse for comparing direct Claude Code trace capture; Inspect SWE for running actual CLI tasks repeatably; Promptfoo for complementary regression/red-team coverage. Add DeepEval when the evaluated agent is Python-owned, and consider Braintrust, MLflow or Phoenix when their feedback, infrastructure or OTel trade-offs are specifically useful. Do not deploy all of them by default.
+
 ---
 
 ## 4. Capability families and overlap
@@ -204,9 +250,9 @@ The first useful experiment is a small provider-contract test suite: attempt for
 | **Execution isolation / sandboxing** | OpenShell, Strands Box, MXC, ACE | OpenSandbox, OpenAI sandbox environments, Docker Sandboxes |
 | **Durable execution substrate** | Google AX, ACE | OpenAI sessions, provider-specific sandbox lifecycle |
 | **Orchestration** | Conductor-style systems, Langroid | OpenHands workflows |
-| **Observability** | Opik, LangSmith/Langfuse | agent-native traces |
-| **Evaluation** | Opik, Promptfoo, benchmark suites | LangSmith/Langfuse, OpenAI Evals |
-| **Outcome feedback/optimization** | Opik, agentic eval systems | benchmark harnesses; Spotify Confidence covers product experimentation, a different outcome domain |
+| **Observability** | Opik, Langfuse, Phoenix | Braintrust, MLflow GenAI, LangSmith, agent-native traces |
+| **Evaluation** | Inspect SWE, Opik, Promptfoo, DeepEval | Langfuse, Braintrust, MLflow GenAI, Phoenix, benchmark suites |
+| **Outcome feedback/optimization** | Opik, Langfuse, Braintrust | MLflow GenAI, benchmark harnesses; Spotify Confidence covers product experimentation, a different outcome domain |
 | **Reasoning strategies** | ADHD-style strategies | Superpowers, reviewer workflows |
 
 This many-to-many view is the intended replacement for the old one-tool/one-layer categorization.
@@ -310,7 +356,7 @@ The EOKS policy hypothesis is **minimum sufficient evidence**, not maximum analy
 
 ## 8. Evaluation and observability
 
-Tracing, evaluation and reliability should remain separate concepts:
+Tracing, evaluation and reliability should remain separate concepts. The [provider submatrix above](#evaluation-and-observability-provider-submatrix) compares concrete tools; this section describes the EOKS evidence loop:
 
 ```text
 execution
