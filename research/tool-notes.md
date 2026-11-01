@@ -2,7 +2,7 @@
 
 This note is a **capability map**, not a second source of detailed architecture or methodology. Individual projects are prior art; EOKS does not assume that any of them are dependencies.
 
-For the canonical capability/selection model, see [Tool capability model](../docs/tool-capability-model.md) and [Tool selection](../docs/tool-selection.md). For canonical terminology and resource boundaries, see [Resource model](../docs/resource-model.md). For detailed context treatment, see [Context engineering](../docs/context.md). For knowledge representations, see [Knowledge representations](../docs/knowledge-representations.md). For evaluation, see [Context evaluation](context-evaluation.md) and [Evaluation, reliability and model switching](evaluation-and-model-switching.md).
+For the canonical capability/selection model, see [Tool capability model](../docs/tool-capability-model.md) and [Tool selection](../docs/tool-selection.md). For canonical terminology and resource boundaries, see [Resource model](../docs/resource-model.md). For detailed context treatment, see [Context engineering](../docs/context.md). For knowledge representations, see [Knowledge representations](../docs/knowledge-representations.md). For evaluation, see [Context evaluation](context-evaluation.md) and [Evaluation, reliability and model switching](evaluation-and-model-switching.md). The detailed agent evaluation/observability provider comparison is in [Agent evaluation and observability platforms](prior-art/agent-evaluation-observability-platforms-2026.md).
 
 ## Capability map
 
