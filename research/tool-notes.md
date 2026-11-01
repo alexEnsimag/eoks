@@ -42,7 +42,6 @@ For the canonical capability/selection model, see [Tool capability model](../doc
 | **Langroid** | multi-agent execution | execution/orchestration |
 | **Plano** | operational routing/governance infrastructure | runtime operations |
 | **TransformerLab** | model experimentation and evaluation | model experimentation |
-| **Promptfoo** | coding-agent regression evaluation, trace-aware assertions and red-team testing | evaluation / assurance provider |
 | **Aider benchmarks** | end-to-end coding-agent task outcomes | benchmark prior art |
 | **OpenHands benchmarks** | software-engineering/agent benchmark infrastructure | benchmark prior art |
 | **OpenAI Evals-style frameworks** | reusable private/workload-specific eval harnesses | evaluation harness |
