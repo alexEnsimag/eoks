@@ -2,7 +2,7 @@
 
 This note is a **capability map**, not a second source of detailed architecture or methodology. Individual projects are prior art; EOKS does not assume that any of them are dependencies.
 
-For the canonical capability/selection model, see [Tool capability model](../docs/tool-capability-model.md) and [Tool selection](../docs/tool-selection.md). For canonical terminology and resource boundaries, see [Resource model](../docs/resource-model.md). For detailed context treatment, see [Context engineering](../docs/context.md). For knowledge representations, see [Knowledge representations](../docs/knowledge-representations.md). For evaluation, see [Context evaluation](context-evaluation.md) and [Evaluation, reliability and model switching](evaluation-and-model-switching.md).
+For the canonical capability/selection model, see [Tool capability model](../docs/tool-capability-model.md) and [Tool selection](../docs/tool-selection.md). For canonical terminology and resource boundaries, see [Resource model](../docs/resource-model.md). For detailed context treatment, see [Context engineering](../docs/context.md). For knowledge representations, see [Knowledge representations](../docs/knowledge-representations.md). For evaluation, see [Context evaluation](context-evaluation.md) and [Evaluation, reliability and model switching](evaluation-and-model-switching.md). The detailed agent evaluation/observability provider comparison is in [Agent evaluation and observability platforms](prior-art/agent-evaluation-observability-platforms-2026.md).
 
 ## Capability map
 
@@ -30,11 +30,18 @@ For the canonical capability/selection model, see [Tool capability model](../doc
 | **Xirp / Spotify** | vendor-neutral multi-session agent environment; cross-harness continuity, worktrees, shared workspace and organizational context | context + execution boundary |
 | **Spotify Honk / Fleetshift / Chirp** | background coding agent + fleet-scale targeting/scheduling/progress + emerging shared-agent collaboration; public status differs by component | execution / fleet control / orchestration prior art |
 | **Spotify Confidence** | product experimentation and evidence-backed product decisions | product outcome feedback; distinct from agent trace/evaluation tooling |
-| **LangSmith / Langfuse-style systems** | traces, experiments, evaluation and observability | observability/evaluation infrastructure |
+| **Opik** | Claude Code plugin + OTel ingestion, session/tool/subagent traces, MCP trace inspection and evaluation | observability / evaluation provider |
+| **Langfuse** | Claude Code hook-based tracing, datasets, scores and evaluation | observability / evaluation provider |
+| **Inspect AI + Inspect SWE** | sandboxed task evaluation of actual Claude Code CLI, Codex CLI and Gemini CLI agents | coding-agent benchmark runner |
+| **Promptfoo** | coding-agent regression evaluation, trace-aware assertions and red-team testing | evaluation / assurance provider |
+| **DeepEval** | programmatic and trajectory-based evaluation, pytest integration | evaluation provider |
+| **Braintrust** | production tracing, scoring and trace-to-dataset feedback | observability / evaluation platform |
+| **MLflow GenAI** | trace search, scorer-based evaluation of production traces | observability / evaluation platform |
+| **Arize Phoenix** | OpenTelemetry/OpenInference tracing and evaluation | observability / evaluation provider |
+| **LangSmith** | framework/application tracing, experiments and evaluation | observability / evaluation infrastructure |
 | **Langroid** | multi-agent execution | execution/orchestration |
 | **Plano** | operational routing/governance infrastructure | runtime operations |
 | **TransformerLab** | model experimentation and evaluation | model experimentation |
-| **Promptfoo** | repeatable model/prompt/configuration experiments | evaluation harness |
 | **Aider benchmarks** | end-to-end coding-agent task outcomes | benchmark prior art |
 | **OpenHands benchmarks** | software-engineering/agent benchmark infrastructure | benchmark prior art |
 | **OpenAI Evals-style frameworks** | reusable private/workload-specific eval harnesses | evaluation harness |
@@ -125,5 +132,6 @@ Promptfoo, Langfuse and similar systems can run experiments, store traces or com
 - [LLM observability and reliability signals](llm-observability-and-reliability.md)
 - [Context evaluation and benchmarking](context-evaluation.md)
 - [Evaluation, reliability and model switching](evaluation-and-model-switching.md)
+- [Agent evaluation and observability platforms](prior-art/agent-evaluation-observability-platforms-2026.md)
 
 The map should be updated when a tool changes the architectural hypothesis, not merely whenever another tool is mentioned.

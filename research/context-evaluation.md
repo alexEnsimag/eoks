@@ -351,7 +351,7 @@ Measure setup cost, runtime, coverage, false positives/negatives, evidence usefu
 
 ## 16. Reuse evaluation infrastructure
 
-EOKS should reuse established evaluation and tracing infrastructure rather than building another generic runner. Prompt/evaluation frameworks, trace stores and coding-agent benchmarks are useful components, but they remain components rather than the EOKS control plane.
+EOKS should reuse established evaluation and tracing infrastructure rather than building another generic runner. Prompt/evaluation frameworks, trace stores and coding-agent benchmarks are useful components, but they remain components rather than the EOKS control plane. The current provider comparison and integration trade-offs are maintained in [Agent evaluation and observability platforms](prior-art/agent-evaluation-observability-platforms-2026.md); this document remains the owner of the evaluation methodology.
 
 A clean separation is:
 
